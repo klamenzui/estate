@@ -1,0 +1,28 @@
+const Model = require('../../models/task');
+const Page = require('../Page');
+class Client extends Page {
+    constructor(controller) {
+        super(controller);
+    }
+    get() {
+        let req = this.controller.req;
+        console.log(req.body);
+        new Model().setAsTable(true).get(req.body).then((res)=>{
+            this.sendData(res);
+        }).catch((e)=>{
+            this.sendData(e);
+        });
+    }
+    set() {
+        let req = this.controller.req;
+        console.log(req.body);
+        new Model().set(req.body).then(this.sendData).catch(this.sendData);
+    }
+    del() {
+        let req = this.controller.req;
+        console.log(req.body);
+        new Model().del(req.body).then(this.sendData).catch(this.sendData);
+    }
+}
+
+module.exports = Client
