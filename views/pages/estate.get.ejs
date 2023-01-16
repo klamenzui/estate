@@ -1,0 +1,104 @@
+
+
+
+	<div class="page-header text-center">
+		<!--<h1><span class="fa fa-anchor"></span> Profile Page</h1>
+		<a href="/logout" class="btn btn-default btn-sm">Logout</a>-->
+	</div>
+	<div class="row">
+		<div class="col-lg-2">
+			<div id="apartments_list">
+				<% if(response && response.rows){ %>
+					<% let rows = response.rows;%>
+					<% for(let i in rows){ %>
+				<div class="card shadow " estate_id="<%= rows[i].estate_id; %>">
+					<div class="card-body">
+						<div class="">
+							<!--<img '+style+' class="lightboxed img-thumbnail bd-placeholder-img img-fluid rounded-start" rel="'+temp1[i]['images_dir']+'" src="'+temp1[i]['images_dir']+'/'+temp1[i]['photos_list'][img_index]+'" class="card-img-top" alt="...">-->
+							<% if(rows[i].photos_list){ %>
+								<% let photos_list = rows[i].photos_list;
+								 for(let imgI in photos_list){
+									let style = 'width: 200px;height: 200px;';
+									if(imgI != 0) style += 'display:none;';
+								%>
+								<img style="<%=style;%>" class="lightboxed img-thumbnail bd-placeholder-img img-fluid rounded-start" rel="" src="<%=photos_list[imgI]%>" class="card-img-top" alt="...">
+								<%}
+								 } else {%>
+									<svg class="bd-placeholder-img img-thumbnail" width="200" height="200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="No photos" preserveAspectRatio="xMidYMid slice" focusable="false"><title>No photos</title><rect width="100%" height="100%" fill="#868e96"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em"></text></svg>
+							<%}%>
+							<div class="col d-flex flex-column position-static">
+								<strong class="d-inline-block mb-2 text-primary"><%= '#'+rows[i].apartment_number+'. '+rows[i].street+' '+rows[i].house_number; %></strong>
+
+								<button id="expense" type="button" class="btn btn-outline-primary" api="expense" data-estate_id="<%= rows[i].estate_id; %>" onclick="loadTable(this.id)">Расход</button>
+								<button id="payment" type="button" class="btn btn-outline-primary" api="payment" data-contract_id="<%= rows[i].contract_id; %>" onclick="loadTable(this.id)">Доход</button>
+								<button id="contract" type="button" class="btn btn-outline-primary" api="contract" data-estate_id="<%= rows[i].estate_id; %>" onclick="loadTable(this.id)">Контракт</button>
+								<button id="client" type="button" class="btn btn-outline-primary" api="client" onclick="loadTable(this.id)">Клиент</button>
+
+								<ul class="list-group list-group-flush">
+									<li class="list-group-item">
+										<!--<div class="btn-group btn-group-toggle" data-toggle="buttons">
+											<label class="btn btn-secondary active">
+												<input type="radio" name="options" id="option1" autocomplete="off" checked> Расход
+											</label>
+											<label class="btn btn-secondary">
+												<input type="radio" name="options" id="option2" autocomplete="off"> Доход
+											</label>
+											<label class="btn btn-secondary">
+												<input type="radio" name="options" id="option3" autocomplete="off"> Контракт
+											</label>
+										</div><div class="btn-group" role="group"></div>-->
+
+									</li>
+									<li class="list-group-item">Площадь: <%= rows[i].square; %></li>
+									<li class="list-group-item">Договор #<%= rows[i].contract_id; %></li>
+									<li class="list-group-item">Имя: <%= rows[i].first_name; %></li>
+									<li class="list-group-item">Цена: <%= rows[i].price; %></li>
+									<li class="list-group-item">Дата начала: <%= rows[i].date_start; %></li>
+									<li class="list-group-item">Период: <%= rows[i].period_type; %></li>
+									<li class="list-group-item">Доход: <%= rows[i].profit_total; %>.</li>
+									<li class="list-group-item"><a href="<%= rows[i].url; %>" target="_blank">Map</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+					<% } %>
+				<% } %>
+			</div>
+		</div>
+		<div class="col-lg-10">
+			<div class="card shadow mb-4">
+				<div class="card-header py-3">
+					<h6 class="m-0 font-weight-bold text-primary"><%=title;%></h6>
+				</div>
+				<div class="card-body">
+					<div class="table-responsive">
+						<table id="dataTable" class="table table-striped table-bordered"></table>
+						<div id="dataTablePagger"></div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<!--<div class="row">
+
+		<div class="col-sm-6">
+		<div class="well">
+				<h3><span class="fa fa-user"></span> Local</h3>
+
+					<p>
+						<strong>id</strong>: <%= page %><br>
+						<strong>username</strong>: <%= page %><br>
+						<strong>password</strong>: <%= page %>
+					</p>
+
+			</div>
+			<div class="lightboxed"></div>
+
+		</div>
+
+	</div>-->
+

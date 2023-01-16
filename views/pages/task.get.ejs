@@ -1,0 +1,30 @@
+
+
+
+	<div class="page-header">
+		If interval set then will exec every interval, else only once (date_start).<br/>
+		Example:<br/>
+		Y-M-01 = Y-M-01 h:m:s -> every first day in month<br/>
+		Y-M-D 08:00:00 -> every day at 08 AM<br/>
+		Y-02-01 = Y-02-01 h:m:s -> every year, first February (h, m and s from date_start)<br/>
+	</div>
+	<div class="row">
+		<div class="w-100 p-3">
+			<div class="card shadow ">
+				<div class="card-header py-3">
+					<h6 class="m-0 font-weight-bold text-primary"><%=title;%></h6>
+				</div>
+				<div class="card-body table-responsive">
+						<table id="dataTable" api="task" class="table table-striped table-bordered"></table>
+						<div id="dataTablePagger"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+<script>
+	$(document).ready(function () {
+		loadTable('dataTable');
+	});
+</script>
+
