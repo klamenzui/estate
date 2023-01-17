@@ -54,7 +54,9 @@ class Bot extends Model {
 
     sendMessage = async (chat, res, opt) => {
         let chatId = typeof chat == 'object' ? chat[t_bot_chat.code.name]: chat;
-        await this.bot.sendMessage(chatId, res, opt);
+        if(this.isChatOn(chatId)){
+            await this.bot.sendMessage(chatId, res, opt);
+        }
     }
     onText = async (msg, match) => {
         console.log(msg);
@@ -156,7 +158,7 @@ class Bot extends Model {
                             filter[t_contract.estate_id.name] = estate_id;
                             filter[t_contract.status.name] = 'active';
                             filter[t_contract.period_type.name] = 'monthly';
-                            await this.get(filter,res => {
+                            await this.get(filter).then(res => {
                                 console.log(res.rows);
                                 if(res.rows && res.rows[0]){
                                     let contract = res.rows[0];
@@ -174,16 +176,19 @@ class Bot extends Model {
                                         period = Helper.getDate();
                                     }
                                     this.table = 'payment';
-                                    if(input_arr[0] == "set payment") {
+                                    if(input_arr[0] === "set payment") {
                                         //var rows = await q(`INSERT INTO payment(contract_id, summe, period) VALUES (`+contract[0]['id']+`,`+summe+`,'`+period+`')`);
                                         //console.log(rows);
                                         let data = {};
                                         data[t_payment.contract_id.name] = contract[t_contract._primary_key];
                                         data[t_payment.summe.name] = summe;
                                         data[t_payment.period.name] = period;
-                                        this.add(data, (res)=>{
+                                        this.add(data).then((res)=>{
                                             console.log('add', res);
-                                            callback('сделано, я добавил оплату: сумма - ' + summe + ', дата - ' + period);
+                                            callback('сделано, я добавил оплату: сумма - ' + summe + ', дата - ' + period + ', id - ' + res[0]);
+                                        }).catch(e=>{
+                                            console.log('err', e);
+                                            callback('не удалось добавить оплату: ' + JSON.stringify(e));
                                         });
                                     } else {
                                         period = period.substring(0,7);
@@ -192,7 +197,7 @@ class Bot extends Model {
                                         filter[t_payment.contract_id.name] = contract[t_contract._primary_key];
                                         this.setFilter(filter);
                                         this.query( `SELECT sum(${t_payment.summe}) total FROM ${t_payment} 
-                                            ${(this.where)} and ${t_payment.period} LIKE '` + period + `%'`, res => {
+                                            ${(this.where)} and ${t_payment.period} LIKE '` + period + `%'`).then(res => {
                                             console.log(res.rows);
                                             if (res.rows &&res.rows[0]) {
                                                 let rows = res.rows[0];

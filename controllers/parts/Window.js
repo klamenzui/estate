@@ -85,7 +85,7 @@ class Window extends Page {
         this.res.body.fields = entity._fields;
         this.res.body.data = {};
         if (req.query && !Helper.isEmpty(req.body.data[entity._primary_key])) {
-            new Model().get(req.body.data[entity._primary_key], (results) => {
+            new Model().get(req.body.data[entity._primary_key]).then(results => {
                 if (!Helper.isEmpty(results.rows)) {
                     this.res.body.data = results.rows[0];
                 }

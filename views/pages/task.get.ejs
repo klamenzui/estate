@@ -4,10 +4,54 @@
 	<div class="page-header">
 		If interval set then will exec every interval, else only once (date_start).<br/>
 		Example:<br/>
-		Y-M-01 = Y-M-01 h:m:s -> every first day in month<br/>
-		Y-M-D 08:00:00 -> every day at 08 AM<br/>
-		Y-02-01 = Y-02-01 h:m:s -> every year, first February (h, m and s from date_start)<br/>
+		<pre>
+		# ┌────────────── second (optional)
+		# │ ┌──────────── minute
+		# │ │ ┌────────── hour
+		# │ │ │ ┌──────── day of month
+		# │ │ │ │ ┌────── month
+		# │ │ │ │ │ ┌──── day of week
+		# │ │ │ │ │ │
+		# │ │ │ │ │ │
+		# * * * * * *
+		</pre>
+		<table>
+			<thead>
+			<tr>
+				<th>field</th>
+				<th>value</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr>
+				<td>second</td>
+				<td>0-59</td>
+			</tr>
+			<tr>
+				<td>minute</td>
+				<td>0-59</td>
+			</tr>
+			<tr>
+				<td>hour</td>
+				<td>0-23</td>
+			</tr>
+			<tr>
+				<td>day of month</td>
+				<td>1-31</td>
+			</tr>
+			<tr>
+				<td>month</td>
+				<td>1-12 (or names)</td>
+			</tr>
+			<tr>
+				<td>day of week</td>
+				<td>0-7 (or names, 0 or 7 are sunday)</td>
+			</tr>
+			</tbody>
+		</table>
+		Using multiples values
 	</div>
+	<h3><a href="https://www.npmjs.com/package/node-cron">read more</a></h3>
 	<div class="row">
 		<div class="w-100 p-3">
 			<div class="card shadow ">
