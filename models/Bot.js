@@ -6,19 +6,28 @@ const t_estate = require('./db/tables/estate');
 const t_bot = require('./db/tables/bot');
 const t_bot_chat = require('./db/tables/bot_chat');
 const TelegramBotAPI = require ( 'node-telegram-bot-api');
+const Sugar = require("sugar");
+const {NlpManager} = require("node-nlp");
+const fs = require('fs');
+
+// Extend the built-in Date to add a few methods from Sugar's library
+const Sugar = require("sugar");
+Sugar.Date.setLocale('ru').extend();
+// Imitate a system with a dynamic time slots for doctors
+
+
 class Bot extends Model {
     bot_chat;
     name;
     bot;
     _chats = [];
     _users = [];
-    cmd_arr = [
-        ['set payment', 'set p'],
-        ['set expense', 'set e'],
-        ['get payment', 'get p'],
-        ['get expense', 'get e'],
-    ];
-
+    manager;
+    nextIntent;
+    req;
+    correction_step = 0;
+    lastReq;
+    actions = {};
     constructor(name, callback) {
         super();
         this.name = name;
@@ -54,6 +63,7 @@ class Bot extends Model {
 
     sendMessage = async (chat, res, opt) => {
         let chatId = typeof chat == 'object' ? chat[t_bot_chat.code.name]: chat;
+        console.log(res);
         if(this.isChatOn(chatId)){
             await this.bot.sendMessage(chatId, res, opt);
         }
@@ -69,12 +79,30 @@ class Bot extends Model {
         let access = this.isUserAllow(msg.from.username?msg.from.username:msg.from.first_name+msg.from.last_name);
             console.log('access', access);
             if(this.isChatOn(chatId) && access && match && match[1]) {
-                await this.cmdExec(msg, match[1], res => {
+                /*await this.cmdExec(msg, match[1], res => {
                     if(res){
                         this.sendMessage(chatId, res, {reply_to_message_id: messageId});
                     }
-                })
-
+                })*/
+                var estate_id = msg.chat.title.match('#([0-9]+):');
+                if(estate_id.length > 1) {
+                    estate_id = estate_id[1];
+                    console.log('cmdExec: estate_id=', estate_id);
+                    console.log('cmdExec:', cmd);
+                    let response = await this.manager.process('ru', msg.text);
+                    console.log(response);
+                    response = await this.onIntent(response);
+                    console.log(response.answer);
+                    if (response.answer) {
+                        //await msg.reply.text(response.answer);
+                        await this.sendMessage(chatId, response.answer);
+                        /*console.log(this.manager.nlp.toJSON());
+                        fs.writeFile(app.locals.base + 'utils/data.json', JSON.stringify(this.manager.nlp.toJSON()), function (err) {
+                            if (err) return console.log(err);
+                            console.log('nlp saved');
+                        });*/
+                    }
+                }
             }
             //this.bot.sendMessage(chatId, 'ok');
 
@@ -91,8 +119,31 @@ class Bot extends Model {
             //	bot.sendMessage(chatId, 'access denay');
             //}
     }
-    init = (name, callback) => {
+     init = async(name, callback) => {
+         const directory = app.locals.base + 'models/db/tables/';
+         let files = fs.readdirSync(directory);
+         for (let i in files) {
+             this.actions[files[i].toLowerCase().substring(0, files[i].indexOf('.'))] = require("./" + me.folder + "/" + files[i]);
+         }
+        this.manager = new NlpManager({
+            "autoLoad": true,
+            "autoSave": true,
+            "forceNER": true,
+            languages: ['ru']
+        });//{ languages: ['ru'], forceNER: true }
+        //---------
 
+        //this.manager.addCorpus(app.locals.base + "utils/corpus.json");
+        //this.manager.addCorpus(app.locals.base + "utils/corpus.json");
+        //const corpus = require(app.locals.base +"utils/data.json");
+        //console.log(app.locals.base + "utils/data.json");
+        //await this.manager.train(corpus);
+        //await this.manager.train();
+         //this.manager.nlp.fromJSON(corpus);
+        //this.manager.save();
+
+        //---------
+        this.manager.load(app.locals.base +"utils/data.json");
         /*
         this.select(t_estate,t_address)
             .andWhere(t_estate.id, '=', 1)
@@ -126,237 +177,137 @@ class Bot extends Model {
         });
     }
 
-    async cmdExec(msg, cmd, callback){
-        //'#1: Пацаева 10-87'
-        var estate_id = msg.chat.title.match('#([0-9]+):');
-        if(estate_id.length > 1) {
-            estate_id = estate_id[1];
-            console.log('cmdExec: estate_id=',estate_id);
-            console.log('cmdExec:', cmd);
-            let words = msg.text.split(/\s+/);
-            console.log(words);
-            if(words.length > 1) {
-                /*this.table = 'estate';
-                await this.get({id: estate_id}, res => {
-                    console.log(res.rows);
-                    callback(JSON.stringify(res.rows));
-                });
-            } else {*/
 
-                //let t_estate = require('./db/tables/estate');
-                let t_contract = require('./db/tables/contract');
-                let t_payment = require('./db/tables/payment');
-                var input_arr = this.cmdSimilarity(cmd.trim());
-                console.log(input_arr);
-                var result = input_arr[0] + '; ' + input_arr[1].join(' ')+ '; ' + input_arr[2].join(' ');
+    async onIntent(input) {
+        this.req = input;
+
+        //console.log('output.intent:',output.intent);
+        // Check if output has to be a logical continuation of the prior conversation's flow.
+        // If it is, change the classified intent to the predefined one.
+        console.log('output:',JSON.stringify(this.req));
+        if(!this.nextIntent && this.correction_step === 1){
+            console.log('----[addDoc]-----');
+            console.log('last:',this.lastReq);
+            if(this.lastReq && (this.lastReq.optionalUtterance || this.lastReq.utterance)){
+                this.addData( this.lastReq.optionalUtterance || this.lastReq.utterance, this.req.intent);
+                this.req.answer = "Спасибо, исправился :)";
+            }else{
+                console.log('nothing to add');
+            }
+            this.correction_step = 0;
+        } else {
+            if (this.nextIntent) {
+                this.req.intent = this.nextIntent;
+                this.nextIntent = undefined;
+            }
+            //console.log('output.intent:',output.intent);
+            //console.log('output.entities:',output.entities);
+            // Check if the user want to book something
+            let action = this.req.intent.split('.').join('_');
+            const Model = require("./bot/" + action);
+            if (this[action]) {
                 try {
-                    switch(input_arr[0]) {
-                        case "get payment":
-                        case "set payment":
-                            this.table = 'contract';
-                            let filter = {};
-                            filter[t_contract.estate_id.name] = estate_id;
-                            filter[t_contract.status.name] = 'active';
-                            filter[t_contract.period_type.name] = 'monthly';
-                            await this.get(filter).then(res => {
-                                console.log(res.rows);
-                                if(res.rows && res.rows[0]){
-                                    let contract = res.rows[0];
-                                    console.log(contract);
-                                    var summe = input_arr[2].indexOf('num');
-                                    if (summe > -1) {
-                                        summe = input_arr[1][summe];
-                                    } else {
-                                        summe = contract['price'];
-                                    }
-                                    var period = input_arr[2].indexOf('date');
-                                    if (period > -1) {
-                                        period = input_arr[1][period];
-                                    } else {
-                                        period = Helper.getDate();
-                                    }
-                                    this.table = 'payment';
-                                    if(input_arr[0] === "set payment") {
-                                        //var rows = await q(`INSERT INTO payment(contract_id, summe, period) VALUES (`+contract[0]['id']+`,`+summe+`,'`+period+`')`);
-                                        //console.log(rows);
-                                        let data = {};
-                                        data[t_payment.contract_id.name] = contract[t_contract._primary_key];
-                                        data[t_payment.summe.name] = summe;
-                                        data[t_payment.period.name] = period;
-                                        this.add(data).then((res)=>{
-                                            console.log('add', res);
-                                            callback('сделано, я добавил оплату: сумма - ' + summe + ', дата - ' + period + ', id - ' + res[0]);
-                                        }).catch(e=>{
-                                            console.log('err', e);
-                                            callback('не удалось добавить оплату: ' + JSON.stringify(e));
-                                        });
-                                    } else {
-                                        period = period.substring(0,7);
-                                        this.table = 'payment';
-                                        let filter = {};
-                                        filter[t_payment.contract_id.name] = contract[t_contract._primary_key];
-                                        this.setFilter(filter);
-                                        this.query( `SELECT sum(${t_payment.summe}) total FROM ${t_payment} 
-                                            ${(this.where)} and ${t_payment.period} LIKE '` + period + `%'`).then(res => {
-                                            console.log(res.rows);
-                                            if (res.rows &&res.rows[0]) {
-                                                let rows = res.rows[0];
-                                                callback('всего за период ' + period + ' оплат на сумму - ' + (rows['total'] == null ? 0 : rows['total']));
-                                            } else {
-                                                callback('not found payments');
-                                            }
-                                        });
-                                    }
-                                } else {
-                                    callback('contract not found');
-                                }
-                            });
+                    this.req.answer = this.exec(action);
+                } catch(e){
+                    console.log(e);
+                }
+            } else if (this.req.intent === "None") {
+                this.req.answer = "Прости, Я не понял. Можешь перефразировать?";
+                this.correction_step = 1;
+                this.lastReq = this.req;
+            }
+            if(this.correction_step === 0){
+                this.lastReq = this.req;
+            }
+        }
+        return this.req;
+    }
 
-                            break;
-                        case "get expense":
-                        case "set expense":
-                            break;
-                        default:
-                            result = 'прошу прощения, я не понял';
-                            callback(result);
-                    }
-                    //res = cmd_val;
-                    //res = execSync(cmd_val).toString("utf8");
-                }catch(e){
-                    //message('out', e);
-                    console.log('cmdExec', e);
-                    callback(false);
+    /**
+     * Translate a natural language string to a Date format
+     * @param {String} textDate - the string from which to extract the datetime
+     * @param {Boolean} isTime - if set to true, process the string as a time,
+     * in which case only the time offset in miliseconds from the beginning of
+     * the day will be returned.
+     * @returns {Date} - js Date or number. If isTime, returns offset in miliseconds.
+     * If not isTime, returns a Date
+     */
+    static processDate(textDate, isTime = false) {
+        let date = Date.create(textDate);
+
+        if (isTime) {
+            let dayStartTime = date.clone();
+
+            // Is modified in-place
+            dayStartTime.beginningOfDay();
+            return date - dayStartTime;
+        }
+        return date;
+    }
+
+    addData(utterance, intent) {
+        this.manager.addDocument('ru', utterance, intent);
+        // Train also the NLG
+        //this.manager.addAnswer('ru', 'greetings.bye', 'Till next time');
+        this.manager.train().then(r=>{
+            this.manager.save(app.locals.base +"utils/data.json");
+        });
+    }
+
+    exec(intent) {
+        if (this.req.entities) {
+            // Go throught all found entities and add the important ones to instance variables
+            for (let i = 0; i < this.req.entities.length; i++) {
+                /*{
+                  "start": 15,
+                  "end": 17,
+                  "len": 3,
+                  "accuracy": 0.95,
+                  "sourceText": "500",
+                  "utteranceText": "500",
+                  "entity": "number",
+                  "resolution": {
+                    "strValue": "500",
+                    "value": 500,
+                    "subtype": "integer"
+                  }
+                }*/
+                switch (this.req.entities[i].entity) {
+                    case "how":
+                        this['_'+intent]['how'] = this.req.entities[i].option;
+                        break;
+                    case "cmd":
+                        this['_'+intent]['cmd'] = this.req.entities[i].option;
+                        break;
+                    case "object":
+                        this['_'+intent]['object'] = this.req.entities[i].option;
+                        break;
+                    case "month":case "date":
+                        let date = this.req.entities[i].sourceText;
+                        if(this.req.entities[i].entity === 'month'){
+                            date = this.req.entities[i].option;
+                        }
+                        date = this.constructor.processDate(date);
+                        this['_'+intent]['date'] = date;
+                        break;
+                    case "number":
+                        this['_'+intent]['price'] = this.req.entities[i].sourceText;
+                        break;
+                    /*case "datetime":
+                      let reservationDatetime = output.entities[i].sourceText;
+                      reservationDatetime = this.constructor.processDate(reservationDatetime);
+                      this.datetime = reservationDatetime;
+                      break;
+                    case "time":
+                      let reservationTime = output.entities[i].sourceText;
+                      reservationTime = this.constructor.processDate(reservationTime, true);
+                      this.time = reservationTime;
+                      break;*/
                 }
             }
         }
-    }
-
-    cmdSimilarity(str) {
-        var words_arr = this.findParams(str);
-        console.log(words_arr);
-
-        var similarity_max = 0;
-        var similarity_index = -1;
-        try {
-            for(var i in this.cmd_arr) {
-                for(var j in this.cmd_arr[i]) {
-                    var similarity_sum = 0;
-                    var words = this.cmd_arr[i][j].split(' ');
-                    for(var wa in words_arr[0]) {
-                        similarity_sum += this.wordsSimilarity(words, words_arr[0][wa]);
-                        //console.log(similarity_sum, similarity_arr)
-                    }
-                    console.log(similarity_index, similarity_max, similarity_sum)
-                    if(similarity_max < similarity_sum){
-                        similarity_max = similarity_sum;
-                        similarity_index = i;
-                    }
-                }
-            }
-        } catch (e) {
-            console.log('cmdSimilarity',e);
-        }
-        console.log(similarity_index, similarity_max, this.cmd_arr[similarity_index]);
-        return [this.cmd_arr[similarity_index][0], words_arr[1], words_arr[2]]
-    }
-
-    findParams(str) {
-        console.log(str);
-        var words_arr = str.toLocaleLowerCase().split(/[ ]+/);
-        console.log(words_arr);
-        var words = [];
-        var params = [];
-        var ptypes = [];
-        var similarity_max = 0;
-        var similarity_index = -1;
-        try {
-            for(var i in words_arr) {
-                var similarity_cur = this.wordsSimilarity(Helper.month_arr, words_arr[i], true);
-                var date = Helper.getDate(words_arr[i]);
-                var num = Helper.toNum(words_arr[i]);
-                console.log(similarity_cur, num);
-                if(similarity_cur[1] > 0.5) {
-                    params.push(Helper.getDate(Helper.month_arr[similarity_cur[0]], true));
-                    ptypes.push('date');
-                    //words.push('%param%');
-                } else if(date != null) {
-                    params.push(date);
-                    ptypes.push('date');
-                    //words.push('%param%');
-                } else if(num != null) {
-                    params.push(words_arr[i]);
-                    ptypes.push('num');
-                    //words.push('%param%');
-                } else {
-                    words.push(words_arr[i]);
-                }
-            }
-        } catch (e) {
-            console.log('findParams',e);
-        }
-        console.log(similarity_index, similarity_max, this.cmd_arr[similarity_index]);
-        return [words, params, ptypes]
-    }
-
-    wordsSimilarity(words_arr, str, returnIndex) {
-        var similarity_res = [-1, 0];
-        var words = str.split(' ');
-        try {
-            for(var wa in words_arr) {
-                var similarity_arr = [];
-                for(var w in words) {
-                    similarity_arr.push(this.similarity(words_arr[wa], words[w]));
-                }
-                var similarity_sum = Math.max(...similarity_arr);
-                if(similarity_res[1] < similarity_sum){
-                    similarity_res[0] = wa;
-                    similarity_res[1] = similarity_sum;
-                }
-            }
-        } catch (e) {
-            console.log('wordsSimilarity',e);
-        }
-        return returnIndex? similarity_res: similarity_res[1];
-    }
-
-    similarity(s1, s2) {
-        var longer = s1;
-        var shorter = s2;
-        if (s1.length < s2.length) {
-            longer = s2;
-            shorter = s1;
-        }
-        var longerLength = longer.length;
-        if (longerLength == 0) {
-            return 1.0;
-        }
-        return (longerLength - this.editDistance(longer, shorter)) / parseFloat(longerLength);
-    }
-
-    editDistance(s1, s2) {
-        s1 = s1.toLowerCase();
-        s2 = s2.toLowerCase();
-
-        var costs = new Array();
-        for (var i = 0; i <= s1.length; i++) {
-            var lastValue = i;
-            for (var j = 0; j <= s2.length; j++) {
-                if (i == 0)
-                    costs[j] = j;
-                else {
-                    if (j > 0) {
-                        var newValue = costs[j - 1];
-                        if (s1.charAt(i - 1) != s2.charAt(j - 1))
-                            newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
-                        costs[j - 1] = lastValue;
-                        lastValue = newValue;
-                    }
-                }
-            }
-            if (i > 0)
-                costs[s2.length] = lastValue;
-        }
-        return costs[s2.length];
+        console.log(this['_'+intent]);
+        return this[intent]();
     }
 
 }

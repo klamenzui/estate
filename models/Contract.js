@@ -48,7 +48,7 @@ WHERE contract_id = 6
 
     }
 
-    getCurrent = async (e_id) => {
+    getCurrent = async (obj) => {
         /*SELECT contract.id, client.first_name, client.last_name, contract.status, contract.period_type, contract.price, DATE_FORMAT( contract.date_end, "%d.%m.%Y" ) AS date_end, DATE_FORMAT( contract.date_start, "%d.%m.%Y" ) AS date_start
         FROM contract
         LEFT JOIN estate ON ( estate.id = contract.estate_id )
@@ -56,12 +56,28 @@ WHERE contract_id = 6
         WHERE contract.estate_id = '2' && contract.status = 'active'
         ORDER BY contract.date_start DESC
         LIMIT 0 , 30*/
+        let e_id = obj?obj[`${(t_contract.estate_id.name)}`]:-1;
         let q = app.locals.knex.select().from(this.table);
         if (typeof (e_id) != 'undefined' && e_id !== -1) {
-            q.where(`${(this.tables.estate)}_id`,e_id);
+            q.where(`${(t_contract.estate_id)}`,e_id);
         }
         return q.andWhere('status', '=', 'active');
         //6 	7 	2 	active 	monthly 	3000 	2019-07-15 21:48:44 	0000-00-00 00:00:00
+    }
+
+    close = async (obj) => {
+        if (typeof (obj)!= 'object' ||
+            (typeof obj[`${(t_contract.estate_id.name)}`] == "undefined" &&
+            typeof obj[`${(t_contract._primary_key)}`] == "undefined")
+        ) {
+            console.log(`${(t_contract.estate_id.name)} and ${(t_contract._primary_key.name)} are not set`);
+            return false;
+        }
+        obj = await this.getCurrent(obj);
+        obj = obj[0];
+        obj[`${(t_contract.status.name)}`] = 'closed';
+        obj[`${(t_contract.date_end.name)}`] = Helper.formatDate(new Date(), 'Y-M-D');
+        return this.update(obj);
     }
 
     get = async (filter) => {
@@ -71,14 +87,23 @@ WHERE contract_id = 6
         // id 	client_id 	estate_id 	status 	period_type 	price 	date_start 	date_end
         return this.query(`SELECT ${(t_contract.id)},${(t_contract.estate_id)},${(t_client.first_name)}, ${(t_client.last_name)},
             ${(t_contract.status)}, ${(t_contract.period_type)}, ${(t_contract.price)}, 
-            ${(t_contract.date_end.format("%d.%m.%Y"))},
-            ${(t_contract.date_start.format("%d.%m.%Y"))}
+            ${(t_contract.date_end.format("%Y-%m-%d"))},
+            ${(t_contract.date_start.format("%Y-%m-%d"))}
         FROM ${(t_contract)}
             LEFT JOIN ${(t_estate)} on (${(t_estate.id)} = ${(t_contract.estate_id)})
             LEFT JOIN ${(t_client)} on (${(t_client.id)} = ${(t_contract.client_id)})
         ${(this.where())} ORDER BY ${(t_contract.date_start)} DESC`);
     }
 
+    set = async (obj) => {
+        let isNew = Helper.isEmpty(obj[this.primary_key]);
+        if (isNew) {
+            await this.close(obj);
+            return this.add(obj);//.catch(callback);
+        } else {
+            return this.update(obj);
+        }
+    }
 
 }
 

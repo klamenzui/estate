@@ -22,13 +22,13 @@ class Payment extends Model {
         return this.query(`SELECT 
             ${(t_payment.id)},
             ${(t_payment.summe)},
-            ${(t_payment.period.format("%d.%m.%Y"))},
+            ${(t_payment.period.format("%Y-%m-%d"))},
+            ${(t_payment.date.format("%Y-%m-%d"))},
             ${(t_client.first_name)},
             ${(t_contract.id.as())},
             ${(t_contract.estate_id)},
             ${(t_contract.period_type)},
-            ${(t_contract.price)},
-            ${(t_contract.date_start.format("%d.%m.%Y"))}
+            ${(t_contract.price)}
         FROM ${(t_contract)}
             LEFT JOIN ${(t_payment)} on (${(t_payment.contract_id)} = ${(t_contract.id)})
             LEFT JOIN ${(t_client)} on ( ${(t_client.id)} = ${(t_contract.client_id)} )

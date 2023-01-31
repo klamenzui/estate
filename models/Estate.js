@@ -63,7 +63,7 @@ class Estate extends Model {
                 ${(t_contract.id.as())},
                 ${(t_contract.period_type)},
                 ${(t_contract.price)},
-                ${(t_contract.date_start.format("%d.%m.%Y"))},
+                ${(t_contract.date_start.format("%Y-%m-%d"))},
                 profit.profit_total
             FROM
                 ${(t_estate)}

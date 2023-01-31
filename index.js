@@ -6,6 +6,8 @@ var session = require('express-session');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var morgan = require('morgan');
+
+
 var port = /*process.env.PORT ||*/ 9080;
 
 app = express();
@@ -20,9 +22,12 @@ app.locals.static = path.join(__dirname, '/views/static');
 app.locals.config = require('./utils/init');
 app.locals.config.loadScheme().then(r => {
     const Bot = require('./models/Bot');
+    const TaskManager = require('./models/TaskManager');
     app.locals.bot = new Bot('KrHome', (res)=>{
         console.log(res);
     });
+    console.log('Start task manager');
+    app.locals.taskManager = new TaskManager();
 });
 
 app.locals.passport = passport;

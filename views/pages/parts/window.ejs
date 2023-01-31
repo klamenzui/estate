@@ -9,58 +9,8 @@
         </div>
         <div class="modal-body" tmp-id="<%= page %>" <%- response.body.attr -%>>
             <%
-            if(response && response.body && response.body.fields){
-                for(let k in response.body.fields){
-                    let disabled = response.body.readonly?' disabled="true"':'';
-                    let field = response.body.fields[k];
-                    let data = response.body.data && response.body.data[k]?response.body.data[k]:'';
-                    let type = field.type;
-                    let options = [];
-                    if(Array.isArray(field.type)){
-                        type = field.type[0];
-                    } else if(typeof field.type == 'object'){
-                        type = 'object';
-                        for (let option in field.type){
-                            let selected = '';
-                            if(field.type[option] == data || field.type[option] == field.default){
-                                selected = ' selected="selected"';
-                            }
-                            options.push(`<option${selected}>${field.type[option]}</option>`);
-                        }
-                    }
-                    if(field.key == 'PRI'){
-                        type = 'hidden';
-                    }
-                    switch(type){
-                        case 'hidden':
-                            %><input type="hidden" class="form-control" name="<%=field.name%>" placeholder="<%=field.name%>" value="<%=data%>"><%
-                            break;
-                        case 'text':
-                            %>
-                            <div class="form-group">
-                                <label for="<%=field.name%>"><%=field.name%></label>
-                                <textarea <%- disabled -%>class="form-control" name="<%=field.name%>" rows="3"><%=data%></textarea>
-                            </div><%
-                            break;
-                        case "object":
-                            %>
-                            <div class="form-group">
-                                <label for="<%=field.name%>"><%=field.name%></label>
-                                <select name="<%=field.name%>" <%- disabled -%>class="form-control">
-                                    <%- options.join(''); -%>
-                                </select>
-                            </div>
-                            <%
-                        break;
-                        default: %>
-                            <div class="form-group">
-                                <label for="<%=field.name%>"><%=field.name%></label>
-                                <input <%- disabled -%>type="text" class="form-control" name="<%=field.name%>" placeholder="<%=field.name%>" value="<%=data%>">
-                            </div>
-                            <%
-                    }
-
-                }
+            if(response && response.body && response.body.html){
+            %><%- response.body.html -%><%
             } else { %><%- response.body -%><%
             }
             %>

@@ -72,7 +72,10 @@ const Helper = {
         let tag_end = '';
         if (obj.tag) {
             tag_start = '<' + obj.tag;
-            tag_end = '>' + (obj.html ? obj.html : '') + '</' + obj.tag + '>';
+            if(!obj.html){
+                obj.html = '';
+            }
+            tag_end = '>' + (typeof obj.html == 'object'? Helper.getHtml(obj.html) : obj.html) + '</' + obj.tag + '>';
         }
         if (obj.attr) {
             for (let a in obj.attr) {

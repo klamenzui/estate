@@ -1,6 +1,6 @@
 const Entity = require("../Entity");
 class Bot extends Entity {
-    _editable = {"name":[1,"name"],"token":[2,"token"],"pattern":[3,"pattern"],"options":[4,"options"],"useraccess":[5,"useraccess"]};
+    _editable = {"name":[1,"name"],"token":[2,"token"],"pattern":[3,"pattern"],"options":[4,"options"],"nlp":[5,"nlp"],"useraccess":[6,"useraccess"]};
     _fields = {
   "id": {
     "name": "id",
@@ -54,6 +54,14 @@ class Bot extends Entity {
     "key": "",
     "extra": ""
   },
+  "nlp": {
+    "name": "nlp",
+    "type": "text",
+    "letNull": false,
+    "default": null,
+    "key": "",
+    "extra": ""
+  },
   "useraccess": {
     "name": "useraccess",
     "type": [
@@ -67,7 +75,7 @@ class Bot extends Entity {
   }
 };
     _primary_key = "id";_auto_increment = "id";
-    id;name;token;pattern;options;useraccess;
+    id;name;token;pattern;options;nlp;useraccess;
     constructor () {
         super();
     }

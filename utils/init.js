@@ -4,7 +4,6 @@ fs = require('fs');
 const fsSyn = require("fs/promises");
 const path = require("path");
 const os = require('os');
-const TaskManager = require('../models/TaskManager');
 
 
 let netData = {};
@@ -47,13 +46,13 @@ app.locals.knex = require('knex')({
 
 app.locals.knex.on('query', data => {
     console.log('----------[query]-------------');
-    console.log(data);
+    //console.log(data);
     console.log('-----------------------');
 });
 
 app.locals.knex.on('query-response', (data, obj, builder) => {
     console.log('----------[query-response]-------------');
-    console.log(data, obj, builder);
+    //console.log(data, obj, builder);
     console.log('-----------------------');
 });
 
@@ -167,8 +166,6 @@ module.exports = new ${className}();`, function (err) {
 //const pass = 'usbw';//(`${process.env.NODE_ENV}` === "dev") ? `${process.env.PASS2}` : `${process.env.PASS}`;//private field
 //const database = 'mvc';//(`${process.env.NODE_ENV}` === "dev") ? `${process.env.DB2}` : `${process.env.DB}`;//private field
 console.log(init);
-console.log('Start task manager');
-app.locals.taskManager = new TaskManager();
 
 /*
 //database: database connection via pool

@@ -34,9 +34,9 @@ class Payment extends Entity {
   },
   "period": {
     "name": "period",
-    "type": "date",
+    "type": "timestamp",
     "letNull": false,
-    "default": null,
+    "default": "CURRENT_TIMESTAMP",
     "key": "",
     "extra": ""
   },

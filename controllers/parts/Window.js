@@ -1,5 +1,6 @@
 const Helper = require("../../utils/Helper");
 const Page = require('../Page');
+const moment = require('moment');
 
 class Window extends Page {
     res;
@@ -76,7 +77,7 @@ class Window extends Page {
         this.sendData(this._buildHtml());
     }
 
-    _sendData(clazz) {
+    async _sendData(clazz) {
         let req = this.controller.req;
         const entity = require('../../models/db/tables/' + clazz);
         const Model = require('../../models/' + clazz);
@@ -85,30 +86,132 @@ class Window extends Page {
         this.res.body.fields = entity._fields;
         this.res.body.data = {};
         if (req.query && !Helper.isEmpty(req.body.data[entity._primary_key])) {
-            new Model().get(req.body.data[entity._primary_key]).then(results => {
-                if (!Helper.isEmpty(results.rows)) {
-                    this.res.body.data = results.rows[0];
-                }
-                this.sendData(this._buildHtml());
-            });
+            let results = await new Model().get(req.body.data[entity._primary_key]);
+            if (!Helper.isEmpty(results.rows)) {
+                this.res.body.data = results.rows[0];
+            }
         } else {
             for (let k in entity._fields) {
+                let field = entity._fields[k];
                 if (typeof req.body.data[k] !== 'undefined') {
                     this.res.body.data[k] = req.body.data[k];
                 }
+                if (Helper.isEmpty(this.res.body.data[k]) && !Helper.isEmpty(field.default)) {
+                    this.res.body.data[k] = field.default;
+                    this.res.body.data[k] = (this.res.body.data[k] + '')
+                        .replace('CURRENT_TIMESTAMP', moment(new Date()).format('YYYY-MM-DD'));
+                }
             }
-            this.sendData(this._buildHtml());
         }
+        this.sendData(this._buildHtml());
+
     }
 
     _buildHtml() {
         for (let k in this.res) {
-            if (this.res[k].html) {
-                this.res[k].html = Helper.getHtml(this.res[k].html);
+            let block = this.res[k];
+            if (typeof block.fields !== 'undefined') {
+                block.html = [];
+                for(let f in block.fields){
+                    let field = block.fields[f];
+                    let data = block.data && block.data[f]?block.data[f]:'';
+                    let type = field.type;
+                    let div = {
+                        tag: 'div',
+                        attr: {
+                            class: "form-group"
+                        },
+                        html: [{
+                            tag: 'label',
+                            attr: {
+                                for: field.name
+                            },
+                            html: field.name
+                        }]
+                    }
+                    let input = {
+                        tag: 'input',
+                        attr: {
+                            class:"form-control",
+                            name:field.name
+                        }
+                    }
+                    if(block.readonly){
+                        input.attr['disabled']="true";
+                    }
+
+                    if(Array.isArray(field.type)){
+                        type = field.type[0];
+                    } else if(typeof field.type == 'object'){
+                        type = 'object';
+                    }
+                    if(field.key === 'PRI'){
+                        type = 'hidden';
+                    }
+                    switch(type){
+                        case 'hidden':
+                            input.attr['type'] = "hidden";
+                            input.attr['value'] = data;
+                            block.html.push(input);
+                            break;
+                        case 'text':
+                            input.tag = 'textarea';
+                            input.attr['rows'] = "3";
+                            input.attr['placeholder'] = field.name;
+                            input.html = data;
+                            div.html.push(input);
+                            block.html.push(div);
+                            break;
+                        case "object":
+                            input.tag = 'select';
+                            input.html = '';
+                            let options = [];
+                            for (let option in field.type){
+                                let selected = '';
+                                if(field.type[option] === data || field.type[option] === field.default){
+                                    selected = ' selected="selected"';
+                                }
+
+                                options.push(`<option${selected}>${field.type[option]}</option>`);
+                            }
+                            input.html = options.join('');
+                            div.html.push(input);
+                            block.html.push(div);
+                            break;
+                        case "date":
+                        case "datetime":
+                        case "timestamp":
+                            let format = 'Y-M-D';
+                            input.attr['type'] = "date";
+                            if(field.type!=="date"){
+                                input.attr['type'] = "datetime-local";
+                                format = 'Y-M-DTh:m:s';
+                            }
+                            if(!data instanceof Date){
+                                data = moment(data);
+                            }
+                            data = Helper.formatDate(data, format);
+                            input.attr['value'] = data;
+                            div.html.push(input);
+                            block.html.push(div);
+                            break;
+                        default:
+                            input.attr['type'] = 'text';
+                            input.attr['placeholder'] = field.name;
+                            input.attr['value'] = data;
+                            div.html.push(input);
+                            block.html.push(div);
+                    }
+
+                }
             }
 
-            if (this.res[k].attr) {
-                this.res[k].attr = Helper.getTag(this.res[k]);
+            if (block.html) {
+                block.html = Helper.getHtml(this.res[k].html);
+            }
+
+            if (block.attr) {
+                block.attr = Helper.getTag(this.res[k]);
             }
         }
         return this.res;

@@ -16,12 +16,20 @@ class Client extends Page {
     set() {
         let req = this.controller.req;
         console.log(req.body);
-        new Model().set(req.body).then(this.sendData).catch(this.sendData);
+        new Model().set(req.body).then((res)=>{
+            this.sendData(res);
+        }).catch((e)=>{
+            this.sendData(e);
+        });
     }
     del() {
         let req = this.controller.req;
         console.log(req.body);
-        new Model().del(req.body).then(this.sendData).catch(this.sendData);
+        new Model().del(req.body).then((res)=>{
+            this.sendData(res);
+        }).catch((e)=>{
+            this.sendData(e);
+        });
     }
 }
 
