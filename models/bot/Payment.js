@@ -1,5 +1,4 @@
-const Bot = require('../Bot');
-class Payment extends Bot{
+class Payment {
     date;
     price;
 
@@ -11,3 +10,5 @@ class Payment extends Bot{
         return res;
     }
 }
+
+module.exports = Payment;

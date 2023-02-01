@@ -6,17 +6,11 @@ const t_estate = require('./db/tables/estate');
 const t_bot = require('./db/tables/bot');
 const t_bot_chat = require('./db/tables/bot_chat');
 const TelegramBotAPI = require ( 'node-telegram-bot-api');
-const Sugar = require("sugar");
 const {NlpManager} = require("node-nlp");
 const fs = require('fs');
 
-// Extend the built-in Date to add a few methods from Sugar's library
-const Sugar = require("sugar");
-Sugar.Date.setLocale('ru').extend();
-// Imitate a system with a dynamic time slots for doctors
 
-
-class Bot extends Model {
+class Bot {
     bot_chat;
     name;
     bot;
@@ -29,7 +23,6 @@ class Bot extends Model {
     lastReq;
     actions = {};
     constructor(name, callback) {
-        super();
         this.name = name;
         this.init(name, callback);
     }
@@ -87,8 +80,8 @@ class Bot extends Model {
                 var estate_id = msg.chat.title.match('#([0-9]+):');
                 if(estate_id.length > 1) {
                     estate_id = estate_id[1];
-                    console.log('cmdExec: estate_id=', estate_id);
-                    console.log('cmdExec:', cmd);
+                    console.log('cmdExec: estate_id = ', estate_id);
+                    console.log('cmdExec: ', msg.text);
                     let response = await this.manager.process('ru', msg.text);
                     console.log(response);
                     response = await this.onIntent(response);
@@ -120,11 +113,14 @@ class Bot extends Model {
             //}
     }
      init = async(name, callback) => {
-         const directory = app.locals.base + 'models/db/tables/';
+         const directory = app.locals.base + 'models/bot/';
          let files = fs.readdirSync(directory);
          for (let i in files) {
-             this.actions[files[i].toLowerCase().substring(0, files[i].indexOf('.'))] = require("./" + me.folder + "/" + files[i]);
+             let file = files[i].toLowerCase().split('.').slice(0, -1).join('.');
+             console.log(directory + file);
+             this.actions[file] = require(directory + file);
          }
+         console.log(this.actions);
         this.manager = new NlpManager({
             "autoLoad": true,
             "autoSave": true,
@@ -134,23 +130,24 @@ class Bot extends Model {
         //---------
 
         //this.manager.addCorpus(app.locals.base + "utils/corpus.json");
-        //this.manager.addCorpus(app.locals.base + "utils/corpus.json");
-        //const corpus = require(app.locals.base +"utils/data.json");
-        //console.log(app.locals.base + "utils/data.json");
-        //await this.manager.train(corpus);
-        //await this.manager.train();
-         //this.manager.nlp.fromJSON(corpus);
-        //this.manager.save();
-
-        //---------
-        this.manager.load(app.locals.base +"utils/data.json");
+        const corpus = require(app.locals.base +"utils/data.json");
+        if(corpus.settings){
+            this.manager.fromObj(corpus);
+            //this.manager.load(app.locals.base +"utils/data.json");
+        } else {
+            this.manager.addCorpus(corpus);
+            await this.manager.train();
+            //this.manager.save();
+            this.manager.save(app.locals.base +"utils/data.json");
+        }
         /*
         this.select(t_estate,t_address)
             .andWhere(t_estate.id, '=', 1)
             .orWhere(t_estate.id, '=', 2)
             .exec();
             */
-        this.get({name: name}).then((results) => {
+         let model = new Model(this.constructor.name);
+        model.get({name: name}).then((results) => {
             try {
                 let row = results.rows[0];
                 console.log('bot', row);
@@ -203,11 +200,10 @@ class Bot extends Model {
             //console.log('output.intent:',output.intent);
             //console.log('output.entities:',output.entities);
             // Check if the user want to book something
-            let action = this.req.intent.split('.').join('_');
-            const Model = require("./bot/" + action);
-            if (this[action]) {
+            let action = this.req.intent.split('.');
+            if (this.actions[action[0]]) {
                 try {
-                    this.req.answer = this.exec(action);
+                    this.req.answer = this.exec(new this.actions[action[0]](), action[1]);
                 } catch(e){
                     console.log(e);
                 }
@@ -254,7 +250,9 @@ class Bot extends Model {
         });
     }
 
-    exec(intent) {
+    exec(obj, func) {
+        obj.nextIntent = this.nextIntent;
+        obj.lastReq = this.lastReq;
         if (this.req.entities) {
             // Go throught all found entities and add the important ones to instance variables
             for (let i = 0; i < this.req.entities.length; i++) {
@@ -272,42 +270,32 @@ class Bot extends Model {
                     "subtype": "integer"
                   }
                 }*/
-                switch (this.req.entities[i].entity) {
-                    case "how":
-                        this['_'+intent]['how'] = this.req.entities[i].option;
-                        break;
-                    case "cmd":
-                        this['_'+intent]['cmd'] = this.req.entities[i].option;
-                        break;
-                    case "object":
-                        this['_'+intent]['object'] = this.req.entities[i].option;
-                        break;
-                    case "month":case "date":
+                let key = this.req.entities[i].entity;
+                let val = this.req.entities[i].option;
+                switch (key) {
+                    case "month": case "date":
                         let date = this.req.entities[i].sourceText;
                         if(this.req.entities[i].entity === 'month'){
                             date = this.req.entities[i].option;
                         }
                         date = this.constructor.processDate(date);
-                        this['_'+intent]['date'] = date;
+                        val = date;
                         break;
                     case "number":
-                        this['_'+intent]['price'] = this.req.entities[i].sourceText;
+                        key = 'price';
+                        val = this.req.entities[i].sourceText;
                         break;
-                    /*case "datetime":
-                      let reservationDatetime = output.entities[i].sourceText;
-                      reservationDatetime = this.constructor.processDate(reservationDatetime);
-                      this.datetime = reservationDatetime;
-                      break;
-                    case "time":
-                      let reservationTime = output.entities[i].sourceText;
-                      reservationTime = this.constructor.processDate(reservationTime, true);
-                      this.time = reservationTime;
-                      break;*/
+                }
+                if(obj.hasOwnProperty(key)){
+                    obj[key] = val;
                 }
             }
         }
-        console.log(this['_'+intent]);
-        return this[intent]();
+        let res = obj[func]();
+        this.nextIntent = obj.nextIntent;
+        this.lastReq = obj.lastReq;
+        console.log(obj);
+        return res;
     }
 
 }

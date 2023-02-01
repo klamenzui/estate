@@ -1,5 +1,4 @@
-const Bot = require('../Bot');
-class Conversation extends Bot{
+class Conversation {
     object;
     correction(){
         this.correction_step = 1;
@@ -26,3 +25,4 @@ class Conversation extends Bot{
         return res;
     }
 }
+module.exports = Conversation;

@@ -27,8 +27,11 @@ class Model {
     _select = {};
     _join = {};
     _tables = {};
-    constructor() {
-        this.table = this.constructor.name.toLowerCase();
+    constructor(_table) {
+        if(!_table){
+            _table = this.constructor.name;
+        }
+        this.table = _table.toLowerCase();
     }
 
     get table() {

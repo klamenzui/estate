@@ -1,5 +1,4 @@
-const Bot = require('../Bot');
-class Action extends Bot{
+class Action {
     cmd = null;
     add() {
         //todo: new indent
@@ -31,3 +30,4 @@ class Action extends Bot{
         return res;
     }
 }
+module.exports = Action;

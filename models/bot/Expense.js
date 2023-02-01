@@ -1,10 +1,9 @@
-const Bot = require('../Bot');
 const availableDoctors = {
     "a": "бойлер",
     "b": "кровать",
     "c": "кран",
 };
-class Expense extends Bot{
+class Expense {
     object;
     price;
     date;
@@ -14,7 +13,7 @@ class Expense extends Bot{
         if (this.object && this.price) {
             res = 'Сделано, покупка '+this.object+' на сумму ' + this.price+(this.date?' '+this.date:'');
         } else {
-            this.nextIntent = "action.expense";
+            this.nextIntent = "expense.add";
             res =  "Прошу прощения, укажи ";
 
             // The user hasn't provided the name of the doctor => Ask them to choose
@@ -40,3 +39,5 @@ class Expense extends Bot{
         return res;
     }
 }
+
+module.exports = Expense;

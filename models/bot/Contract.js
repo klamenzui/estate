@@ -1,6 +1,6 @@
-const Bot = require('../Bot');
-class Contract extends Bot{
+class Contract {
     get(){
         return "Вот контракт ..";
     }
 }
+module.exports = Contract;
