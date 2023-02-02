@@ -5,7 +5,7 @@ const t_address = require('./db/tables/address');
 const t_estate = require('./db/tables/estate');
 const t_bot = require('./db/tables/bot');
 const t_bot_chat = require('./db/tables/bot_chat');
-const TelegramBotAPI = require ( 'node-telegram-bot-api');
+const TelegramBotAPI = require('node-telegram-bot-api');
 const {NlpManager} = require("node-nlp");
 const fs = require('fs');
 
@@ -22,6 +22,7 @@ class Bot {
     correction_step = 0;
     lastReq;
     actions = {};
+
     constructor(name, callback) {
         this.name = name;
         this.init(name, callback);
@@ -44,9 +45,9 @@ class Bot {
     }
 
     setChat(chat) {
-        if(typeof this._chats[chat.id] == "undefined"){
+        if (typeof this._chats[chat.id] == "undefined") {
             chat[t_bot_chat.code.name] = chat.id;
-            this.bot_chat.add(chat).then(res=>{
+            this.bot_chat.add(chat).then(res => {
                 console.log(res);
                 this._chats[chat.id] = chat;
             });
@@ -55,9 +56,9 @@ class Bot {
     }
 
     sendMessage = async (chat, res, opt) => {
-        let chatId = typeof chat == 'object' ? chat[t_bot_chat.code.name]: chat;
+        let chatId = typeof chat == 'object' ? chat[t_bot_chat.code.name] : chat;
         console.log(res);
-        if(this.isChatOn(chatId)){
+        if (this.isChatOn(chatId)) {
             await this.bot.sendMessage(chatId, res, opt);
         }
     }
@@ -69,58 +70,59 @@ class Bot {
         this.setChat(msg.chat);
         const messageId = msg.message_id;
         //if(msg.from.username.toLowerCase() == settings.chat_access_username.toLowerCase()){
-        let access = this.isUserAllow(msg.from.username?msg.from.username:msg.from.first_name+msg.from.last_name);
-            console.log('access', access);
-            if(this.isChatOn(chatId) && access && match && match[1]) {
-                /*await this.cmdExec(msg, match[1], res => {
-                    if(res){
-                        this.sendMessage(chatId, res, {reply_to_message_id: messageId});
-                    }
-                })*/
-                var estate_id = msg.chat.title.match('#([0-9]+):');
-                if(estate_id.length > 1) {
-                    estate_id = estate_id[1];
-                    console.log('cmdExec: estate_id = ', estate_id);
-                    console.log('cmdExec: ', msg.text);
-                    let response = await this.manager.process('ru', msg.text);
-                    console.log(response);
-                    response = await this.onIntent(response);
-                    console.log(response.answer);
-                    if (response.answer) {
-                        //await msg.reply.text(response.answer);
-                        await this.sendMessage(chatId, response.answer);
-                        /*console.log(this.manager.nlp.toJSON());
-                        fs.writeFile(app.locals.base + 'utils/data.json', JSON.stringify(this.manager.nlp.toJSON()), function (err) {
-                            if (err) return console.log(err);
-                            console.log('nlp saved');
-                        });*/
-                    }
+        let access = this.isUserAllow(msg.from.username ? msg.from.username : msg.from.first_name + msg.from.last_name);
+        console.log('access', access);
+        if (this.isChatOn(chatId) && access && match && match[1]) {
+            /*await this.cmdExec(msg, match[1], res => {
+                if(res){
+                    this.sendMessage(chatId, res, {reply_to_message_id: messageId});
+                }
+            })*/
+            var estate_id = msg.chat.title.match('#([0-9]+):');
+            if (estate_id.length > 1) {
+                estate_id = estate_id[1];
+                console.log('cmdExec: estate_id = ', estate_id);
+                console.log('cmdExec: ', msg.text);
+                let response = await this.manager.process('ru', msg.text);
+                console.log(response);
+                response = await this.onIntent(response);
+                console.log(response.answer);
+                if (response.answer) {
+                    //await msg.reply.text(response.answer);
+                    await this.sendMessage(chatId, response.answer);
+                    /*console.log(this.manager.nlp.toJSON());
+                    fs.writeFile(app.locals.base + 'utils/data.json', JSON.stringify(this.manager.nlp.toJSON()), function (err) {
+                        if (err) return console.log(err);
+                        console.log('nlp saved');
+                    });*/
                 }
             }
-            //this.bot.sendMessage(chatId, 'ok');
+        }
+        //this.bot.sendMessage(chatId, 'ok');
 
-            /*this.bot.onReplyToMessage(chatId, messageId, (result) => {
-                console.log('onReplyToMessage',result);
-            });*/
-            /*this.cmdExec(msg.chat.title, match[1]).then((result) => {
-                console.log('it5',result);
-                if(result){
-                    this.bot.sendMessage(chatId, result);
-                }
-            });*/
-            //} else {
-            //	bot.sendMessage(chatId, 'access denay');
-            //}
+        /*this.bot.onReplyToMessage(chatId, messageId, (result) => {
+            console.log('onReplyToMessage',result);
+        });*/
+        /*this.cmdExec(msg.chat.title, match[1]).then((result) => {
+            console.log('it5',result);
+            if(result){
+                this.bot.sendMessage(chatId, result);
+            }
+        });*/
+        //} else {
+        //	bot.sendMessage(chatId, 'access denay');
+        //}
     }
-     init = async(name, callback) => {
-         const directory = app.locals.base + 'models/bot/';
-         let files = fs.readdirSync(directory);
-         for (let i in files) {
-             let file = files[i].toLowerCase().split('.').slice(0, -1).join('.');
-             console.log(directory + file);
-             this.actions[file] = require(directory + file);
-         }
-         console.log(this.actions);
+    init = async (name, callback) => {
+        const directory = app.locals.base + 'models/bot/';
+        let files = fs.readdirSync(directory);
+        for (let i in files) {
+            let file = files[i].toLowerCase().split('.').slice(0, -1).join('.');
+            console.log(directory + file);
+            this.actions[file] = require(directory + file);
+        }
+        console.log(this.actions);
+        //https://github.com/axa-group/nlp.js/blob/master/examples/14-ner-corpus/corpus.json
         this.manager = new NlpManager({
             "autoLoad": true,
             "autoSave": true,
@@ -130,15 +132,34 @@ class Bot {
         //---------
 
         //this.manager.addCorpus(app.locals.base + "utils/corpus.json");
-        const corpus = require(app.locals.base +"utils/data.json");
-        if(corpus.settings){
+        const corpus = require(app.locals.base + "utils/data.json");
+        if (corpus.settings) {
             this.manager.fromObj(corpus);
+            let objects = {
+                    "1": [
+                        "бойлер",
+                        "автомат до бойлера"
+                    ],
+                    "2": [
+                        "кровать",
+                        "диван"
+                    ],
+                "3": [
+                        "кран",
+                        "кран в кухню",
+                        "кран в ванную"
+                    ]
+                }
+            const objectKeys = Object.keys(objects);
+            for (let i = 0; i < objectKeys.length; i += 1) {
+                this.manager.nlp.addNerRuleOptionTexts('ru', 'object', objectKeys[i], objects[objectKeys[i]]);
+            }
             //this.manager.load(app.locals.base +"utils/data.json");
         } else {
             this.manager.addCorpus(corpus);
             await this.manager.train();
             //this.manager.save();
-            this.manager.save(app.locals.base +"utils/data.json");
+            this.manager.save(app.locals.base + "utils/data.json");
         }
         /*
         this.select(t_estate,t_address)
@@ -146,7 +167,7 @@ class Bot {
             .orWhere(t_estate.id, '=', 2)
             .exec();
             */
-         let model = new Model(this.constructor.name);
+        let model = new Model(this.constructor.name);
         model.get({name: name}).then((results) => {
             try {
                 let row = results.rows[0];
@@ -158,10 +179,10 @@ class Bot {
 
                 this.bot_chat = new ChatModel();
                 this.bot_chat.table = `${t_bot_chat}`;
-                this.bot_chat.get().then(results=>{
-                    if(results && results.rows){
-                        for(let i in results.rows){
-                            if(typeof this._chats[results.rows[i]]=='undefined'){
+                this.bot_chat.get().then(results => {
+                    if (results && results.rows) {
+                        for (let i in results.rows) {
+                            if (typeof this._chats[results.rows[i]] == 'undefined') {
                                 this._chats[results.rows[i][t_bot_chat.code.name]] = results.rows[i];
                             }
                         }
@@ -181,14 +202,14 @@ class Bot {
         //console.log('output.intent:',output.intent);
         // Check if output has to be a logical continuation of the prior conversation's flow.
         // If it is, change the classified intent to the predefined one.
-        console.log('output:',JSON.stringify(this.req));
-        if(!this.nextIntent && this.correction_step === 1){
+        console.log('output:', JSON.stringify(this.req));
+        if (!this.nextIntent && this.correction_step === 1) {
             console.log('----[addDoc]-----');
-            console.log('last:',this.lastReq);
-            if(this.lastReq && (this.lastReq.optionalUtterance || this.lastReq.utterance)){
-                this.addData( this.lastReq.optionalUtterance || this.lastReq.utterance, this.req.intent);
+            console.log('last:', this.lastReq);
+            if (this.lastReq && (this.lastReq.optionalUtterance || this.lastReq.utterance)) {
+                this.addData(this.lastReq.optionalUtterance || this.lastReq.utterance, this.req.intent);
                 this.req.answer = "Спасибо, исправился :)";
-            }else{
+            } else {
                 console.log('nothing to add');
             }
             this.correction_step = 0;
@@ -204,7 +225,7 @@ class Bot {
             if (this.actions[action[0]]) {
                 try {
                     this.req.answer = this.exec(new this.actions[action[0]](), action[1]);
-                } catch(e){
+                } catch (e) {
                     console.log(e);
                 }
             } else if (this.req.intent === "None") {
@@ -212,7 +233,7 @@ class Bot {
                 this.correction_step = 1;
                 this.lastReq = this.req;
             }
-            if(this.correction_step === 0){
+            if (this.correction_step === 0) {
                 this.lastReq = this.req;
             }
         }
@@ -245,8 +266,8 @@ class Bot {
         this.manager.addDocument('ru', utterance, intent);
         // Train also the NLG
         //this.manager.addAnswer('ru', 'greetings.bye', 'Till next time');
-        this.manager.train().then(r=>{
-            this.manager.save(app.locals.base +"utils/data.json");
+        this.manager.train().then(r => {
+            this.manager.save(app.locals.base + "utils/data.json");
         });
     }
 
@@ -273,9 +294,10 @@ class Bot {
                 let key = this.req.entities[i].entity;
                 let val = this.req.entities[i].option;
                 switch (key) {
-                    case "month": case "date":
+                    case "month":
+                    case "date":
                         let date = this.req.entities[i].sourceText;
-                        if(this.req.entities[i].entity === 'month'){
+                        if (this.req.entities[i].entity === 'month') {
                             date = this.req.entities[i].option;
                         }
                         date = this.constructor.processDate(date);
@@ -286,7 +308,7 @@ class Bot {
                         val = this.req.entities[i].sourceText;
                         break;
                 }
-                if(obj.hasOwnProperty(key)){
+                if (obj.hasOwnProperty(key)) {
                     obj[key] = val;
                 }
             }
