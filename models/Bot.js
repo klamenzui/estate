@@ -136,20 +136,20 @@ class Bot {
         if (corpus.settings) {
             this.manager.fromObj(corpus);
             let objects = {
-                    "1": [
-                        "бойлер",
-                        "автомат до бойлера"
-                    ],
-                    "2": [
-                        "кровать",
-                        "диван"
-                    ],
+                "1": [
+                    "бойлер",
+                    "автомат до бойлера"
+                ],
+                "2": [
+                    "кровать",
+                    "диван"
+                ],
                 "3": [
-                        "кран",
-                        "кран в кухню",
-                        "кран в ванную"
-                    ]
-                }
+                    "кран",
+                    "кран в кухню",
+                    "кран в ванную"
+                ]
+            }
             const objectKeys = Object.keys(objects);
             for (let i = 0; i < objectKeys.length; i += 1) {
                 this.manager.nlp.addNerRuleOptionTexts('ru', 'object', objectKeys[i], objects[objectKeys[i]]);
