@@ -22,7 +22,7 @@ class TaskManager {
                     for(let i in res.rows){
                         let task = res.rows[i];
                         console.log('typeof task:', typeof this.taskPool[task.name]);
-                        if(typeof this.taskPool[task.name] == "undefined"){
+                        if(typeof this.taskPool[task.name] == "undefined" && task.status === "active"){
                             if(cron.validate(task.interval)){
                                 this.taskPool[task.name] = cron.schedule(task.interval, this.getTaskFunction(task.name), {
                                     scheduled: false

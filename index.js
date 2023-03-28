@@ -21,9 +21,9 @@ app.locals.static = path.join(__dirname, '/views/static');
 // connect to our database
 app.locals.config = require('./utils/init');
 app.locals.config.loadScheme().then(r => {
-    const Bot = require('./models/Bot');
+    const BotManager = require('./bot/BotManager');
     const TaskManager = require('./models/TaskManager');
-    app.locals.bot = new Bot('KrHome', (res)=>{
+    app.locals.bot = new BotManager('KrHome', (res)=>{
         console.log(res);
     });
     console.log('Start task manager');

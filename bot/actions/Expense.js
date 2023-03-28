@@ -3,15 +3,16 @@ const availableDoctors = {
     "b": "кровать",
     "c": "кран",
 };
+const t_estate = require('../../models/db/tables/Estate');
 class Expense {
     object;
-    price;
+    amount;
     date;
     add() {
         let res = '';
         // All the required data to book is present => process the reservation
-        if (this.object && this.price) {
-            res = 'Сделано, покупка '+this.object+' на сумму ' + this.price+(this.date?' '+this.date:'');
+        if (this.object && this.amount) {
+            res = 'Сделано, покупка '+this.object+' на сумму ' + this.amount+(this.date?' '+this.date:'');
         } else {
             this.nextIntent = "expense.add";
             res =  "Прошу прощения, укажи ";
@@ -31,7 +32,7 @@ class Expense {
               res +=  "дату";
             }
             */
-            if (!(this.price)) {
+            if (!(this.amount)) {
                 res +=  "потраченную сумму";
             }
         }
