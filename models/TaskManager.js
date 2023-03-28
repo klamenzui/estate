@@ -21,8 +21,9 @@ class TaskManager {
                 if(res && res.rows){
                     for(let i in res.rows){
                         let task = res.rows[i];
-                        console.log('typeof task:', typeof this.taskPool[task.name]);
-                        if(typeof this.taskPool[task.name] == "undefined" && task.status === "active"){
+                        let isTasExists = typeof this.taskPool[task.name] == "object";
+                        console.log('task exists:', isTasExists);
+                        if(!isTasExists && task.status === "active"){
                             if(cron.validate(task.interval)){
                                 this.taskPool[task.name] = cron.schedule(task.interval, this.getTaskFunction(task.name), {
                                     scheduled: false
@@ -32,6 +33,9 @@ class TaskManager {
                             } else {
                                 console.log('task interval is incorrect:', task.interval);
                             }
+                        } else if(isTasExists && task.status !== 'active'){
+                            this.taskPool[task.name].stop();
+                            this.taskPool[task.name] = false;
                         }
                     }
                 }
