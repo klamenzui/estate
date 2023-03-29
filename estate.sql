@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Erstellungszeit: 31. Jan 2023 um 13:33
+-- Erstellungszeit: 29. Mrz 2023 um 18:20
 -- Server Version: 5.6.13
 -- PHP-Version: 5.4.17
 
@@ -660,7 +660,7 @@ CREATE TABLE IF NOT EXISTS `task` (
 --
 
 INSERT INTO `task` (`id`, `title`, `name`, `data`, `status`, `date_start`, `interval`) VALUES
-(1, 'test', 'test', '', 'active', '2023-01-19 11:00:00', '0 * * * * *');
+(1, 'test', 'test', '', 'closed', '2023-01-19 11:00:00', '0 * * * * *');
 
 -- --------------------------------------------------------
 
