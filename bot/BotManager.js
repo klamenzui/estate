@@ -18,8 +18,10 @@ class BotManager {
     nextIntent;
     req;
     correction_step = 0;
+    memory;
     lastReq;
     actions = {};
+    static manager;
 
     constructor(name, callback) {
         this.init(name, callback);
@@ -265,13 +267,15 @@ class BotManager {
         // Train also the NLG
         //this.manager.addAnswer('ru', 'greetings.bye', 'Till next time');
         this.manager.train().then(r => {
-            this.manager.save(app.locals.base + "data/data.json");
+            this.manager.save(app.locals.base + "bot/data/data.json");
         });
     }
 
     exec(obj, func) {
         obj.nextIntent = this.nextIntent;
         obj.lastReq = this.lastReq;
+        obj.memory = this.memory;
+        obj.manager = this.manager;
         obj.addData = this.addData;
         if (this.req.entities) {
             // Go throught all found entities and add the important ones to instance variables
@@ -315,6 +319,7 @@ class BotManager {
         let res = obj[func]();
         this.nextIntent = obj.nextIntent;
         this.lastReq = obj.lastReq;
+        this.memory = obj.memory;
         console.log(obj);
         return res;
     }
