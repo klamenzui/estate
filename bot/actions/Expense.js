@@ -8,6 +8,9 @@ class Expense {
     object;
     amount;
     date;
+    main() {
+        this.add();
+    }
     add() {
         let res = '';
         // All the required data to book is present => process the reservation

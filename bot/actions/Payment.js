@@ -9,6 +9,10 @@ class Payment {
     date;
     amount;
 
+    main() {
+        this.add();
+    }
+
     async getData() {
         let data = {};
         try {
