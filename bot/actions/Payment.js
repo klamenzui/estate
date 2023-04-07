@@ -9,6 +9,10 @@ class Payment {
     date;
     amount;
 
+    main() {
+        return this.add();
+    }
+
     async getData() {
         let data = {};
         try {
@@ -16,7 +20,7 @@ class Payment {
             filter[t_contract.estate_id.name] = this.estate_id;
             filter[t_contract.status.name] = 'active';
             filter[t_contract.period_type.name] = 'monthly';
-            let res = new ModelContract().get(filter);
+            let res = await new ModelContract().get(filter);
             console.log(res.rows);
             if (res.rows && res.rows[0]) {
                 let contract = res.rows[0];
@@ -28,7 +32,7 @@ class Payment {
                     this.date = Helper.getDate();
                 }
                 data[t_payment.contract_id.name] = contract[t_contract._primary_key];
-                data[t_payment.summe.name] = this.amount;
+                data[t_payment.amount.name] = this.amount;
                 data[t_payment.period.name] = this.date;
 
             }
@@ -45,15 +49,19 @@ class Payment {
         let data = this.getData();
         //var rows = await q(`INSERT INTO payment(contract_id, summe, period) VALUES (`+contract[0]['id']+`,`+summe+`,'`+period+`')`);
         //console.log(rows);
-        await new ModelPayment().add(data).then((res) => {
+        let res;
+        try{
+            res = await new ModelPayment().add(data);
+        }catch (e){
+            res = e;
+        }
+        if(res[0]){
             console.log('add', res);
             msg = 'Сделано, добавил оплату ' + (this.date ? ' за ' + this.date : '') + ', сумма ' + this.amount;
-        }).catch(e => {
-            console.log('err', e);
-            msg = ('не удалось добавить оплату: ' + JSON.stringify(e));
-        });
-
-        console.log(msg);
+        }else{
+            console.log('err', res);
+            msg = ('не удалось добавить оплату');
+        }
         return msg;
     }
 
@@ -65,7 +73,7 @@ class Payment {
         let filter = {};
         filter[t_payment.contract_id.name] = data[t_payment.contract_id.name];
         this.setFilter(filter);
-        new ModelPayment().query(`SELECT sum(${t_payment.summe}) total FROM ${t_payment} 
+        new ModelPayment().query(`SELECT sum(${t_payment.amount}) total FROM ${t_payment} 
                                         ${(this.where)} and ${t_payment.period} LIKE '?%'`,[period]).then(res => {
             console.log(res.rows);
             if (res.rows && res.rows[0]) {

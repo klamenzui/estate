@@ -92,7 +92,9 @@ WHERE contract_id = 6
         FROM ${(t_contract)}
             LEFT JOIN ${(t_estate)} on (${(t_estate.id)} = ${(t_contract.estate_id)})
             LEFT JOIN ${(t_client)} on (${(t_client.id)} = ${(t_contract.client_id)})
-        ${(this.where())} ORDER BY ${(t_contract.date_start)} DESC`);
+        ${(this.where())} ORDER BY ${(t_contract.date_start)} DESC`).catch((e) => {
+            console.log(e);
+        });
     }
 
     set = async (obj) => {

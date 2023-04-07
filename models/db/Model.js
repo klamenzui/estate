@@ -256,11 +256,19 @@ class Model {
         }
         return this;
     }
+    /**
+     * It takes a SQL query, executes it, and returns the results in a format that is suitable for the front-end
+     * @param sql - The SQL query to be executed.
+     * @returns The query is being returned.
+     */
     async query(sql) {
         let fun = (results) => {
             let res = {};
             res['rows'] = (results && results[0] && results[0][0] ? results[0] : []);
+            /* Checking if the data for a table. */
             if (this.isAsTable()) {
+                /* Creating a variable called table_scheme and assigning it the value of the table_scheme property of the
+                object that is calling the function. */
                 let table_scheme = this.table_scheme;
                 res['columns'] = {
                     //identifier: [0, table_scheme._primary_key],
@@ -268,6 +276,7 @@ class Model {
                     editable: [],
                     all: []
                 }
+                /* Parsing the results of the query and building a list of columns that are editable. */
                 for (let i in results[1]) {
                     let table = results[1][i].orgTable;
                     let field = results[1][i].orgName && table === this.table ? results[1][i].orgName : results[1][i].name;

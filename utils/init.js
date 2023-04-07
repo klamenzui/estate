@@ -1,13 +1,14 @@
 //const mysql = require('mysql');
-const util = require('util');
+//const util = require('util');
 fs = require('fs');
 const fsSyn = require("fs/promises");
 const path = require("path");
 const os = require('os');
-
+const mysqldump = require('mysqldump');
 
 let netData = {};
 const nets = os.networkInterfaces();
+/* Iterating over the keys of the nets object. */
 for (const name of Object.keys(nets)) {
     for (const net of nets[name]) {
         if (net.family === 'IPv4' && !net.internal) {
@@ -33,7 +34,7 @@ let init = {
         'password': 'usbw',
         'database': 'estate',
         //timezone: 'gmt+6'  //<-here this line was missing 'utc'
-        paginate_page_size: 10
+        //paginate_page_size: 10
     },
     ip: (typeof netData["WLAN"] == 'undefined'? netData["eno1"][0]: netData["WLAN"][0]),
     certificate: fileCrt
@@ -83,6 +84,7 @@ app.locals.knex.on('query-error', function (err, obj) {
 /*
     ALTER TABLE user ADD FOREIGN KEY (`role_id`) REFERENCES `role`(id);
  */
+/* Creating a file for each table in the database. */
 init['loadScheme'] = async () => {
     if (typeof init['table_scheme'] == 'undefined') {
         const directory = app.locals.base + 'models/db/tables/';
@@ -159,6 +161,12 @@ module.exports = new ${className}();`, function (err) {
             }
         }
     }
+
+    /* Creating a backup of the database. */
+    mysqldump({
+        connection: init.db,
+        dumpToFile: `${app.locals.base}models/db/estate.sql`,
+    });
 }
 
 //const host = 'localhost:8080';//(`${process.env.NODE_ENV}` === "dev") ? `${process.env.HOST2}` : `${process.env.HOST}`;//private field
@@ -195,5 +203,6 @@ const pool = mysql.createPool({
 //     }
 //     console.log("conection success");
 // });
+
 
 module.exports = init

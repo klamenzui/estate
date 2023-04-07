@@ -8,6 +8,9 @@ class Expense {
     object;
     amount;
     date;
+    main() {
+        return this.add();
+    }
     add() {
         let res = '';
         // All the required data to book is present => process the reservation
@@ -36,7 +39,7 @@ class Expense {
                 res +=  "потраченную сумму";
             }
         }
-        console.log(res);
+        console.log('Expense:',res);
         return res;
     }
 }

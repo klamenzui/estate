@@ -113,7 +113,7 @@ const Helper = {
         var year = now.getFullYear();
         var month = now.getMonth() + 1;
         var date = now.getDate();
-        if(typeof str.getDate == "function"){
+        if(str && typeof str.getDate == "function"){
             str = Helper.formatDate(str, 'Y-M-D h:m:s');
         }
         if (monthPart) {
@@ -145,7 +145,7 @@ const Helper = {
                         month = m[4];
                     }
                 }
-            } else {
+            } else if (typeof str !== 'undefined'){
                 console.log('Date format should be like: 01.01.2022 or 01.2022');
                 return null;
             }

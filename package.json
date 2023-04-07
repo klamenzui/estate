@@ -16,6 +16,7 @@
     "moment": "^2.29.4",
     "morgan": "^1.6.0",
     "mysql": "^2.7.0",
+    "mysqldump": "^3.2.0",
     "node-telegram-bot-api": "^0.61.0",
     "passport": "^0.6.0",
     "passport-local": "^1.0.0",

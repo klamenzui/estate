@@ -58,7 +58,11 @@ class BotManager {
         let chatId = typeof chat == 'object' ? chat[t_bot_chat.code.name] : chat;
         console.log(res);
         if (this.isChatOn(chatId)) {
-            await this.bot.sendMessage(chatId, res, opt);
+            try{
+                await this.bot.sendMessage(chatId, res, opt);
+            }catch(e){
+                console.log(chatId, res, opt,e);
+            }
         }
     }
     onText = async (msg, match) => {
@@ -83,6 +87,7 @@ class BotManager {
                 console.log('cmdExec: estate_id = ', estate_id);
                 console.log('cmdExec: ', msg.text);
                 let response = await this.manager.process('ru', msg.text);
+                response.entities.push({entity:'estate_id',option:estate_id});
                 console.log(response);
                 response = await this.onIntent(response);
                 console.log(response.answer);
@@ -202,7 +207,7 @@ class BotManager {
         //console.log('output.intent:',output.intent);
         // Check if output has to be a logical continuation of the prior conversation's flow.
         // If it is, change the classified intent to the predefined one.
-        console.log('output:', JSON.stringify(this.req));
+        //console.log('output:', JSON.stringify(this.req));
         if (!this.nextIntent && this.correction_step === 1) {
             console.log('----[addDoc]-----');
             console.log('last:', this.lastReq);
@@ -224,7 +229,7 @@ class BotManager {
             let action = this.req.intent.split('.');
             if (this.actions[action[0]]) {
                 try {
-                    this.req.answer = this.exec(new this.actions[action[0]](), action[1]);
+                    this.req.answer = await this.exec(new this.actions[action[0]](), action[1]);
                 } catch (e) {
                     console.log(e);
                 }
@@ -271,7 +276,7 @@ class BotManager {
         });
     }
 
-    exec(obj, func) {
+    async exec(obj, func) {
         obj.nextIntent = this.nextIntent;
         obj.lastReq = this.lastReq;
         obj.memory = this.memory;
@@ -316,11 +321,11 @@ class BotManager {
                 }
             }
         }
-        let res = obj[func]();
+        let res = await obj[func]();
         this.nextIntent = obj.nextIntent;
         this.lastReq = obj.lastReq;
         this.memory = obj.memory;
-        console.log(obj);
+        console.log('exec:', obj, func);
         return res;
     }
 
