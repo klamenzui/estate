@@ -1,6 +1,6 @@
 const Entity = require("../Entity");
 class Expense extends Entity {
-    _editable = {"estate_id":[1,"estate_id"],"ref_estate_accessory_id":[2,"ref_estate_accessory_id"],"type":[3,"type","{\"0\":\"accessory\",\"1\":\"accommodation\",\"2\":\"service\"}"],"summe":[4,"summe"],"description":[5,"description"],"date":[6,"date"]};
+    _editable = {"estate_id":[1,"estate_id"],"ref_estate_accessory_id":[2,"ref_estate_accessory_id"],"type":[3,"type","{\"0\":\"accessory\",\"1\":\"accommodation\",\"2\":\"service\"}"],"amount":[4,"amount"],"description":[5,"description"],"date":[6,"date"]};
     _fields = {
   "id": {
     "name": "id",
@@ -47,8 +47,8 @@ class Expense extends Entity {
     "key": "",
     "extra": ""
   },
-  "summe": {
-    "name": "summe",
+  "amount": {
+    "name": "amount",
     "type": "double",
     "letNull": false,
     "default": null,
@@ -76,7 +76,7 @@ class Expense extends Entity {
   }
 };
     _primary_key = "id";_auto_increment = "id";
-    id;estate_id;ref_estate_accessory_id;type;summe;description;date;
+    id;estate_id;ref_estate_accessory_id;type;amount;description;date;
     constructor () {
         super();
     }

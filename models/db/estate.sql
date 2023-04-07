@@ -176,7 +176,7 @@ CREATE TABLE IF NOT EXISTS `expense` (
   `estate_id` int(11) NOT NULL,
   `ref_estate_accessory_id` int(11) NOT NULL,
   `type` enum('accessory', 'accommodation', 'service') NOT NULL,
-  `summe` double NOT NULL,
+  `amount` double NOT NULL,
   `description` varchar(255) NOT NULL,
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -191,13 +191,14 @@ CREATE TABLE IF NOT EXISTS `expense` (
 CREATE TABLE IF NOT EXISTS `payment` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `contract_id` int(11) NOT NULL,
-  `summe` float NOT NULL,
+  `amount` float NOT NULL,
   `period` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `status` enum('pending', 'payed', 'withdrawn') NOT NULL DEFAULT 'pending',
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `comment` text NOT NULL,
   PRIMARY KEY (`id`),
   KEY `contract_id` (`contract_id`)
-) ENGINE = MyISAM AUTO_INCREMENT = 174 DEFAULT CHARSET = utf8;
+) ENGINE = MyISAM AUTO_INCREMENT = 183 DEFAULT CHARSET = utf8;
 
 # ------------------------------------------------------------
 # SCHEMA DUMP FOR TABLE: ref_estate_accessory
@@ -260,6 +261,55 @@ CREATE TABLE IF NOT EXISTS `user` (
   PRIMARY KEY (`id`),
   KEY `role_id` (`role_id`)
 ) ENGINE = MyISAM AUTO_INCREMENT = 3 DEFAULT CHARSET = utf8;
+
+# ------------------------------------------------------------
+# SCHEMA DUMP FOR TABLE: utilitymeter
+# ------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `utilitymeter` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `code` varchar(100) NOT NULL,
+  `utilityservice_id` int(11) NOT NULL,
+  `estate_id` int(11) NOT NULL,
+  `price` float NOT NULL,
+  `meter_before` int(11) NOT NULL,
+  `meter_current` int(11) NOT NULL,
+  `description` text NOT NULL,
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY `id` (`id`),
+  UNIQUE KEY `code` (`code`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+
+# ------------------------------------------------------------
+# SCHEMA DUMP FOR TABLE: utilityservice
+# ------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `utilityservice` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `unit` char(20) NOT NULL COMMENT 'unit of measure',
+  `description` text NOT NULL,
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE = InnoDB AUTO_INCREMENT = 19 DEFAULT CHARSET = utf8;
+
+# ------------------------------------------------------------
+# SCHEMA DUMP FOR TABLE: utilityservice_invoice
+# ------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `utilityservice_invoice` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `utilityservice_id` int(11) NOT NULL,
+  `meter_before` int(11) NOT NULL,
+  `meter_current` int(11) NOT NULL,
+  `amount` double NOT NULL COMMENT 'sum = (current - before) * price',
+  `price` double NOT NULL,
+  `status` enum('pending', 'payed') NOT NULL,
+  `period` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `attachment_file` varchar(100) NOT NULL COMMENT 'file(pdf) in folder',
+  PRIMARY KEY (`id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8;
 
 # ------------------------------------------------------------
 # DATA DUMP FOR TABLE: accessory
@@ -1060,7 +1110,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1080,7 +1130,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1100,7 +1150,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1112,7 +1162,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1132,7 +1182,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1152,7 +1202,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1172,7 +1222,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1192,7 +1242,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1212,7 +1262,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1232,7 +1282,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1252,7 +1302,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1272,7 +1322,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1292,7 +1342,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1312,7 +1362,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1332,7 +1382,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1352,7 +1402,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1372,7 +1422,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1392,7 +1442,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1412,7 +1462,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1432,7 +1482,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1444,7 +1494,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1464,7 +1514,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1476,7 +1526,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1496,7 +1546,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1516,7 +1566,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1536,7 +1586,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1556,7 +1606,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1576,7 +1626,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1596,7 +1646,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1616,7 +1666,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1636,7 +1686,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1656,7 +1706,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1676,7 +1726,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1696,7 +1746,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1716,7 +1766,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1736,7 +1786,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1756,7 +1806,7 @@ INSERT INTO
     `estate_id`,
     `ref_estate_accessory_id`,
     `type`,
-    `summe`,
+    `amount`,
     `description`,
     `date`
   )
@@ -1779,8 +1829,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -1790,6 +1841,7 @@ VALUES
     1,
     1800,
     '2018-06-01 00:00:00',
+    'pending',
     '2018-06-01 00:00:00',
     ''
   );
@@ -1797,8 +1849,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -1808,6 +1861,7 @@ VALUES
     1,
     1800,
     '2018-07-01 00:00:00',
+    'pending',
     '2018-07-01 00:00:00',
     ''
   );
@@ -1815,8 +1869,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -1826,6 +1881,7 @@ VALUES
     1,
     1800,
     '2018-08-01 00:00:00',
+    'pending',
     '2018-08-01 00:00:00',
     ''
   );
@@ -1833,8 +1889,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -1844,6 +1901,7 @@ VALUES
     1,
     1800,
     '2018-09-01 00:00:00',
+    'pending',
     '2018-09-01 00:00:00',
     ''
   );
@@ -1851,8 +1909,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -1862,6 +1921,7 @@ VALUES
     2,
     0,
     '2018-09-20 00:00:00',
+    'pending',
     '2018-10-01 00:00:00',
     ''
   );
@@ -1869,8 +1929,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -1880,6 +1941,7 @@ VALUES
     2,
     2200,
     '2018-10-01 00:00:00',
+    'pending',
     '2019-02-11 18:18:39',
     ''
   );
@@ -1887,8 +1949,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -1898,6 +1961,7 @@ VALUES
     2,
     2200,
     '2018-11-01 00:00:00',
+    'pending',
     '2019-02-11 18:19:06',
     ''
   );
@@ -1905,8 +1969,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -1916,6 +1981,7 @@ VALUES
     2,
     2200,
     '2018-12-01 00:00:00',
+    'pending',
     '2019-02-11 18:21:36',
     ''
   );
@@ -1923,8 +1989,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -1934,6 +2001,7 @@ VALUES
     2,
     500,
     '2019-01-01 00:00:00',
+    'pending',
     '2019-02-11 18:21:36',
     'Долг'
   );
@@ -1941,8 +2009,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -1952,6 +2021,7 @@ VALUES
     3,
     2500,
     '2019-02-01 00:00:00',
+    'pending',
     '2019-02-11 18:21:36',
     ''
   );
@@ -1959,8 +2029,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -1970,6 +2041,7 @@ VALUES
     1,
     1800,
     '2018-10-01 00:00:00',
+    'pending',
     '2019-02-11 20:39:07',
     ''
   );
@@ -1977,8 +2049,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -1988,6 +2061,7 @@ VALUES
     1,
     1800,
     '2018-11-01 00:00:00',
+    'pending',
     '2019-02-11 20:40:44',
     ''
   );
@@ -1995,8 +2069,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2006,6 +2081,7 @@ VALUES
     4,
     2000,
     '2018-12-01 00:00:00',
+    'pending',
     '2019-02-11 20:40:44',
     ''
   );
@@ -2013,8 +2089,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2024,6 +2101,7 @@ VALUES
     3,
     2500,
     '2019-03-01 00:00:00',
+    'pending',
     '2019-04-12 08:13:24',
     ''
   );
@@ -2031,8 +2109,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2042,6 +2121,7 @@ VALUES
     4,
     2000,
     '2019-01-01 00:00:00',
+    'pending',
     '2019-04-12 08:22:53',
     ''
   );
@@ -2049,8 +2129,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2060,6 +2141,7 @@ VALUES
     4,
     2000,
     '2019-02-01 00:00:00',
+    'pending',
     '2019-04-12 08:22:53',
     ''
   );
@@ -2067,8 +2149,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2078,6 +2161,7 @@ VALUES
     5,
     3000,
     '2019-04-13 00:00:00',
+    'pending',
     '2019-07-10 20:59:37',
     ''
   );
@@ -2085,8 +2169,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2096,6 +2181,7 @@ VALUES
     5,
     3000,
     '2019-05-01 00:00:00',
+    'pending',
     '2019-07-10 21:01:55',
     ''
   );
@@ -2103,8 +2189,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2114,6 +2201,7 @@ VALUES
     5,
     3000,
     '2019-06-01 00:00:00',
+    'pending',
     '2019-07-10 21:01:55',
     ''
   );
@@ -2121,8 +2209,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2132,6 +2221,7 @@ VALUES
     4,
     2000,
     '2019-03-01 00:00:00',
+    'pending',
     '2019-07-10 21:27:39',
     ''
   );
@@ -2139,8 +2229,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2150,6 +2241,7 @@ VALUES
     4,
     1500,
     '2019-04-01 00:00:00',
+    'pending',
     '2019-07-10 21:28:14',
     ''
   );
@@ -2157,8 +2249,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2168,6 +2261,7 @@ VALUES
     4,
     2000,
     '2019-05-01 00:00:00',
+    'pending',
     '2019-07-10 21:31:10',
     ''
   );
@@ -2175,8 +2269,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2186,6 +2281,7 @@ VALUES
     4,
     2000,
     '2019-06-01 00:00:00',
+    'pending',
     '2019-07-10 21:31:10',
     ''
   );
@@ -2193,8 +2289,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2204,6 +2301,7 @@ VALUES
     6,
     2800,
     '2019-07-01 00:00:00',
+    'pending',
     '2019-09-12 19:45:01',
     '.200 интернет'
   );
@@ -2211,8 +2309,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2222,6 +2321,7 @@ VALUES
     4,
     2000,
     '2019-07-01 00:00:00',
+    'pending',
     '2019-09-12 20:07:35',
     ''
   );
@@ -2229,8 +2329,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2240,6 +2341,7 @@ VALUES
     6,
     3000,
     '2019-09-15 00:00:00',
+    'pending',
     '2019-09-22 17:39:38',
     ''
   );
@@ -2247,8 +2349,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2258,6 +2361,7 @@ VALUES
     6,
     3000,
     '2019-10-23 00:00:00',
+    'pending',
     '2019-10-26 20:42:02',
     ''
   );
@@ -2265,8 +2369,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2276,6 +2381,7 @@ VALUES
     6,
     3000,
     '2019-11-18 00:00:00',
+    'pending',
     '2019-11-19 20:01:45',
     ''
   );
@@ -2283,8 +2389,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2294,6 +2401,7 @@ VALUES
     6,
     3000,
     '2019-08-19 00:00:00',
+    'pending',
     '2019-11-19 20:23:24',
     ''
   );
@@ -2301,8 +2409,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2312,6 +2421,7 @@ VALUES
     7,
     2000,
     '2019-11-01 00:00:00',
+    'pending',
     '2019-12-06 20:51:21',
     ''
   );
@@ -2319,8 +2429,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2330,6 +2441,7 @@ VALUES
     8,
     3000,
     '2019-11-25 00:00:00',
+    'pending',
     '2019-12-06 21:12:48',
     ''
   );
@@ -2337,8 +2449,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2348,6 +2461,7 @@ VALUES
     6,
     3000,
     '2019-12-22 00:00:00',
+    'pending',
     '2019-12-23 12:26:03',
     ''
   );
@@ -2355,8 +2469,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2366,6 +2481,7 @@ VALUES
     7,
     2000,
     '2019-12-27 00:00:00',
+    'pending',
     '2020-01-05 20:45:21',
     ''
   );
@@ -2373,8 +2489,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2384,6 +2501,7 @@ VALUES
     8,
     3000,
     '2019-12-20 00:00:00',
+    'pending',
     '2020-01-11 18:31:20',
     ''
   );
@@ -2391,8 +2509,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2402,6 +2521,7 @@ VALUES
     7,
     2000,
     '2020-01-05 00:00:00',
+    'pending',
     '2020-01-11 19:07:28',
     ''
   );
@@ -2409,8 +2529,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2420,6 +2541,7 @@ VALUES
     7,
     2000,
     '2020-02-03 00:00:00',
+    'pending',
     '2020-02-03 19:31:12',
     ''
   );
@@ -2427,8 +2549,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2438,6 +2561,7 @@ VALUES
     8,
     3000,
     '2020-01-25 00:00:00',
+    'pending',
     '2020-02-03 19:33:26',
     ''
   );
@@ -2445,8 +2569,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2456,6 +2581,7 @@ VALUES
     6,
     3000,
     '2020-01-15 00:00:00',
+    'pending',
     '2020-02-10 18:42:06',
     ''
   );
@@ -2463,8 +2589,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2474,6 +2601,7 @@ VALUES
     7,
     2000,
     '2020-03-03 00:00:00',
+    'pending',
     '2020-03-12 20:18:22',
     ''
   );
@@ -2481,8 +2609,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2492,6 +2621,7 @@ VALUES
     6,
     3000,
     '2020-02-20 00:00:00',
+    'pending',
     '2020-03-12 20:19:07',
     ''
   );
@@ -2499,8 +2629,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2510,6 +2641,7 @@ VALUES
     8,
     3000,
     '2020-02-25 00:00:00',
+    'pending',
     '2020-03-12 20:19:32',
     ''
   );
@@ -2517,8 +2649,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2528,6 +2661,7 @@ VALUES
     9,
     3000,
     '2020-04-01 00:00:00',
+    'pending',
     '2020-12-06 17:06:27',
     ''
   );
@@ -2535,8 +2669,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2546,6 +2681,7 @@ VALUES
     9,
     3000,
     '2020-05-01 00:00:00',
+    'pending',
     '2020-12-06 17:12:16',
     ''
   );
@@ -2553,8 +2689,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2564,6 +2701,7 @@ VALUES
     9,
     3000,
     '2020-06-01 00:00:00',
+    'pending',
     '2020-12-06 17:13:42',
     ''
   );
@@ -2571,8 +2709,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2582,6 +2721,7 @@ VALUES
     9,
     3000,
     '2020-07-01 00:00:00',
+    'pending',
     '2020-12-06 17:13:56',
     ''
   );
@@ -2589,8 +2729,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2600,6 +2741,7 @@ VALUES
     9,
     3000,
     '2020-08-01 00:00:00',
+    'pending',
     '2020-12-06 17:14:11',
     ''
   );
@@ -2607,8 +2749,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2618,6 +2761,7 @@ VALUES
     9,
     3000,
     '2020-09-01 00:00:00',
+    'pending',
     '2020-12-06 17:14:57',
     ''
   );
@@ -2625,8 +2769,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2636,6 +2781,7 @@ VALUES
     10,
     2900,
     '2020-10-01 00:00:00',
+    'pending',
     '2020-12-06 17:15:32',
     '(Вл - 300)'
   );
@@ -2643,8 +2789,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2654,6 +2801,7 @@ VALUES
     10,
     2900,
     '2020-11-01 00:00:00',
+    'pending',
     '2020-12-06 17:15:55',
     '(Владик - 300)'
   );
@@ -2661,8 +2809,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2672,6 +2821,7 @@ VALUES
     7,
     2000,
     '2020-04-01 00:00:00',
+    'pending',
     '2020-12-06 17:20:55',
     ''
   );
@@ -2679,8 +2829,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2690,6 +2841,7 @@ VALUES
     7,
     2000,
     '2020-05-01 00:00:00',
+    'pending',
     '2020-12-06 17:21:12',
     ''
   );
@@ -2697,8 +2849,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2708,6 +2861,7 @@ VALUES
     7,
     2000,
     '2020-06-01 00:00:00',
+    'pending',
     '2020-12-06 17:21:29',
     ''
   );
@@ -2715,8 +2869,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2726,6 +2881,7 @@ VALUES
     7,
     2000,
     '2020-07-01 00:00:00',
+    'pending',
     '2020-12-06 17:21:37',
     ''
   );
@@ -2733,8 +2889,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2744,6 +2901,7 @@ VALUES
     7,
     2000,
     '2020-08-01 00:00:00',
+    'pending',
     '2020-12-06 17:21:54',
     ''
   );
@@ -2751,8 +2909,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2762,6 +2921,7 @@ VALUES
     7,
     2000,
     '2020-09-01 00:00:00',
+    'pending',
     '2020-12-06 17:22:04',
     ''
   );
@@ -2769,8 +2929,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2780,6 +2941,7 @@ VALUES
     7,
     2000,
     '2020-10-01 00:00:00',
+    'pending',
     '2020-12-06 17:22:16',
     ''
   );
@@ -2787,8 +2949,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2798,6 +2961,7 @@ VALUES
     7,
     2000,
     '2020-11-01 00:00:00',
+    'pending',
     '2020-12-06 17:22:26',
     ''
   );
@@ -2805,8 +2969,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2816,6 +2981,7 @@ VALUES
     6,
     3000,
     '2020-03-01 00:00:00',
+    'pending',
     '2020-12-06 17:23:56',
     ''
   );
@@ -2823,8 +2989,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2834,6 +3001,7 @@ VALUES
     6,
     3000,
     '2020-04-01 00:00:00',
+    'pending',
     '2020-12-06 17:24:08',
     ''
   );
@@ -2841,8 +3009,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2852,6 +3021,7 @@ VALUES
     6,
     3000,
     '2020-05-01 00:00:00',
+    'pending',
     '2020-12-06 17:24:20',
     ''
   );
@@ -2859,8 +3029,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2870,6 +3041,7 @@ VALUES
     6,
     3000,
     '2020-06-01 00:00:00',
+    'pending',
     '2020-12-06 17:24:28',
     ''
   );
@@ -2877,8 +3049,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2888,6 +3061,7 @@ VALUES
     6,
     3000,
     '2020-07-01 00:00:00',
+    'pending',
     '2020-12-06 17:24:40',
     ''
   );
@@ -2895,8 +3069,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2906,6 +3081,7 @@ VALUES
     6,
     3000,
     '2020-08-01 00:00:00',
+    'pending',
     '2020-12-06 17:24:56',
     ''
   );
@@ -2913,8 +3089,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2924,6 +3101,7 @@ VALUES
     6,
     3000,
     '2020-09-01 00:00:00',
+    'pending',
     '2020-12-06 17:25:09',
     ''
   );
@@ -2931,8 +3109,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2942,6 +3121,7 @@ VALUES
     6,
     3000,
     '2020-10-01 00:00:00',
+    'pending',
     '2020-12-19 18:56:47',
     ''
   );
@@ -2949,8 +3129,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2960,6 +3141,7 @@ VALUES
     6,
     3000,
     '2020-12-01 00:00:00',
+    'pending',
     '2020-12-19 18:58:47',
     ''
   );
@@ -2967,8 +3149,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2978,6 +3161,7 @@ VALUES
     6,
     3000,
     '2020-11-01 00:00:00',
+    'pending',
     '2020-12-19 18:59:36',
     ''
   );
@@ -2985,8 +3169,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -2996,6 +3181,7 @@ VALUES
     11,
     2000,
     '2020-09-01 00:00:00',
+    'pending',
     '2020-12-19 19:11:05',
     ''
   );
@@ -3003,8 +3189,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3014,6 +3201,7 @@ VALUES
     11,
     2000,
     '2020-10-01 00:00:00',
+    'pending',
     '2020-12-19 19:11:14',
     ''
   );
@@ -3021,8 +3209,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3032,6 +3221,7 @@ VALUES
     11,
     2000,
     '2020-11-01 00:00:00',
+    'pending',
     '2020-12-19 19:12:21',
     ''
   );
@@ -3039,8 +3229,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3050,6 +3241,7 @@ VALUES
     11,
     1000,
     '2020-12-01 00:00:00',
+    'pending',
     '2020-12-19 19:13:00',
     ''
   );
@@ -3057,8 +3249,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3068,6 +3261,7 @@ VALUES
     10,
     2900,
     '2020-12-01 00:00:00',
+    'pending',
     '2021-04-14 17:10:52',
     ''
   );
@@ -3075,8 +3269,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3086,6 +3281,7 @@ VALUES
     10,
     2900,
     '2021-01-01 00:00:00',
+    'pending',
     '2021-04-14 17:11:39',
     ''
   );
@@ -3093,8 +3289,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3104,6 +3301,7 @@ VALUES
     10,
     3000,
     '2021-02-01 00:00:00',
+    'pending',
     '2021-04-14 17:12:03',
     ''
   );
@@ -3111,8 +3309,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3122,6 +3321,7 @@ VALUES
     10,
     3000,
     '2021-03-01 00:00:00',
+    'pending',
     '2021-04-14 17:14:36',
     ''
   );
@@ -3129,8 +3329,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3140,6 +3341,7 @@ VALUES
     6,
     3000,
     '2021-01-01 00:00:00',
+    'pending',
     '2021-04-14 17:15:35',
     ''
   );
@@ -3147,8 +3349,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3158,6 +3361,7 @@ VALUES
     6,
     3000,
     '2021-02-01 00:00:00',
+    'pending',
     '2021-04-14 17:15:42',
     ''
   );
@@ -3165,8 +3369,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3176,6 +3381,7 @@ VALUES
     6,
     3000,
     '2021-03-01 00:00:00',
+    'pending',
     '2021-04-14 17:15:51',
     ''
   );
@@ -3183,8 +3389,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3194,6 +3401,7 @@ VALUES
     7,
     2000,
     '2020-12-01 00:00:00',
+    'pending',
     '2021-04-14 17:16:27',
     ''
   );
@@ -3201,8 +3409,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3212,6 +3421,7 @@ VALUES
     7,
     2000,
     '2021-01-01 00:00:00',
+    'pending',
     '2021-04-14 17:16:36',
     ''
   );
@@ -3219,8 +3429,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3230,6 +3441,7 @@ VALUES
     7,
     2000,
     '2021-02-01 00:00:00',
+    'pending',
     '2021-04-14 17:16:50',
     ''
   );
@@ -3237,8 +3449,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3248,6 +3461,7 @@ VALUES
     7,
     2000,
     '2021-03-01 00:00:00',
+    'pending',
     '2021-04-14 17:16:58',
     ''
   );
@@ -3255,8 +3469,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3266,6 +3481,7 @@ VALUES
     12,
     3000,
     '2021-04-12 00:00:00',
+    'pending',
     '2021-04-26 16:14:39',
     ''
   );
@@ -3273,8 +3489,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3284,6 +3501,7 @@ VALUES
     13,
     2800,
     '2021-03-25 00:00:00',
+    'pending',
     '2021-04-26 16:18:53',
     ''
   );
@@ -3291,8 +3509,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3302,6 +3521,7 @@ VALUES
     14,
     3000,
     '2021-04-19 00:00:00',
+    'pending',
     '2021-04-26 16:20:55',
     ''
   );
@@ -3309,8 +3529,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3320,6 +3541,7 @@ VALUES
     12,
     2600,
     '2021-05-03 00:00:00',
+    'pending',
     '2021-07-25 18:24:50',
     ''
   );
@@ -3327,8 +3549,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3338,6 +3561,7 @@ VALUES
     12,
     3000,
     '2021-06-01 00:00:00',
+    'pending',
     '2021-07-25 18:26:00',
     ''
   );
@@ -3345,8 +3569,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3356,6 +3581,7 @@ VALUES
     7,
     2100,
     '2021-06-01 00:00:00',
+    'pending',
     '2021-07-25 18:31:38',
     ''
   );
@@ -3363,8 +3589,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3374,6 +3601,7 @@ VALUES
     7,
     2000,
     '2021-05-01 00:00:00',
+    'pending',
     '2021-07-25 18:33:04',
     ''
   );
@@ -3381,8 +3609,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3392,6 +3621,7 @@ VALUES
     7,
     2000,
     '2021-04-01 00:00:00',
+    'pending',
     '2021-07-25 18:33:15',
     ''
   );
@@ -3399,8 +3629,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3410,6 +3641,7 @@ VALUES
     7,
     2500,
     '2021-07-01 00:00:00',
+    'pending',
     '2021-07-25 18:33:50',
     ''
   );
@@ -3417,8 +3649,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3428,6 +3661,7 @@ VALUES
     6,
     3000,
     '2021-04-01 00:00:00',
+    'pending',
     '2021-07-25 18:35:07',
     ''
   );
@@ -3435,8 +3669,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3446,6 +3681,7 @@ VALUES
     6,
     3000,
     '2021-05-01 00:00:00',
+    'pending',
     '2021-07-25 18:35:15',
     ''
   );
@@ -3453,8 +3689,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3464,6 +3701,7 @@ VALUES
     6,
     3000,
     '2021-06-01 00:00:00',
+    'pending',
     '2021-07-25 18:35:22',
     ''
   );
@@ -3471,8 +3709,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3482,6 +3721,7 @@ VALUES
     6,
     3000,
     '2021-07-01 00:00:00',
+    'pending',
     '2021-12-28 18:30:27',
     ''
   );
@@ -3489,8 +3729,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3500,6 +3741,7 @@ VALUES
     6,
     3000,
     '2021-08-01 00:00:00',
+    'pending',
     '2021-12-28 18:30:52',
     ''
   );
@@ -3507,8 +3749,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3518,6 +3761,7 @@ VALUES
     6,
     3000,
     '2021-09-01 00:00:00',
+    'pending',
     '2021-12-28 18:31:00',
     ''
   );
@@ -3525,8 +3769,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3536,6 +3781,7 @@ VALUES
     7,
     2000,
     '2021-08-01 00:00:00',
+    'pending',
     '2021-12-28 19:02:53',
     ''
   );
@@ -3543,8 +3789,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3554,6 +3801,7 @@ VALUES
     7,
     2000,
     '2021-09-01 00:00:00',
+    'pending',
     '2021-12-28 19:03:03',
     ''
   );
@@ -3561,8 +3809,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3572,6 +3821,7 @@ VALUES
     7,
     2000,
     '2021-10-01 00:00:00',
+    'pending',
     '2021-12-28 19:03:13',
     ''
   );
@@ -3579,8 +3829,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3590,6 +3841,7 @@ VALUES
     7,
     2000,
     '2021-11-01 00:00:00',
+    'pending',
     '2021-12-28 19:03:31',
     ''
   );
@@ -3597,8 +3849,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3608,6 +3861,7 @@ VALUES
     7,
     2000,
     '2021-12-01 00:00:00',
+    'pending',
     '2021-12-28 19:03:46',
     ''
   );
@@ -3615,8 +3869,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3626,6 +3881,7 @@ VALUES
     12,
     3000,
     '2021-07-01 00:00:00',
+    'pending',
     '2021-12-28 19:04:44',
     ''
   );
@@ -3633,8 +3889,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3644,6 +3901,7 @@ VALUES
     12,
     3000,
     '2021-08-01 00:00:00',
+    'pending',
     '2021-12-28 19:05:15',
     ''
   );
@@ -3651,8 +3909,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3662,6 +3921,7 @@ VALUES
     12,
     3000,
     '2021-09-01 00:00:00',
+    'pending',
     '2021-12-28 19:05:23',
     ''
   );
@@ -3669,8 +3929,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3680,6 +3941,7 @@ VALUES
     12,
     3000,
     '2021-10-01 00:00:00',
+    'pending',
     '2021-12-28 19:05:29',
     ''
   );
@@ -3687,8 +3949,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3698,6 +3961,7 @@ VALUES
     12,
     3000,
     '2021-11-01 00:00:00',
+    'pending',
     '2021-12-28 19:05:46',
     ''
   );
@@ -3705,8 +3969,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3716,6 +3981,7 @@ VALUES
     6,
     3000,
     '2021-10-01 00:00:00',
+    'pending',
     '2022-09-21 18:08:11',
     ''
   );
@@ -3723,8 +3989,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3734,6 +4001,7 @@ VALUES
     6,
     3000,
     '2021-11-01 00:00:00',
+    'pending',
     '2022-09-21 18:08:26',
     ''
   );
@@ -3741,8 +4009,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3752,6 +4021,7 @@ VALUES
     6,
     3000,
     '2021-12-01 00:00:00',
+    'pending',
     '2022-09-21 18:08:33',
     ''
   );
@@ -3759,8 +4029,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3770,6 +4041,7 @@ VALUES
     6,
     3000,
     '2022-01-01 00:00:00',
+    'pending',
     '2022-09-21 18:08:50',
     ''
   );
@@ -3777,8 +4049,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3788,6 +4061,7 @@ VALUES
     6,
     3000,
     '2022-02-01 00:00:00',
+    'pending',
     '2022-09-21 18:08:59',
     ''
   );
@@ -3795,8 +4069,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3806,6 +4081,7 @@ VALUES
     6,
     3000,
     '2022-03-01 00:00:00',
+    'pending',
     '2022-09-21 18:09:06',
     ''
   );
@@ -3813,8 +4089,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3824,6 +4101,7 @@ VALUES
     6,
     3000,
     '2022-04-01 00:00:00',
+    'pending',
     '2022-09-21 18:09:13',
     ''
   );
@@ -3831,8 +4109,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3842,6 +4121,7 @@ VALUES
     6,
     3000,
     '2022-05-01 00:00:00',
+    'pending',
     '2022-09-21 18:09:23',
     ''
   );
@@ -3849,8 +4129,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3860,6 +4141,7 @@ VALUES
     6,
     3000,
     '2022-06-01 00:00:00',
+    'pending',
     '2022-09-21 18:09:48',
     ''
   );
@@ -3867,8 +4149,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3878,6 +4161,7 @@ VALUES
     6,
     3000,
     '2022-07-01 00:00:00',
+    'pending',
     '2022-09-21 18:10:03',
     ''
   );
@@ -3885,8 +4169,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3896,6 +4181,7 @@ VALUES
     6,
     3000,
     '2022-08-01 00:00:00',
+    'pending',
     '2022-09-21 18:10:13',
     ''
   );
@@ -3903,8 +4189,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3914,6 +4201,7 @@ VALUES
     12,
     3000,
     '2021-12-01 00:00:00',
+    'pending',
     '2022-09-21 18:47:58',
     ''
   );
@@ -3921,8 +4209,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3932,6 +4221,7 @@ VALUES
     12,
     3000,
     '2022-01-01 00:00:00',
+    'pending',
     '2022-09-21 18:48:34',
     ''
   );
@@ -3939,8 +4229,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3950,6 +4241,7 @@ VALUES
     12,
     3000,
     '2022-02-01 00:00:00',
+    'pending',
     '2022-09-21 18:48:42',
     ''
   );
@@ -3957,8 +4249,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3968,6 +4261,7 @@ VALUES
     12,
     3000,
     '2022-03-01 00:00:00',
+    'pending',
     '2022-09-21 18:48:47',
     ''
   );
@@ -3975,8 +4269,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -3986,6 +4281,7 @@ VALUES
     12,
     4000,
     '2022-04-01 00:00:00',
+    'pending',
     '2022-09-21 18:49:09',
     ''
   );
@@ -3993,8 +4289,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4004,6 +4301,7 @@ VALUES
     12,
     4000,
     '2022-05-01 00:00:00',
+    'pending',
     '2022-09-21 18:49:18',
     ''
   );
@@ -4011,8 +4309,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4022,6 +4321,7 @@ VALUES
     12,
     4000,
     '2022-06-01 00:00:00',
+    'pending',
     '2022-09-21 18:49:26',
     ''
   );
@@ -4029,8 +4329,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4040,6 +4341,7 @@ VALUES
     12,
     4000,
     '2022-07-01 00:00:00',
+    'pending',
     '2022-09-21 18:49:31',
     ''
   );
@@ -4047,8 +4349,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4058,6 +4361,7 @@ VALUES
     12,
     4000,
     '2022-08-01 00:00:00',
+    'pending',
     '2022-09-21 18:49:37',
     ''
   );
@@ -4065,8 +4369,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4076,6 +4381,7 @@ VALUES
     7,
     2000,
     '2022-01-01 00:00:00',
+    'pending',
     '2022-09-21 19:22:06',
     ''
   );
@@ -4083,8 +4389,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4094,6 +4401,7 @@ VALUES
     7,
     2000,
     '2022-02-01 00:00:00',
+    'pending',
     '2022-09-21 19:22:18',
     ''
   );
@@ -4101,8 +4409,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4112,6 +4421,7 @@ VALUES
     7,
     2000,
     '2022-04-01 00:00:00',
+    'pending',
     '2022-09-21 19:22:44',
     ''
   );
@@ -4119,8 +4429,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4130,6 +4441,7 @@ VALUES
     7,
     2500,
     '2022-05-01 00:00:00',
+    'pending',
     '2022-09-21 19:22:53',
     ''
   );
@@ -4137,8 +4449,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4148,6 +4461,7 @@ VALUES
     7,
     2500,
     '2022-06-01 00:00:00',
+    'pending',
     '2022-09-21 19:23:00',
     ''
   );
@@ -4155,8 +4469,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4166,6 +4481,7 @@ VALUES
     7,
     2500,
     '2022-07-01 00:00:00',
+    'pending',
     '2022-09-21 19:23:05',
     ''
   );
@@ -4173,8 +4489,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4184,6 +4501,7 @@ VALUES
     7,
     2500,
     '2022-08-01 00:00:00',
+    'pending',
     '2022-09-21 19:23:11',
     ''
   );
@@ -4191,8 +4509,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4202,6 +4521,7 @@ VALUES
     7,
     2500,
     '2022-09-01 00:00:00',
+    'pending',
     '2022-11-14 18:44:54',
     ''
   );
@@ -4209,8 +4529,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4220,6 +4541,7 @@ VALUES
     7,
     2500,
     '2022-10-01 00:00:00',
+    'pending',
     '2022-11-14 18:45:03',
     ''
   );
@@ -4227,8 +4549,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4238,6 +4561,7 @@ VALUES
     7,
     3500,
     '2022-11-01 00:00:00',
+    'pending',
     '2022-11-14 18:45:57',
     ''
   );
@@ -4245,8 +4569,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4256,6 +4581,7 @@ VALUES
     12,
     4000,
     '2022-09-01 00:00:00',
+    'pending',
     '2022-11-14 18:49:46',
     ''
   );
@@ -4263,8 +4589,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4274,6 +4601,7 @@ VALUES
     12,
     4500,
     '2022-10-01 00:00:00',
+    'pending',
     '2022-11-14 18:49:58',
     ''
   );
@@ -4281,8 +4609,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4292,6 +4621,7 @@ VALUES
     15,
     1000,
     '2022-10-01 00:00:00',
+    'pending',
     '0000-00-00 00:00:00',
     ''
   );
@@ -4299,8 +4629,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4310,6 +4641,7 @@ VALUES
     15,
     1000,
     '2022-10-01 00:00:00',
+    'pending',
     '0000-00-00 00:00:00',
     ''
   );
@@ -4317,8 +4649,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4328,6 +4661,7 @@ VALUES
     15,
     500,
     '2022-10-01 00:00:00',
+    'pending',
     '0000-00-00 00:00:00',
     ''
   );
@@ -4335,8 +4669,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4346,6 +4681,7 @@ VALUES
     15,
     1000,
     '2022-10-01 00:00:00',
+    'pending',
     '0000-00-00 00:00:00',
     ''
   );
@@ -4353,8 +4689,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4364,6 +4701,7 @@ VALUES
     15,
     1000,
     '2022-12-01 00:00:00',
+    'pending',
     '2023-01-16 17:17:14',
     ''
   );
@@ -4371,8 +4709,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4382,6 +4721,7 @@ VALUES
     15,
     1000,
     '2022-12-01 00:00:00',
+    'pending',
     '2023-01-16 17:17:51',
     ''
   );
@@ -4389,8 +4729,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4400,6 +4741,7 @@ VALUES
     15,
     1000,
     '2022-12-01 00:00:00',
+    'pending',
     '2023-01-16 17:17:53',
     ''
   );
@@ -4407,8 +4749,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4418,6 +4761,7 @@ VALUES
     19,
     5,
     '2023-01-02 00:00:00',
+    'pending',
     '2023-01-19 00:00:00',
     ''
   );
@@ -4425,8 +4769,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4436,6 +4781,7 @@ VALUES
     19,
     0,
     '0000-00-00 00:00:00',
+    'pending',
     '0000-00-00 00:00:00',
     ''
   );
@@ -4443,8 +4789,9 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
-    `summe`,
+    `amount`,
     `period`,
+    `status`,
     `date`,
     `comment`
   )
@@ -4454,7 +4801,188 @@ VALUES
     19,
     6000,
     '0000-00-00 00:00:00',
+    'pending',
     '0000-00-00 00:00:00',
+    ''
+  );
+INSERT INTO
+  `payment` (
+    `id`,
+    `contract_id`,
+    `amount`,
+    `period`,
+    `status`,
+    `date`,
+    `comment`
+  )
+VALUES
+  (
+    174,
+    0,
+    0,
+    '2023-03-31 17:22:51',
+    'pending',
+    '2023-03-31 17:22:51',
+    ''
+  );
+INSERT INTO
+  `payment` (
+    `id`,
+    `contract_id`,
+    `amount`,
+    `period`,
+    `status`,
+    `date`,
+    `comment`
+  )
+VALUES
+  (
+    175,
+    0,
+    0,
+    '2023-04-01 13:57:50',
+    'pending',
+    '2023-04-01 13:57:50',
+    ''
+  );
+INSERT INTO
+  `payment` (
+    `id`,
+    `contract_id`,
+    `amount`,
+    `period`,
+    `status`,
+    `date`,
+    `comment`
+  )
+VALUES
+  (
+    176,
+    0,
+    0,
+    '2023-04-01 13:58:25',
+    'pending',
+    '2023-04-01 13:58:25',
+    ''
+  );
+INSERT INTO
+  `payment` (
+    `id`,
+    `contract_id`,
+    `amount`,
+    `period`,
+    `status`,
+    `date`,
+    `comment`
+  )
+VALUES
+  (
+    177,
+    0,
+    0,
+    '2023-04-01 14:05:24',
+    'pending',
+    '2023-04-01 14:05:24',
+    ''
+  );
+INSERT INTO
+  `payment` (
+    `id`,
+    `contract_id`,
+    `amount`,
+    `period`,
+    `status`,
+    `date`,
+    `comment`
+  )
+VALUES
+  (
+    178,
+    0,
+    0,
+    '2023-04-01 14:06:29',
+    'pending',
+    '2023-04-01 14:06:29',
+    ''
+  );
+INSERT INTO
+  `payment` (
+    `id`,
+    `contract_id`,
+    `amount`,
+    `period`,
+    `status`,
+    `date`,
+    `comment`
+  )
+VALUES
+  (
+    179,
+    0,
+    0,
+    '2023-04-01 14:45:16',
+    'pending',
+    '2023-04-01 14:45:16',
+    ''
+  );
+INSERT INTO
+  `payment` (
+    `id`,
+    `contract_id`,
+    `amount`,
+    `period`,
+    `status`,
+    `date`,
+    `comment`
+  )
+VALUES
+  (
+    180,
+    0,
+    0,
+    '2023-04-01 14:48:42',
+    'pending',
+    '2023-04-01 14:48:42',
+    ''
+  );
+INSERT INTO
+  `payment` (
+    `id`,
+    `contract_id`,
+    `amount`,
+    `period`,
+    `status`,
+    `date`,
+    `comment`
+  )
+VALUES
+  (
+    181,
+    0,
+    0,
+    '2023-04-01 14:53:07',
+    'pending',
+    '2023-04-01 14:53:07',
+    ''
+  );
+INSERT INTO
+  `payment` (
+    `id`,
+    `contract_id`,
+    `amount`,
+    `period`,
+    `status`,
+    `date`,
+    `comment`
+  )
+VALUES
+  (
+    182,
+    0,
+    0,
+    '2023-04-01 14:56:07',
+    'pending',
+    '2023-04-01 14:56:07',
     ''
   );
 
@@ -4566,6 +5094,119 @@ VALUES
     '$2a$10$OWisVlgw8VCvovKiKAyD8.xJg0H3d6B6amKHOII5t6AQxVa7FzlnW',
     '1'
   );
+
+# ------------------------------------------------------------
+# DATA DUMP FOR TABLE: utilitymeter
+# ------------------------------------------------------------
+
+
+# ------------------------------------------------------------
+# DATA DUMP FOR TABLE: utilityservice
+# ------------------------------------------------------------
+
+INSERT INTO
+  `utilityservice` (`id`, `name`, `unit`, `description`, `date`)
+VALUES
+  (
+    8,
+    'electricity-day',
+    'kW*h',
+    'послуги з розподілу електричної енергії',
+    '2023-04-06 13:19:39'
+  );
+INSERT INTO
+  `utilityservice` (`id`, `name`, `unit`, `description`, `date`)
+VALUES
+  (
+    9,
+    'electricity-night',
+    'kW*h',
+    'послуги з розподілу електричної енергії',
+    '2023-04-06 13:19:39'
+  );
+INSERT INTO
+  `utilityservice` (`id`, `name`, `unit`, `description`, `date`)
+VALUES
+  (10, 'gas', 'm^3', 'газ', '2023-04-06 13:19:26');
+INSERT INTO
+  `utilityservice` (`id`, `name`, `unit`, `description`, `date`)
+VALUES
+  (
+    11,
+    'gas-distribution',
+    'm^3',
+    'газ',
+    '2023-04-06 13:19:26'
+  );
+INSERT INTO
+  `utilityservice` (`id`, `name`, `unit`, `description`, `date`)
+VALUES
+  (
+    12,
+    'water-supply',
+    'm^3',
+    'централізоване водопостачання',
+    '2023-04-06 13:19:19'
+  );
+INSERT INTO
+  `utilityservice` (`id`, `name`, `unit`, `description`, `date`)
+VALUES
+  (
+    13,
+    'water-drainage',
+    'm^3',
+    'централізоване водовідведення',
+    '2023-04-06 13:19:19'
+  );
+INSERT INTO
+  `utilityservice` (`id`, `name`, `unit`, `description`, `date`)
+VALUES
+  (
+    14,
+    'water-service',
+    'm^3',
+    'обслуговування та заміна',
+    '2023-04-06 13:19:19'
+  );
+INSERT INTO
+  `utilityservice` (`id`, `name`, `unit`, `description`, `date`)
+VALUES
+  (15, 'warm', '', 'тепло', '2023-04-06 13:18:38');
+INSERT INTO
+  `utilityservice` (`id`, `name`, `unit`, `description`, `date`)
+VALUES
+  (
+    16,
+    'recycling',
+    '',
+    'вывоз мусора',
+    '2023-04-06 13:19:04'
+  );
+INSERT INTO
+  `utilityservice` (`id`, `name`, `unit`, `description`, `date`)
+VALUES
+  (
+    17,
+    'housing_maintenance',
+    '',
+    'ЖЕО',
+    '2023-04-06 13:18:53'
+  );
+INSERT INTO
+  `utilityservice` (`id`, `name`, `unit`, `description`, `date`)
+VALUES
+  (
+    18,
+    'internet',
+    '',
+    'интернет',
+    '2023-04-06 13:19:11'
+  );
+
+# ------------------------------------------------------------
+# DATA DUMP FOR TABLE: utilityservice_invoice
+# ------------------------------------------------------------
+
 
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

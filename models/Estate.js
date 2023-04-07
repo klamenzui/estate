@@ -77,7 +77,7 @@ class Estate extends Model {
             LEFT JOIN (
                     select
                         ${(t_contract.estate_id)},
-                        sum(${(t_payment.summe)}) profit_total
+                        sum(${(t_payment.amount)}) profit_total
                     from ${(t_contract)}
                     LEFT JOIN ${(t_payment)} on ( ${(t_contract.id)} = ${(t_payment.contract_id)} )
                 group by ${(t_contract.estate_id)}

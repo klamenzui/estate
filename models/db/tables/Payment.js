@@ -1,6 +1,6 @@
 const Entity = require("../Entity");
 class Payment extends Entity {
-    _editable = {"contract_id":[1,"contract_id"],"summe":[2,"summe"],"period":[3,"period"],"date":[4,"date"],"comment":[5,"comment"]};
+    _editable = {"contract_id":[1,"contract_id"],"amount":[2,"amount"],"period":[3,"period"],"status":[4,"status","{\"0\":\"pending\",\"1\":\"payed\",\"2\":\"withdrawn\"}"],"date":[5,"date"],"comment":[6,"comment"]};
     _fields = {
   "id": {
     "name": "id",
@@ -24,8 +24,8 @@ class Payment extends Entity {
     "key": "MUL",
     "extra": ""
   },
-  "summe": {
-    "name": "summe",
+  "amount": {
+    "name": "amount",
     "type": "float",
     "letNull": false,
     "default": null,
@@ -37,6 +37,18 @@ class Payment extends Entity {
     "type": "timestamp",
     "letNull": false,
     "default": "CURRENT_TIMESTAMP",
+    "key": "",
+    "extra": ""
+  },
+  "status": {
+    "name": "status",
+    "type": {
+      "0": "pending",
+      "1": "payed",
+      "2": "withdrawn"
+    },
+    "letNull": false,
+    "default": "pending",
     "key": "",
     "extra": ""
   },
@@ -58,7 +70,7 @@ class Payment extends Entity {
   }
 };
     _primary_key = "id";_auto_increment = "id";
-    id;contract_id;summe;period;date;comment;
+    id;contract_id;amount;period;status;date;comment;
     constructor () {
         super();
     }

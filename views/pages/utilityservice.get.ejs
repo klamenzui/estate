@@ -1,0 +1,61 @@
+
+
+
+	<div class="page-header">
+		If interval set then will exec every interval, else only once (date_start).<br/>
+		<table>
+			<thead>
+			<tr>
+				<th>field</th>
+				<th>value</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr>
+				<td>second</td>
+				<td>0-59</td>
+			</tr>
+			<tr>
+				<td>minute</td>
+				<td>0-59</td>
+			</tr>
+			<tr>
+				<td>hour</td>
+				<td>0-23</td>
+			</tr>
+			<tr>
+				<td>day of month</td>
+				<td>1-31</td>
+			</tr>
+			<tr>
+				<td>month</td>
+				<td>1-12 (or names)</td>
+			</tr>
+			<tr>
+				<td>day of week</td>
+				<td>0-7 (or names, 0 or 7 are sunday)</td>
+			</tr>
+			</tbody>
+		</table>
+		Using multiples values
+	</div>
+	<div class="row">
+		<div class="w-100 p-3">
+			<div class="card shadow ">
+				<div class="card-header py-3">
+					<h6 class="m-0 font-weight-bold text-primary"><%=title;%></h6>
+				</div>
+				<div class="card-body table-responsive">
+						<table id="dataTable" api="utilityservice" class="table table-striped table-bordered"></table>
+						<div id="dataTablePagger"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+<script>
+	$(document).ready(function () {
+		loadTable('dataTable');
+	});
+</script>
+

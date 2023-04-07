@@ -16,7 +16,7 @@ class Action {
         // All the required data to book is present => process the reservation
         if (this.cmd) {
             if(this.memory){
-                let [clazz, func] = this.cmd+ ''.split('.');
+                let [clazz, func] = (this.cmd+ '').split('\\.');
                 if(!func){
                     func = 'main';
                 }

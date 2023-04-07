@@ -13,7 +13,7 @@ class Expense extends Model {
         //app.locals.knex().select(table_scheme.expense.id.full, table_scheme.expense.summe.full, `DATE_FORMAT(${(table_scheme.expense.date.full)}, '%d.%m.%Y') as ${(table_scheme.expense.date.field)}`)
         //    .join('users', 'users.id', 'posts.user_id')
         //   .where({user_id: id})
-        return this.query(`SELECT ${(t_expense.id)}, ${(t_expense.summe)}, ${(t_expense.date.format("%d.%m.%Y"))}, 
+        return this.query(`SELECT ${(t_expense.id)}, ${(t_expense.amount)}, ${(t_expense.date.format("%d.%m.%Y"))}, 
             ${(t_expense.description)}, ${(t_expense.estate_id)}, ${(t_expense.type)},
             ${(t_accessory.name)}
             FROM ${(t_expense)}

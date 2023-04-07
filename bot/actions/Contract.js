@@ -1,6 +1,6 @@
 class Contract {
     main() {
-        this.get();
+        return this.get();
     }
 
     get(){

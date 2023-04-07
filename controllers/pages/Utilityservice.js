@@ -1,5 +1,5 @@
 const Page = require("../Page");
-class Task extends Page {
+class Utilityservice extends Page {
     constructor(controller) {
         super(controller);
     }
@@ -9,4 +9,4 @@ class Task extends Page {
     }
 }
 
-module.exports = Task
+module.exports = Utilityservice

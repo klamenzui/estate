@@ -9,7 +9,7 @@ class Expense {
     amount;
     date;
     main() {
-        this.add();
+        return this.add();
     }
     add() {
         let res = '';
@@ -39,7 +39,7 @@ class Expense {
                 res +=  "потраченную сумму";
             }
         }
-        console.log(res);
+        console.log('Expense:',res);
         return res;
     }
 }

@@ -11,7 +11,7 @@ class Payment extends Model {
         if(typeof filter !== 'undefined'){
             this.setFilter(filter);
         }
-        return this.query(`SELECT sum(${(t_payment.summe)}) total, count(${(t_payment.id)}) count
+        return this.query(`SELECT sum(${(t_payment.amount)}) total, count(${(t_payment.id)}) count
         FROM ${(t_contract)}
             LEFT JOIN ${(t_payment)} on (${(t_payment.contract_id)} = ${(t_contract.id)})
         ${(this.where())}`);
@@ -21,7 +21,7 @@ class Payment extends Model {
         this.setFilter(filter);
         return this.query(`SELECT 
             ${(t_payment.id)},
-            ${(t_payment.summe)},
+            ${(t_payment.amount)},
             ${(t_payment.period.format("%Y-%m-%d"))},
             ${(t_payment.date.format("%Y-%m-%d"))},
             ${(t_client.first_name)},
