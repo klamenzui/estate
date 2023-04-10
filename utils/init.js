@@ -46,15 +46,15 @@ app.locals.knex = require('knex')({
 });
 
 app.locals.knex.on('query', data => {
-    console.log('----------[query]-------------');
+    //console.log('----------[query]-------------');
     //console.log(data);
-    console.log('-----------------------');
+    //console.log('-----------------------');
 });
 
 app.locals.knex.on('query-response', (data, obj, builder) => {
-    console.log('----------[query-response]-------------');
+    //console.log('----------[query-response]-------------');
     //console.log(data, obj, builder);
-    console.log('-----------------------');
+    //console.log('-----------------------');
 });
 
 app.locals.knex.on('query-error', function (err, obj) {

@@ -73,6 +73,10 @@ class Window extends Page {
         this._sendData('utilityservice');
     }
 
+    utilitymeter() {
+        this._sendData('utilitymeter');
+    }
+
     logout() {
         this.res.header.title = 'Ready to Leave?';
         this.res.body = 'Select "Logout" below if you are ready to end your current session.';

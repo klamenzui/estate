@@ -37,6 +37,10 @@ class Page {
     }
 
     index() {
+        this.get();
+    }
+
+    get() {
         this.sendData({
             user: this.controller.req.user,
         });

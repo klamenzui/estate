@@ -1,6 +1,6 @@
 const ContractModel = require('../models/Contract');
 const t_contract = require('../models/db/tables/Contract');
-class Test {
+class Contract {
     constructor() {
     }
 
@@ -36,4 +36,4 @@ class Test {
     }
 }
 
-module.exports = new Test();
+module.exports = new Contract();

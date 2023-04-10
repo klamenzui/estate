@@ -28,6 +28,9 @@ app.locals.config.loadScheme().then(r => {
     });
     console.log('Start task manager');
     app.locals.taskManager = new TaskManager();
+
+    const um=require('./tasks/Utilitymeter');
+    um.exec();
 });
 
 app.locals.passport = passport;

@@ -4,9 +4,6 @@ class Task extends Page {
         super(controller);
     }
 
-    index() {
-        get();
-    }
 }
 
 module.exports = Task

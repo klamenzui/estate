@@ -246,7 +246,7 @@ CREATE TABLE IF NOT EXISTS `task` (
   `date_start` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `interval` char(50) DEFAULT NULL COMMENT 'Y-M-D h:m:s',
   PRIMARY KEY (`id`)
-) ENGINE = InnoDB AUTO_INCREMENT = 2 DEFAULT CHARSET = utf8;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 DEFAULT CHARSET = utf8;
 
 # ------------------------------------------------------------
 # SCHEMA DUMP FOR TABLE: user
@@ -278,7 +278,7 @@ CREATE TABLE IF NOT EXISTS `utilitymeter` (
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY `id` (`id`),
   UNIQUE KEY `code` (`code`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = InnoDB AUTO_INCREMENT = 8 DEFAULT CHARSET = utf8;
 
 # ------------------------------------------------------------
 # SCHEMA DUMP FOR TABLE: utilityservice
@@ -290,6 +290,8 @@ CREATE TABLE IF NOT EXISTS `utilityservice` (
   `unit` char(20) NOT NULL COMMENT 'unit of measure',
   `description` text NOT NULL,
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `tariff_url` text NOT NULL,
+  `tariff_selector` text NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE = InnoDB AUTO_INCREMENT = 19 DEFAULT CHARSET = utf8;
 
@@ -5062,11 +5064,31 @@ INSERT INTO
 VALUES
   (
     1,
-    'test',
-    'test',
+    'Contract',
+    'contract',
     '',
     'closed',
     '2023-01-19 12:00:00',
+    '0 * * * * *'
+  );
+INSERT INTO
+  `task` (
+    `id`,
+    `title`,
+    `name`,
+    `data`,
+    `status`,
+    `date_start`,
+    `interval`
+  )
+VALUES
+  (
+    2,
+    'Utilitymeter',
+    'Utilitymeter',
+    '',
+    'active',
+    '2023-04-08 02:00:00',
     '0 * * * * *'
   );
 
@@ -5099,108 +5121,294 @@ VALUES
 # DATA DUMP FOR TABLE: utilitymeter
 # ------------------------------------------------------------
 
+INSERT INTO
+  `utilitymeter` (
+    `id`,
+    `code`,
+    `utilityservice_id`,
+    `estate_id`,
+    `price`,
+    `meter_before`,
+    `meter_current`,
+    `description`,
+    `date`
+  )
+VALUES
+  (
+    1,
+    '1',
+    8,
+    5,
+    319.62,
+    1,
+    3,
+    'electricity-day',
+    '2023-03-01 21:11:09'
+  );
+INSERT INTO
+  `utilitymeter` (
+    `id`,
+    `code`,
+    `utilityservice_id`,
+    `estate_id`,
+    `price`,
+    `meter_before`,
+    `meter_current`,
+    `description`,
+    `date`
+  )
+VALUES
+  (
+    2,
+    '2',
+    9,
+    2,
+    1395.08,
+    0,
+    0,
+    'test',
+    '2023-04-08 21:11:09'
+  );
+INSERT INTO
+  `utilitymeter` (
+    `id`,
+    `code`,
+    `utilityservice_id`,
+    `estate_id`,
+    `price`,
+    `meter_before`,
+    `meter_current`,
+    `description`,
+    `date`
+  )
+VALUES
+  (
+    4,
+    '3',
+    9,
+    5,
+    1395.08,
+    0,
+    0,
+    'electricity-night',
+    '2023-04-08 22:50:45'
+  );
 
 # ------------------------------------------------------------
 # DATA DUMP FOR TABLE: utilityservice
 # ------------------------------------------------------------
 
 INSERT INTO
-  `utilityservice` (`id`, `name`, `unit`, `description`, `date`)
+  `utilityservice` (
+    `id`,
+    `name`,
+    `unit`,
+    `description`,
+    `date`,
+    `tariff_url`,
+    `tariff_selector`
+  )
 VALUES
   (
     8,
     'electricity-day',
     'kW*h',
     'послуги з розподілу електричної енергії',
-    '2023-04-06 13:19:39'
+    '2023-04-06 13:19:39',
+    'https://kiroe.com.ua/tarifi',
+    '$(\"div:contains(\'для 1 класу напруги\')\")\n.eq(%me%.length-1)\n.text()\n.split(\'-\')\n%me%[2]\n.replace(/[^0-9,]/g, \'\')\n.replace(/,/g, \'.\')'
   );
 INSERT INTO
-  `utilityservice` (`id`, `name`, `unit`, `description`, `date`)
+  `utilityservice` (
+    `id`,
+    `name`,
+    `unit`,
+    `description`,
+    `date`,
+    `tariff_url`,
+    `tariff_selector`
+  )
 VALUES
   (
     9,
     'electricity-night',
     'kW*h',
     'послуги з розподілу електричної енергії',
-    '2023-04-06 13:19:39'
+    '2023-04-06 13:19:39',
+    'https://kiroe.com.ua/tarifi',
+    '$(\"div:contains(\'для 2 класу напруги\')\")\n.eq(%me%.length-1)\n.text();\n.split(\'-\')\n%me%[2]\n.replace(/[^0-9,]/g, \'\')\n.replace(/,/g, \'.\')'
   );
 INSERT INTO
-  `utilityservice` (`id`, `name`, `unit`, `description`, `date`)
+  `utilityservice` (
+    `id`,
+    `name`,
+    `unit`,
+    `description`,
+    `date`,
+    `tariff_url`,
+    `tariff_selector`
+  )
 VALUES
-  (10, 'gas', 'm^3', 'газ', '2023-04-06 13:19:26');
+  (
+    10,
+    'gas',
+    'm^3',
+    'газ',
+    '2023-04-06 13:19:26',
+    'https://gas.ua/uk/home/tariffs',
+    ''
+  );
 INSERT INTO
-  `utilityservice` (`id`, `name`, `unit`, `description`, `date`)
+  `utilityservice` (
+    `id`,
+    `name`,
+    `unit`,
+    `description`,
+    `date`,
+    `tariff_url`,
+    `tariff_selector`
+  )
 VALUES
   (
     11,
     'gas-distribution',
     'm^3',
     'газ',
-    '2023-04-06 13:19:26'
+    '2023-04-06 13:19:26',
+    '',
+    ''
   );
 INSERT INTO
-  `utilityservice` (`id`, `name`, `unit`, `description`, `date`)
+  `utilityservice` (
+    `id`,
+    `name`,
+    `unit`,
+    `description`,
+    `date`,
+    `tariff_url`,
+    `tariff_selector`
+  )
 VALUES
   (
     12,
     'water-supply',
     'm^3',
     'централізоване водопостачання',
-    '2023-04-06 13:19:19'
+    '2023-04-06 13:19:19',
+    '',
+    ''
   );
 INSERT INTO
-  `utilityservice` (`id`, `name`, `unit`, `description`, `date`)
+  `utilityservice` (
+    `id`,
+    `name`,
+    `unit`,
+    `description`,
+    `date`,
+    `tariff_url`,
+    `tariff_selector`
+  )
 VALUES
   (
     13,
     'water-drainage',
     'm^3',
     'централізоване водовідведення',
-    '2023-04-06 13:19:19'
+    '2023-04-06 13:19:19',
+    '',
+    ''
   );
 INSERT INTO
-  `utilityservice` (`id`, `name`, `unit`, `description`, `date`)
+  `utilityservice` (
+    `id`,
+    `name`,
+    `unit`,
+    `description`,
+    `date`,
+    `tariff_url`,
+    `tariff_selector`
+  )
 VALUES
   (
     14,
     'water-service',
     'm^3',
     'обслуговування та заміна',
-    '2023-04-06 13:19:19'
+    '2023-04-06 13:19:19',
+    '',
+    ''
   );
 INSERT INTO
-  `utilityservice` (`id`, `name`, `unit`, `description`, `date`)
+  `utilityservice` (
+    `id`,
+    `name`,
+    `unit`,
+    `description`,
+    `date`,
+    `tariff_url`,
+    `tariff_selector`
+  )
 VALUES
-  (15, 'warm', '', 'тепло', '2023-04-06 13:18:38');
+  (15, 'warm', '', 'тепло', '2023-04-06 13:18:38', '', '');
 INSERT INTO
-  `utilityservice` (`id`, `name`, `unit`, `description`, `date`)
+  `utilityservice` (
+    `id`,
+    `name`,
+    `unit`,
+    `description`,
+    `date`,
+    `tariff_url`,
+    `tariff_selector`
+  )
 VALUES
   (
     16,
     'recycling',
     '',
-    'вывоз мусора',
-    '2023-04-06 13:19:04'
+    'вивезення та захоронення ТПВ',
+    '2023-04-06 13:19:04',
+    'https://ecostyle.ua/',
+    ''
   );
 INSERT INTO
-  `utilityservice` (`id`, `name`, `unit`, `description`, `date`)
+  `utilityservice` (
+    `id`,
+    `name`,
+    `unit`,
+    `description`,
+    `date`,
+    `tariff_url`,
+    `tariff_selector`
+  )
 VALUES
   (
     17,
     'housing_maintenance',
     '',
     'ЖЕО',
-    '2023-04-06 13:18:53'
+    '2023-04-06 13:18:53',
+    '',
+    ''
   );
 INSERT INTO
-  `utilityservice` (`id`, `name`, `unit`, `description`, `date`)
+  `utilityservice` (
+    `id`,
+    `name`,
+    `unit`,
+    `description`,
+    `date`,
+    `tariff_url`,
+    `tariff_selector`
+  )
 VALUES
   (
     18,
     'internet',
     '',
     'интернет',
-    '2023-04-06 13:19:11'
+    '2023-04-06 13:19:11',
+    '',
+    ''
   );
 
 # ------------------------------------------------------------

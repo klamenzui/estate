@@ -30,7 +30,9 @@ const Helper = {
         mname = mname.toLowerCase();
         //let maxDeep = 3;
         do {
-            let ownPropertyNames = Object.getOwnPropertyNames(currentObj);
+            let ownPropertyNames = Object.getOwnPropertyNames(Object.getPrototypeOf(currentObj));
+            //const functionNames = Object.getOwnPropertyNames(Object.getPrototypeOf(myDog))
+              //  .filter(name => typeof myDog[name] === 'function');
             for (let k in ownPropertyNames) {
                 let item = ownPropertyNames[k];
                 console.log(item, mname);
@@ -167,8 +169,20 @@ const Helper = {
         var res = str.match(/[0-9\\.,-\\+]+/);
         return res == null ? null: res[0];
     },
+    toFloat: (str) =>{
+        let res = 0;
+        try {
+            res = parseFloat(str);
+        } catch (e) {
+
+        }
+        return res;
+    },
     formatDate: (dateSrc, format) => {
-        var now = dateSrc? dateSrc: new Date();
+        var now = new Date();
+        if(dateSrc){
+            now = typeof dateSrc === 'string'? new Date(dateSrc):dateSrc;
+        }
         format = format? format: 'Y-M-D h:m:s';
         var year = now.getFullYear();
         var month = ("0"+(now.getMonth()+1)).slice(-2);

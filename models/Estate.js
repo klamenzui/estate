@@ -15,11 +15,12 @@ class Estate extends Model {
 
     getAddress = async (filter) => {
         //t_estate.as('e');
-        return this.setFilter(filter).select(t_address.id,
+        return this.select(t_address.id,
             t_address.street,
             t_estate.id,
             t_estate.house_number,
             t_estate.apartment_number)
+            .setFilter(filter)
             .order(t_address.id).exec();
         /*t_address.as('addr');
         this.query(`SELECT ${(t_address.id)}, 
