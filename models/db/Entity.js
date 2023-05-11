@@ -1,6 +1,6 @@
-//const Model = require("./Model");
+//const Model = require('./model');
 //const table_scheme = require('../utils/table_scheme');
-const Field = require("./Field");
+const Field = require('./field');
 
 class Entity {
     _editable = {};

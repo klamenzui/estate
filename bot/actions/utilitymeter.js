@@ -1,6 +1,6 @@
-const Helper = require('../../utils/Helper');
-const ModelUtilitymeter = require('../../models/Utilitymeter');
-const  t_utilitymeter = require('../../models/db/tables/Utilitymeter');
+const Helper = require('../../utils/helper');
+const ModelUtilitymeter = require('../../models/utilitymeter');
+const  t_utilitymeter = require('../../models/db/tables/utilitymeter');
 class Utilitymeter {
     id;
     current;

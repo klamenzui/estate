@@ -1,5 +1,5 @@
-const Model = require('../../models/Task');
-const Page = require('../Page');
+const Model = require('../../models/task');
+const Page = require('../page');
 class Task extends Page {
     constructor(controller) {
         super(controller);

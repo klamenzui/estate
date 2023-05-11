@@ -1,4 +1,4 @@
-const Model = require("./db/Model");
+const Model = require('./db/model');
 class Task extends Model {
     constructor() {
         super();

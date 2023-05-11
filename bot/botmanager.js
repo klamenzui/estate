@@ -1,14 +1,14 @@
-const Helper = require("../utils/Helper");
-const BotModel = require("../models/Bot");
-const ChatModel = require("../models/Bot_chat");
+const Helper = require('../utils/helper');
+const BotModel = require('../models/bot');
+const ChatModel = require('../models/bot_chat');
 //const t_address = require('./db/tables/address');
 //const t_bot = require('./db/tables/bot');
 const t_bot_chat = require('../models/db/tables/bot_chat');
 const TelegramBotAPI = require('node-telegram-bot-api');
-const {NlpManager} = require("node-nlp");
+const {NlpManager} = require('node-nlp');
 const fs = require('fs');
-const Bot_intent = require("../models/Bot_intent");
-const Bot_entity = require("../models/Bot_entity");
+const Bot_intent = require('../models/bot_intent');
+const Bot_entity = require('../models/bot_entity');
 
 
 class BotManager {

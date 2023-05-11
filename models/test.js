@@ -1,5 +1,5 @@
 /*
-const Sugar = require("sugar");
+const Sugar = require('sugar');
 
 Sugar.extend();
 Date.addLocale('ru', {});
@@ -9,8 +9,8 @@ console.log(Date.create('завтра','ru'));
 
  */
 /*
-const Helper = require("../utils/Helper");
-const Task = require("./db/Entity");
+const Helper = require('../utils/helper');
+const Task = require('./db/entity');
 let t = new Task();
 console.log(process.version);
 console.log(Object.keys(t));
@@ -24,14 +24,14 @@ app = express();
 app.locals.base = '../';
 app.locals.config = require('../utils/init');
 
-const Bot_entity = require("./Bot_entity");
-const Bot_intent = require("./Bot_intent");
-const Model = require("./Utilitymeter");
-const t_utilityservice = require("./db/tables/Utilityservice");
-const t_scheme = require("./db/tables/Utilitymeter");
-const Utilityservice = require("./Utilityservice");
-const t_utilityservice_formula = require("./db/tables/Utilityservice_formula");
-const vm = require("vm");
+const Bot_entity = require('./bot_entity');
+const Bot_intent = require('./bot_intent');
+const Model = require('./utilitymeter');
+const t_utilityservice = require('./db/tables/utilityservice');
+const t_scheme = require('./db/tables/utilitymeter');
+const Utilityservice = require('./utilityservice');
+const t_utilityservice_formula = require('./db/tables/utilityservice_formula');
+const vm = require('vm');
 /*const knex = require('knex')({
     client: 'mysql',
     connection: {
@@ -176,15 +176,15 @@ async function init() {
     console.log(bot_data);
 }
 app.locals.config.loadScheme().then(r => {
-    // const BotManager = require('./bot/BotManager');
-    // const TaskManager = require('./models/TaskManager');
+    // const BotManager = require('./bot/botmanager');
+    // const TaskManager = require('./models/taskmanager');
     // app.locals.bot = new BotManager('KrHome', (res)=>{
     //     console.log(res);
     // });
     // console.log('Start task manager');
     // app.locals.taskManager = new TaskManager();
 
-    // const um=require('./tasks/Utilitymeter');
+    // const um=require('./tasks/utilitymeter');
     // um.exec();
 
     //init();

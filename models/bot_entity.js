@@ -1,4 +1,4 @@
-const Model = require("./db/Model");
+const Model = require('./db/model');
 const bot_entity = require('./db/tables/bot_entity');
 const bot_entity_option = require('./db/tables/bot_entity_option');
 

@@ -1,4 +1,4 @@
-const Model = require("./Task");
+const Model = require('./task');
 const cron = require('node-cron');
 
 class TaskManager {

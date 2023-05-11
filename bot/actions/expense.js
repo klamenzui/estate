@@ -3,7 +3,7 @@ const availableDoctors = {
     "b": "кровать",
     "c": "кран",
 };
-const t_estate = require('../../models/db/tables/Estate');
+const t_estate = require('../../models/db/tables/estate');
 class Expense {
     object;
     amount;

@@ -1,7 +1,7 @@
-const Response = require('../models/Response');
-const Helper = require('../utils/Helper');
-const Error = require('./Error');
-const fs = require("fs");
+const Response = require('../models/response');
+const Helper = require('../utils/helper');
+const Error = require('./error');
+const fs = require('fs');
 
 class Page {
     tpl = 'index.ejs';

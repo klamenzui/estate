@@ -1,8 +1,8 @@
 // app/routes.js
 //const fs = require('fs');
-//const {estates,payment,expense,estateMenu} = require("../models/Estate");
+//const {estates,payment,expense,estateMenu} = require('../models/estate');
 var passport = app.locals.passport;
-const Controller = require("../controllers/Controller.js");
+const Controller = require('../controllers/controller.js');
 console.log(Controller)
 app.get('/:clazz/:method', function (req, res) {
     (new Controller()).request(req, res);

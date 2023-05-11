@@ -1,5 +1,5 @@
-const Model = require('../../models/Payment');
-const Page = require('../Page');
+const Model = require('../../models/payment');
+const Page = require('../page');
 
 class Payment extends Page {
     constructor(controller) {

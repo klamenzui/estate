@@ -1,5 +1,5 @@
-const Model = require("./db/Model");
-const Helper = require("../utils/Helper");
+const Model = require('./db/model');
+const Helper = require('../utils/helper');
 const t_expense = require('./db/tables/expense');
 const t_accessory = require('./db/tables/accessory');
 const t_ref = require('./db/tables/ref_estate_accessory');

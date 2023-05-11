@@ -1,5 +1,5 @@
-const Model = require('../../models/Utilitymeter');
-const Page = require('../Page');
+const Model = require('../../models/utilitymeter');
+const Page = require('../page');
 class Utilitymeter extends Page {
     constructor(controller) {
         super(controller);

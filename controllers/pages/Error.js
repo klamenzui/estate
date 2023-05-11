@@ -1,4 +1,4 @@
-const ErrorController = require("../Error");
+const ErrorController = require('../error');
 class Error extends ErrorController{
     constructor(controller) {
         super(controller);

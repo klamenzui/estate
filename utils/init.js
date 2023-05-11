@@ -1,8 +1,8 @@
 //const mysql = require('mysql');
 //const util = require('util');
 fs = require('fs');
-const fsSyn = require("fs/promises");
-const path = require("path");
+const fsSyn = require('fs/promises');
+const path = require('path');
 const os = require('os');
 const mysqldump = require('mysqldump');
 
@@ -167,7 +167,7 @@ init['loadScheme'] = async () => {
                 init['table_scheme'][table] = ts;
                 console.log('describe: ', ts);
                 let className = table;//[0].toUpperCase() + table.substring(1);
-                let src_code = `const Entity = require("../Entity");
+                let src_code = `const Entity = require('../entity');
 class ${className} extends Entity {
     _editable = ${JSON.stringify(editable)};
     _fields = ${JSON.stringify(ts, null, 2)};

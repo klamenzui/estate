@@ -1,5 +1,5 @@
-const Model = require('../../models/Contract');
-const Page = require('../Page');
+const Model = require('../../models/contract');
+const Page = require('../page');
 class Contract extends Page {
     constructor(controller) {
         super(controller);

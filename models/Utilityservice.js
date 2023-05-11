@@ -1,4 +1,4 @@
-const Model = require("./db/Model");
+const Model = require('./db/model');
 const t_utilityservice_formula = require('./db/tables/utilityservice_formula');
 
 class Utilityservice extends Model {

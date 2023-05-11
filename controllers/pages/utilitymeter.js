@@ -1,7 +1,7 @@
-const EstateModel = require('../../models/Estate');
-const Model = require('../../models/Utilitymeter');
-const UtilityserviceModel = require('../../models/Utilityservice');
-const Page = require("../Page");
+const EstateModel = require('../../models/estate');
+const Model = require('../../models/utilitymeter');
+const UtilityserviceModel = require('../../models/utilityservice');
+const Page = require('../page');
 const t_utilityservice = require('../../models/db/tables/utilityservice');
 class Utilitymeter extends Page {
     constructor(controller) {

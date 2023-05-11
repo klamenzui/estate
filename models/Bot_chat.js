@@ -1,5 +1,5 @@
-const Model = require("./db/Model");
-const Helper = require('../utils/Helper');
+const Model = require('./db/model');
+const Helper = require('../utils/helper');
 const t_bot_chat = require('./db/tables/bot_chat');
 
 class Bot_chat extends Model {

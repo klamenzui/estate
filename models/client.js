@@ -1,5 +1,5 @@
-const Model = require("./db/Model");
-const Helper = require('../utils/Helper');
+const Model = require('./db/model');
+const Helper = require('../utils/helper');
 const t_client = require('./db/tables/client');
 
 class Client extends Model {

@@ -1,5 +1,5 @@
-const EstateModel = require('../models/Estate');
-const Page = require("./Page");
+const EstateModel = require('../models/estate');
+const Page = require('./page');
 
 const fs = require('fs');
 

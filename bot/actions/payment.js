@@ -1,8 +1,8 @@
-const ModelContract = require("../../models/Contract");
+const ModelContract = require('../../models/contract');
 const t_contract = require('../../models/db/tables/contract');
 const t_payment = require('../../models/db/tables/payment');
-const Helper = require('../../utils/Helper');
-const ModelPayment = require('../../models/Payment');
+const Helper = require('../../utils/helper');
+const ModelPayment = require('../../models/payment');
 
 class Payment {
     estate_id;

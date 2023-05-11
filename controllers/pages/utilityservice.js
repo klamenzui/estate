@@ -1,4 +1,4 @@
-const Page = require("../Page");
+const Page = require('../page');
 class Utilityservice extends Page {
     constructor(controller) {
         super(controller);

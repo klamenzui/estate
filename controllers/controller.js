@@ -1,8 +1,8 @@
 /**
  * @design by milon27
  */
-const Error = require('./Error')
-const fs = require("fs");
+const Error = require('./error')
+const fs = require('fs');
 
 //new Controller('Estate.js','test').navigate();
 class Controller {
@@ -31,7 +31,7 @@ class Controller {
         //me.page = "home";
         console.log(me.path, me.folder, me.clazz, me.method);
         me.all = {};
-        const normalizedPath = require("path").join(__dirname, me.folder);
+        const normalizedPath = require('path').join(__dirname, me.folder);
 
         let files = fs.readdirSync(normalizedPath);
         for (let i in files) {

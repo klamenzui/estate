@@ -1,4 +1,4 @@
-const Model = require("./db/Model");
+const Model = require('./db/model');
 const t_contract = require('./db/tables/contract');
 const t_payment = require('./db/tables/payment');
 const t_client = require('./db/tables/client');

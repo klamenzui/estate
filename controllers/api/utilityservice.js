@@ -1,5 +1,5 @@
-const Model = require('../../models/Utilityservice');
-const Page = require('../Page');
+const Model = require('../../models/utilityservice');
+const Page = require('../page');
 class Utilityservice extends Page {
     constructor(controller) {
         super(controller);

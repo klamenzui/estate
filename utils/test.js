@@ -1,4 +1,4 @@
-const Helper = require('./Helper');
+const Helper = require('./helper');
 console.log(Helper.formatDate(Helper.getDate(),'M.Y'));
 
 

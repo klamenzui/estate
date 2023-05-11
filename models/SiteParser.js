@@ -1,5 +1,5 @@
-const Helper = require('../utils/Helper');
-const Page = require('../controllers/Page');
+const Helper = require('../utils/helper');
+const Page = require('../controllers/page');
 const vm = require('vm');
 const https = require('https');
 const cheerio = require('cheerio');

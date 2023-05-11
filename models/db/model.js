@@ -1,4 +1,4 @@
-const Helper = require('../../utils/Helper')
+const Helper = require('../../utils/helper')
 
 /**
  * @description base model for all model

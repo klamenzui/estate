@@ -1,6 +1,6 @@
-const Model = require('../../models/Expense');
-const Helper = require("../../utils/Helper");
-const Page = require('../Page');
+const Model = require('../../models/expense');
+const Helper = require('../../utils/helper');
+const Page = require('../page');
 
 class Expense extends Page {
     constructor(controller) {

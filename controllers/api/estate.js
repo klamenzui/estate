@@ -1,4 +1,4 @@
-const EstateParent = require('../Estate');
+const EstateParent = require('../estate');
 class Estate extends EstateParent {
     constructor(controller) {
         super(controller);

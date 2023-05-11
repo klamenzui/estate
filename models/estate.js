@@ -1,4 +1,4 @@
-const Model = require("./db/Model");
+const Model = require('./db/model');
 const t_estate = require('./db/tables/estate');
 const t_address = require('./db/tables/address');
 const t_country = require('./db/tables/country');

@@ -1,5 +1,5 @@
-const Helper = require("../../utils/Helper");
-const Page = require('../Page');
+const Helper = require('../../utils/helper');
+const Page = require('../page');
 const moment = require('moment');
 
 class Window extends Page {
@@ -187,7 +187,7 @@ class Window extends Page {
                             let table_id = field.name.split('_');
                             const entity = require('../../models/db/tables/' + table_id[0]);
                             if (entity.description) {
-                                const Model = require('../../models/db/Model');
+                                const Model = require('../../models/db/model');
                                 let dep = await new Model(table_id[0]).select(entity.id, entity.description).exec();
                                 if(dep.rows){
                                     combo_data = dep.rows;
