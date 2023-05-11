@@ -1,10 +1,10 @@
 const Model = require("./db/Model");
-const t_utilitymeter = require('./db/tables/Utilitymeter');
-const t_utilityservice = require('./db/tables/Utilityservice');
-const t_utilityservice_formula = require('./db/tables/Utilityservice_formula');
-const t_utilityservice_invoice = require('./db/tables/Utilityservice_invoice');
-const UtilityserviceModel = require("./Utilityservice");
-const Utilityservice_invoiceModule = require("./Utilityservice_invoice");
+const t_utilitymeter = require('./db/tables/utilitymeter');
+const t_utilityservice = require('./db/tables/utilityservice');
+const t_utilityservice_formula = require('./db/tables/utilityservice_formula');
+const t_utilityservice_invoice = require('./db/tables/utilityservice_invoice');
+const UtilityserviceModel = require("./utilityservice");
+const Utilityservice_invoiceModule = require("./utilityservice_invoice");
 const vm = require("vm");
 class Utilitymeter extends Model {
     constructor() {

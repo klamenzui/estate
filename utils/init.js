@@ -166,7 +166,7 @@ init['loadScheme'] = async () => {
                 }
                 init['table_scheme'][table] = ts;
                 console.log('describe: ', ts);
-                let className = table[0].toUpperCase() + table.substring(1);
+                let className = table;//[0].toUpperCase() + table.substring(1);
                 let src_code = `const Entity = require("../Entity");
 class ${className} extends Entity {
     _editable = ${JSON.stringify(editable)};

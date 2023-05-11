@@ -1,6 +1,6 @@
 const Model = require("./db/Model");
 const Helper = require("../utils/Helper.js");
-const t_utilityservice_invoice = require('./db/tables/Utilityservice_invoice');
+const t_utilityservice_invoice = require('./db/tables/utilityservice_invoice');
 class Utilityservice_invoice extends Model {
     constructor() {
         super();
