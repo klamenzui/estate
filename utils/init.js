@@ -57,7 +57,7 @@ let init = {
         'host': 'localhost',
         'port': 3306,
         'user': 'root',
-        'password': 'usbw',
+        'password': '310129',
         'database': 'estate',
         //timezone: 'gmt+6'  //<-here this line was missing 'utc'
         //paginate_page_size: 10
