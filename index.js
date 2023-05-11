@@ -22,6 +22,10 @@ app.locals.static = path.join(__dirname, '/views/static');
 app.locals.config = require('./utils/init');
 init = async function () {
     await app.locals.config.loadScheme();//.then(r => {
+
+//});
+}
+init().then(r => {
     try {
         const BotManager = require('./bot/BotManager');
         const TaskManager = require('./models/TaskManager');
@@ -37,9 +41,8 @@ init = async function () {
     } catch (e) {
         console.log(e)
     }
-//});
-}
-init().then(r => console.log('init end'));
+    console.log('init end')
+});
 
 
 app.locals.passport = passport;
