@@ -1,11 +1,11 @@
 const Model = require("./db/Model");
 const Helper = require('../utils/Helper');
-
 const t_payment = require('./db/tables/payment');
 const t_contract = require('./db/tables/contract');
 const t_client = require('./db/tables/client');
 const t_estate = require('./db/tables/estate');
 const ModelPayment = require('./Payment');
+
 class Contract extends Model {
     constructor() {
         super();

@@ -3,6 +3,7 @@ const Helper = require("../utils/Helper");
 const t_expense = require('./db/tables/expense');
 const t_accessory = require('./db/tables/accessory');
 const t_ref = require('./db/tables/ref_estate_accessory');
+
 class Expense extends Model {
     constructor() {
         super();

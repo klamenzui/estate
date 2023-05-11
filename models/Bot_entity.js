@@ -1,6 +1,7 @@
 const Model = require("./db/Model");
 const bot_entity = require('./db/tables/bot_entity');
 const bot_entity_option = require('./db/tables/bot_entity_option');
+
 class Bot_entity extends Model {
   constructor() {
     super();

@@ -1,5 +1,6 @@
 const ContractModel = require('../models/Contract');
-const t_contract = require('../models/db/tables/Contract');
+const t_contract = require('../models/db/tables/contract');
+
 class Contract {
     constructor() {
     }

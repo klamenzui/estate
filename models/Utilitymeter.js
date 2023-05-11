@@ -6,6 +6,7 @@ const t_utilityservice_invoice = require('./db/tables/utilityservice_invoice');
 const UtilityserviceModel = require("./utilityservice");
 const Utilityservice_invoiceModule = require("./utilityservice_invoice");
 const vm = require("vm");
+
 class Utilitymeter extends Model {
     constructor() {
         super();

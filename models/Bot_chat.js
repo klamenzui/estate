@@ -1,7 +1,7 @@
 const Model = require("./db/Model");
 const Helper = require('../utils/Helper');
-
 const t_bot_chat = require('./db/tables/bot_chat');
+
 class Bot_chat extends Model {
     constructor() {
         super();

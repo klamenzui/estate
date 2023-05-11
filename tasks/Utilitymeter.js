@@ -1,8 +1,9 @@
 const Helper = require('../utils/Helper');
 const Model = require('../models/Utilitymeter');
-const t_scheme = require('../models/db/tables/Utilitymeter');
-const t_utilityservice = require('../models/db/tables/Utilityservice');
+const t_scheme = require('../models/db/tables/utilitymeter');
+const t_utilityservice = require('../models/db/tables/utilityservice');
 const SiteParser = require('../models/SiteParser')
+
 class Utilitymeter {
     constructor() {
     }

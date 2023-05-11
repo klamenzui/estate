@@ -1,5 +1,6 @@
 const Model = require("./db/Model");
 const t_utilityservice_formula = require('./db/tables/utilityservice_formula');
+
 class Utilityservice extends Model {
     constructor() {
         super();

@@ -1,7 +1,7 @@
 const Model = require("./db/Model");
 const Helper = require('../utils/Helper');
-
 const t_client = require('./db/tables/client');
+
 class Client extends Model {
     constructor() {
         super();

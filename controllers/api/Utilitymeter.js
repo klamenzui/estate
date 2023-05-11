@@ -1,4 +1,4 @@
-const Model = require('../../models/utilitymeter');
+const Model = require('../../models/Utilitymeter');
 const Page = require('../Page');
 class Utilitymeter extends Page {
     constructor(controller) {

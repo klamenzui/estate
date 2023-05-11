@@ -8,6 +8,7 @@ const t_contract = require('./db/tables/contract');
 const t_client = require('./db/tables/client');
 const t_payment = require('./db/tables/payment');
 
+
 class Estate extends Model {
     constructor() {
         super();
