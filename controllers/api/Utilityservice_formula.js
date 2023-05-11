@@ -1,6 +1,6 @@
-const Model = require('../../models/utilitymeter');
+const Model = require('../../models/utilityservice_formula');
 const Page = require('../Page');
-class Utilitymeter extends Page {
+class Utilityservice_formula extends Page {
     constructor(controller) {
         super(controller);
     }
@@ -31,25 +31,6 @@ class Utilitymeter extends Page {
             this.sendData(e);
         });
     }
-
-    calc() {
-        let req = this.controller.req;
-        console.log(req.body);
-        new Model().calc(req.body).then((res)=>{
-            this.sendData(res);
-        }).catch((e)=>{
-            this.sendData(e);
-        });
-    }
-    updateCurrent() {
-        let req = this.controller.req;
-        console.log(req.body);
-        new Model().updateCurrent(req.body).then((res)=>{
-            this.sendData(res);
-        }).catch((e)=>{
-            this.sendData(e);
-        });
-    }
 }
 
-module.exports = Utilitymeter
+module.exports = Utilityservice_formula

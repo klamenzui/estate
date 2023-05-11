@@ -129,7 +129,7 @@ const Helper = {
             var m = str.match(pattern);
             if (m != null) {
                 if (typeof m[4] == 'undefined') {
-                    if (m[1].length == 4) {
+                    if (m[1].length === 4) {
                         year = m[1];
                         date = m[3];
                     } else {
@@ -139,7 +139,7 @@ const Helper = {
                     month = m[2];
                 } else {
                     date = '01';
-                    if (m[4].length == 4) {
+                    if (m[4].length === 4) {
                         year = m[4];
                         month = m[5];
                     } else {

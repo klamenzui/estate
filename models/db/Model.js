@@ -94,7 +94,10 @@ class Model {
         if(typeof field == 'undefined'){
             return this.getWhere();
         }
-        operator = operator? operator: '=';
+        operator = ''+(operator ? operator: '=').toLowerCase();
+        /*if(['<','>','<=','>=','<>','=','like','in'].indexOf(operator)<0){//,'all','any','some','not'
+            operator = '=';
+        }*/
         logOperator = logOperator? logOperator: 'AND';
         if (this._where.length === 0) {
             logOperator = '';
@@ -274,7 +277,8 @@ class Model {
                     //identifier: [0, table_scheme._primary_key],
                     primary_key: table_scheme._primary_key,
                     editable: [],
-                    all: []
+                    all: [],
+                    //dep: {}
                 }
                 /* Parsing the results of the query and building a list of columns that are editable. */
                 for (let i in results[1]) {
@@ -287,6 +291,10 @@ class Model {
                         table = this.table;
                     }
                     res.columns.all.push(field);
+                    /*if(table !== this.table && table_scheme.name){
+                        res.columns.dep[results[1][i].orgName] = table+'.'+field;
+                        console.log(res);
+                    }*/
                     if (results[1][i].orgName === table_scheme._primary_key /*|| this.table !== table*/) {
                         continue;
                     }
@@ -345,6 +353,10 @@ class Model {
         this.row = Helper.delKey(obj, this.primary_key);
         let sql = `UPDATE ${(this.table)} SET ? WHERE ${this.primary_key} = ?`;
         return this.db.raw(sql, [this.row, obj[this.primary_key]]);
+    }
+
+    up = (obj) => {
+        return this.update(obj);
     }
     //delete a specific row on a table
     /**

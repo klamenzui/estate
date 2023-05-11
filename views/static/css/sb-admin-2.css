@@ -11280,4 +11280,10 @@ body.sidebar-toggled footer.sticky-footer {
   width: 100%;
 }
 
-
+.table th input {
+  width: 100%;
+}
+.table th div{
+  display: inline-block;
+  white-space: nowrap;
+}

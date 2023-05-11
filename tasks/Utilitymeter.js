@@ -49,7 +49,7 @@ class Utilitymeter {
                         chat = chat.rows[0];
                         if(chat){
                             if(monthDiff > 0){
-                                await app.locals.bot.sendMessage(chat, "Пожалуйста, отправте показания счетчика указав также его номер("+id+"). Пример:\nпоказания счетчика "+id+"=123456");
+                                await app.locals.bot.sendMessage(chat, "Пожалуйста, заполните показания счетчика");// указав также его номер("+id+"). Пример:\nпоказания счетчика "+id+"=123456");
                             }
                         } else {
                             console.log('chat was not found:',eid);

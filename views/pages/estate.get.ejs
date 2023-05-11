@@ -29,11 +29,11 @@
 							<div class="col d-flex flex-column position-static">
 								<strong class="d-inline-block mb-2 text-primary"><%= '#'+rows[i].apartment_number+'. '+rows[i].street+' '+rows[i].house_number; %></strong>
 
-								<button id="expense" type="button" class="btn btn-outline-primary" api="expense" data-estate_id="<%= rows[i].estate_id; %>" onclick="loadTable(this.id)">Расход</button>
-								<button id="payment" type="button" class="btn btn-outline-primary" api="payment" data-contract_id="<%= rows[i].contract_id; %>" onclick="loadTable(this.id)">Доход</button>
-								<button id="contract" type="button" class="btn btn-outline-primary" api="contract" data-estate_id="<%= rows[i].estate_id; %>" onclick="loadTable(this.id)">Контракт</button>
+								<button id="expense" type="button" class="btn btn-outline-primary" api="expense" data-estate_id="<%= rows[i].estate_id; %>" onclick="$table.new(this.id)">Расход</button>
+								<button id="payment" type="button" class="btn btn-outline-primary" api="payment" data-contract_id="<%= rows[i].contract_id; %>" onclick="$table.new(this.id)">Доход</button>
+								<button id="contract" type="button" class="btn btn-outline-primary" api="contract" data-estate_id="<%= rows[i].estate_id; %>" onclick="$table.new(this.id)">Контракт</button>
 								<!--<button id="client" type="button" class="btn btn-outline-primary" api="client" onclick="loadTable(this.id)">Клиент</button>-->
-								<button id="utilitymeter" type="button" class="btn btn-outline-primary" api="utilitymeter" data-estate_id="<%= rows[i].estate_id; %>" onclick="loadTable(this.id)">Utility meter</button>
+								<button id="utilitymeter" type="button" class="btn btn-outline-primary" api="utilitymeter" data-estate_id="<%= rows[i].estate_id; %>" onclick="$table.new(this.id)">Utility meter</button>
 
 								<ul class="list-group list-group-flush">
 									<li class="list-group-item">

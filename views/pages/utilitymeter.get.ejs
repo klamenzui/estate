@@ -1,0 +1,100 @@
+
+
+	<script>
+	    function afterLoad(current_data) {//dbl
+	        console.log('afterLoad');
+	        $('#dataTable tbody tr').each(function( index ) {
+                $(this).attr({
+                    'role':"button",
+                    'data-toggle':"modal",
+                    'data-target':"#update_current",
+                    'action':"updateCurrent",
+                    'data-toggle':"modal",
+                    'data-target':"#modal_window",
+                    'url':"/parts/window/utilitymeter_current",
+                    'callback':"$table.load()",
+                    'data-id': this.children.id.innerHTML,
+                    'data-meter_before':this.children.meter_current.innerHTML,
+                    'data-meter_current':'',
+                });
+            });
+	        if(current_data && current_data.estate_id) {
+	            $.ajax({
+                       type: "POST",
+                       url: '/api/utilitymeter/calc',
+                       data: {
+                        estate_id: current_data.estate_id
+                       },
+                       crossDomain: true,
+                       cache: false
+                   }).always(function (xhr, status) {
+                        //$('#accPages a').toggleClass( 'alert-secondary', false);
+                        //$('#accPages a['+estate_id+']').toggleClass( 'alert-secondary', true);
+                        console.log(xhr, status);
+                        if (xhr.response) {
+                            let result = [];
+                            for(let i in xhr.response){
+                                result.push(`<li class="list-group-item">${i} = ${xhr.response[i]}</li>`);
+                            }
+                            $('#utilitymeter_result').html(result.join(''));
+                        }
+                });
+	        }
+	    }
+
+	</script>
+
+	<div class="page-header text-center">
+		<!--<h1><span class="fa fa-anchor"></span> Profile Page</h1>
+		<a href="/logout" class="btn btn-default btn-sm">Logout</a>-->
+	</div>
+	<div class="row">
+		<div class="col-lg-2">
+			<div class="card" >
+				<% if(response && response.rows){ %>
+					<% let rows = response.rows;%>
+					<ul class="list-group list-group-flush">
+					<% for(let i in rows){ %>
+					<li id="estate_<%= rows[i].estate_id; %>" role="button" class="list-group-item" api="utilitymeter" data-estate_id="<%= rows[i].estate_id; %>" callback="afterLoad" table_id="dataTable" onclick="$table.new(this);"><%= '#'+rows[i].apartment_number+'. '+rows[i].street+' '+rows[i].house_number; %></li>
+					<% } %>
+                    </ul>
+				<% } %>
+			</div>
+		</div>
+		<div class="col-lg-8">
+			<div class="card shadow mb-4">
+				<div class="card-header py-3">
+					<h6 class="m-0 font-weight-bold text-primary"><%=title;%></h6>
+				</div>
+				<div class="card-body">
+					<div class="table-responsive">
+						<table id="dataTable" class="table table-striped table-bordered table-hover"></table>
+						<div id="dataTablePagger"></div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-lg-2">
+		    <!--<div class="card" >
+              <div class="card-header">
+                Formula
+              </div>
+              <ul class="list-group list-group-flush">
+                <% if(response && response.utilityformula){
+                    let rows = response.utilityformula.rows;%>
+                    <% for(let i in rows){ %>
+                    <li role="button" class="list-group-item"><%= rows[i].group; %></li>
+                    <% } %>
+                <% } %>
+              </ul>
+            </div>-->
+		    <div class="card" >
+              <div class="card-header">
+                Result
+              </div>
+              <ul id="utilitymeter_result" class="list-group list-group-flush">
+              </ul>
+            </div>
+		</div>
+	</div>

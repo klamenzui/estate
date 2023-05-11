@@ -6,6 +6,32 @@ const path = require("path");
 const os = require('os');
 const mysqldump = require('mysqldump');
 
+// source: http://stackoverflow.com/questions/5645058/how-to-add-months-to-a-date-in-javascript
+
+Date.isLeapYear = function (year) {
+    return (((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0));
+};
+
+Date.getDaysInMonth = function (year, month) {
+    return [31, (Date.isLeapYear(year) ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month];
+};
+
+Date.prototype.isLeapYear = function () {
+    return Date.isLeapYear(this.getFullYear());
+};
+
+Date.prototype.getDaysInMonth = function () {
+    return Date.getDaysInMonth(this.getFullYear(), this.getMonth());
+};
+
+Date.prototype.addMonths = function (value) {
+    var n = this.getDate();
+    this.setDate(1);
+    this.setMonth(this.getMonth() + value);
+    this.setDate(Math.min(n, this.getDaysInMonth()));
+    return this;
+};
+
 let netData = {};
 const nets = os.networkInterfaces();
 /* Iterating over the keys of the nets object. */
@@ -141,8 +167,7 @@ init['loadScheme'] = async () => {
                 init['table_scheme'][table] = ts;
                 console.log('describe: ', ts);
                 let className = table[0].toUpperCase() + table.substring(1);
-
-                fs.writeFile(directory + className + '.js', `const Entity = require("../Entity");
+                let src_code = `const Entity = require("../Entity");
 class ${className} extends Entity {
     _editable = ${JSON.stringify(editable)};
     _fields = ${JSON.stringify(ts, null, 2)};
@@ -152,10 +177,9 @@ class ${className} extends Entity {
         super();
     }
 }
-module.exports = new ${className}();`, function (err) {
-                    if (err) return console.log(err);
-                    console.log('table_scheme saved');
-                });
+module.exports = new ${className}();`;
+                await fsSyn.writeFile(directory + className + '.js', src_code);
+                console.log('table_scheme saved');
             } catch (e) {
                 console.log(e);
             }

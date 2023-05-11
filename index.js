@@ -20,18 +20,27 @@ app.locals.base = __dirname + '/';
 app.locals.static = path.join(__dirname, '/views/static');
 // connect to our database
 app.locals.config = require('./utils/init');
-app.locals.config.loadScheme().then(r => {
-    const BotManager = require('./bot/BotManager');
-    const TaskManager = require('./models/TaskManager');
-    app.locals.bot = new BotManager('KrHome', (res)=>{
-        console.log(res);
-    });
-    console.log('Start task manager');
-    app.locals.taskManager = new TaskManager();
+init = async function () {
+    await app.locals.config.loadScheme();//.then(r => {
+    try {
+        const BotManager = require('./bot/BotManager');
+        const TaskManager = require('./models/TaskManager');
+        app.locals.bot = new BotManager('KrHome', (res) => {
+            console.log(res);
+            console.log('Start task manager');
+            app.locals.taskManager = new TaskManager();
 
-    const um=require('./tasks/Utilitymeter');
-    um.exec();
-});
+
+            //const um=require('./tasks/Utilitymeter');
+            //um.exec();
+        });
+    } catch (e) {
+        console.log(e)
+    }
+//});
+}
+init().then(r => console.log('init end'));
+
 
 app.locals.passport = passport;
 require('./models/passport'); // pass passport for configuration

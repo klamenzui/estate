@@ -73,26 +73,52 @@ class Window extends Page {
         this._sendData('utilityservice');
     }
 
+    utilityservice_formula() {
+        this._sendData('utilityservice_formula');
+    }
+
     utilitymeter() {
         this._sendData('utilitymeter');
     }
 
-    logout() {
+    utilitymeter_current() {
+        let req = this.controller.req;
+        this._sendDataFrom('utilitymeter', req.body.data);
+    }
+
+    async logout() {
         this.res.header.title = 'Ready to Leave?';
         this.res.body = 'Select "Logout" below if you are ready to end your current session.';
         this.res.footer.html[1].text = 'Logout';
         this.res.footer.html[1].attr.href = '/logout';
-        this.sendData(this._buildHtml());
+        this.sendData(await this._buildHtml());
     }
+
+    _initData(clazz) {
+        const entity = require('../../models/db/tables/'+clazz);
+        this.res.header.title = clazz;
+        this.res.body.attr.baseurl = '/api/' + clazz + '/';
+        this.res.body.fields = {}
+        this.res.body.data = {};
+        return entity;
+    }
+
+     async _sendDataFrom(clazz, arr) {
+         const entity = this._initData(clazz);
+         for (let k in arr) {
+             if(entity._fields[k]){
+                 this.res.body.fields[k] = entity._fields[k];
+                 this.res.body.data[k] = arr[k];
+             }
+         }
+         await this.sendData(await this._buildHtml());
+     }
 
     async _sendData(clazz) {
         let req = this.controller.req;
-        const entity = require('../../models/db/tables/' + clazz);
+        const entity = this._initData(clazz);
         const Model = require('../../models/' + clazz);
-        this.res.header.title = clazz;
-        this.res.body.attr.baseurl = '/api/' + clazz + '/';
         this.res.body.fields = entity._fields;
-        this.res.body.data = {};
         if (req.query && !Helper.isEmpty(req.body.data[entity._primary_key])) {
             let results = await new Model().get(req.body.data[entity._primary_key]);
             if (!Helper.isEmpty(results.rows)) {
@@ -111,19 +137,21 @@ class Window extends Page {
                 }
             }
         }
-        this.sendData(this._buildHtml());
+        this.sendData(await this._buildHtml());
 
     }
 
-    _buildHtml() {
+    async _buildHtml() {
         for (let k in this.res) {
             let block = this.res[k];
             if (typeof block.fields !== 'undefined') {
                 block.html = [];
-                for(let f in block.fields){
+                for (let f in block.fields) {
                     let field = block.fields[f];
-                    let data = block.data && block.data[f]?block.data[f]:'';
+                    let data = block.data && block.data[f] ? block.data[f] : '';
                     let type = field.type;
+                    let combo_data = [];
+                    let isDepTable = false;
                     let div = {
                         tag: 'div',
                         attr: {
@@ -140,23 +168,40 @@ class Window extends Page {
                     let input = {
                         tag: 'input',
                         attr: {
-                            class:"form-control",
-                            name:field.name
+                            class: "form-control",
+                            name: field.name
                         }
                     }
-                    if(block.readonly){
-                        input.attr['disabled']="true";
+                    if (block.readonly) {
+                        input.attr['disabled'] = "true";
                     }
 
-                    if(Array.isArray(field.type)){
+                    if (Array.isArray(field.type)) {
                         type = field.type[0];
-                    } else if(typeof field.type == 'object'){
+                    } else if (typeof field.type == 'object') {
                         type = 'object';
+                        combo_data = field.type;
                     }
-                    if(field.key === 'PRI'){
+                    if (type === 'int' && field.name.endsWith('_id')) {
+                        try {
+                            let table_id = field.name.split('_');
+                            const entity = require('../../models/db/tables/' + table_id[0]);
+                            if (entity.description) {
+                                const Model = require('../../models/db/Model');
+                                let dep = await new Model(table_id[0]).select(entity.id, entity.description).exec();
+                                if(dep.rows){
+                                    combo_data = dep.rows;
+                                    type = 'object';
+                                    isDepTable = true;
+                                }
+                            }
+                        } catch (ignore) {
+                        }
+                    }
+                    if (field.key === 'PRI') {
                         type = 'hidden';
                     }
-                    switch(type){
+                    switch (type) {
                         case 'hidden':
                             input.attr['type'] = "hidden";
                             input.attr['value'] = data;
@@ -174,13 +219,23 @@ class Window extends Page {
                             input.tag = 'select';
                             input.html = '';
                             let options = [];
-                            for (let option in field.type){
+                            // enum or dependency table
+                            for (let o in combo_data) {
                                 let selected = '';
-                                if(field.type[option] === data || field.type[option] === field.default){
+                                let key = '';
+                                let val = '';
+                                let text = '';
+                                if(isDepTable){
+                                    key = combo_data[o].id;
+                                    val = `value="${key}"`;
+                                    text = combo_data[o].description;
+                                }else{
+                                    key = text = combo_data[o];
+                                }
+                                if (key === data || key === field.default) {
                                     selected = ' selected="selected"';
                                 }
-
-                                options.push(`<option${selected}>${field.type[option]}</option>`);
+                                options.push(`<option${selected} ${val}>${text}</option>`);
                             }
                             input.html = options.join('');
                             div.html.push(input);
@@ -191,11 +246,11 @@ class Window extends Page {
                         case "timestamp":
                             let format = 'Y-M-D';
                             input.attr['type'] = "date";
-                            if(field.type!=="date"){
+                            if (field.type !== "date") {
                                 input.attr['type'] = "datetime-local";
                                 format = 'Y-M-DTh:m:s';
                             }
-                            if(!data instanceof Date){
+                            if (!data instanceof Date) {
                                 data = moment(data);
                             }
                             data = Helper.formatDate(data, format);
