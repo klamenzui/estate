@@ -55,7 +55,7 @@ fs.accessSync(fileCrt, fs.constants.R_OK);
 let init = {
     db: {
         'host': 'localhost',
-        'port': 3307,
+        'port': 3306,
         'user': 'root',
         'password': 'usbw',
         'database': 'estate',
