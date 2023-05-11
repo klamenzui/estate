@@ -56,7 +56,7 @@ let init = {
     db: {
         'host': 'localhost',
         'port': 3306,
-        'user': 'root',
+        'user': '0fe_20078041',
         'password': '310129',
         'database': 'estate',
         //timezone: 'gmt+6'  //<-here this line was missing 'utc'
