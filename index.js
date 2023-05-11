@@ -27,7 +27,7 @@ init = async function () {
 }
 init().then(r => {
     try {
-        const BotManager = require('./bot/BotManager');
+        const BotManager = require('./bot/botmanager');
         const TaskManager = require('./models/TaskManager');
         app.locals.bot = new BotManager('KrHome', (res) => {
             console.log(res);
