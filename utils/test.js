@@ -6,7 +6,7 @@ const { readdirSync, rename,renameSync } = require('fs');
 const { resolve } = require('path');
 
 // Get path to image directory
-const imageDirPath = resolve(__dirname, '../models/db');
+const imageDirPath = resolve(__dirname, '../models');
 
 // Get an array of the files inside the folder
 const files = readdirSync(imageDirPath);
@@ -24,6 +24,6 @@ files.forEach(file => {
         newPath,
         err => err?console.log(err):null
     );*/
-    renameSync(oldPath, newPath+'.bkp');
-    renameSync(newPath+'.bkp', newPath);
+    //renameSync(oldPath, newPath+'.bkp');
+    //renameSync(newPath+'.bkp', newPath);
 });
