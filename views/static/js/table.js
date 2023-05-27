@@ -3,6 +3,7 @@ const $table = {
     'obj': {},
     'new': function (element, callback) {
         //$table.obj[element_id] = ;
+        console.log('element',element);
         $table.current = new Table(element, callback);
         $table.obj[$table.current.id] = $table.current;
         console.log('new',$table);
@@ -32,11 +33,19 @@ class Table {
         this.load();
     }
 
+    hideCol(index) {
+        let me = this;
+        console.log(index);
+        $('#'+me.id+' tr > *:nth-child(' + index + ')').hide();
+        me.hide_col.push(index);
+        localStorage.setItem(me.id,JSON.stringify(me.hide_col));
+    }
+
     init(set_element) {
         console.log(set_element);
         this.api = set_element.attr('api');
         //this.id = set_element.attr('id');
-        this.id = set_element.attr('table_id');
+        this.id = set_element.attr('table_id')? set_element.attr('table_id'):set_element.attr('id');
         this.ajax = {
             type: "POST",
             data: {},
@@ -45,8 +54,11 @@ class Table {
             cache: false
         };
         this.ajax.data = set_element.data();
+        console.log('data', this.ajax.data);
         this.limit = [];
         this.hide_col = [];
+        let cols = localStorage.getItem(this.id);
+        this.hide_col = JSON.parse(cols?cols:'[]');
 
         let funcName = set_element.attr('callback');
         if(!this.event['callback'] && funcName){
@@ -79,6 +91,7 @@ class Table {
                 var tfoot = '<tfoot><tr>';
                 var tbody = '';
                 var data_filter = [];
+                console.log('rows',columns);
                 for (var i in columns.all) {
                     /*if(columns[i] != 'id')
                       var col = [i, columns[i]];
@@ -101,6 +114,7 @@ class Table {
                 let addBtn = `<span action="set" ${data_filter + modal} class="fa fa-plus btn-sm btn-success"> </span><span class="fa fa-toggle-on" role="button"></span></th></tr>`;
                 thead += `<th>${addBtn}</thead>`;
                 tfoot += `<th>${addBtn}</th></tr></tfoot>`;
+                console.log('rows',rows);
                 for (var i in rows) {
                     tbody += '<tr></td>';
                     for (var j in columns.all) {
@@ -129,12 +143,12 @@ class Table {
                 });
                 $('#'+me.id+' th span.fa-toggle-off').on('click', function (e) {
                     let index = (e.currentTarget.parentElement.parentElement.cellIndex + 1);
-                    me.hide_col.push(index);
-                    $('#'+me.id+' tr > *:nth-child(' + index + ')').hide();
+                    me.hideCol(index);
                 });
                 $('#'+me.id+' th span.fa-toggle-on').on('click', function (e) {
                     me.hide_col = [];
                     $('#'+me.id+' tr > *').show();
+                    localStorage.clear();
                 });
                 for (let i in me.hide_col) {
                     $('#'+me.id+' tr > *:nth-child(' + me.hide_col[i] + ')').hide();
@@ -164,7 +178,9 @@ class Table {
 $(document).ready(function () {
     "use strict"; // Start of use strict
 
-
+    $('table[auto-render="true"]').each(function(a,b){
+        $table.new(b);
+    });
     /*
         $.ajax({
           type: "POST",

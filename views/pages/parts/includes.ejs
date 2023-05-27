@@ -1,4 +1,5 @@
 <%
+if(includes) {
     let js={};
     let css={};
     let curIncludes = includes['top'] ? includes['top']: includes['bottom'];
@@ -10,13 +11,10 @@
         css=curIncludes.css;
     }
     for(let i in js){
-%>
-    <script src="<%=js[i];%>"></script>
-<%
+        %><script src="<%=js[i];%>"></script><%
     }
-    for(let i in css){
-%>
-    <link rel="stylesheet" href="<%=css[i];%>">
-<%
-    }
+    for(let i in css){%>
+        <link rel="stylesheet" href="<%=css[i];%>">
+    <% }
+}
 %>

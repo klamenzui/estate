@@ -8,6 +8,7 @@ class Error extends Page{
         this.page = 'error';
         this.access = true;
         this.title = 'Error';
+        this.includes = {};
     }
     '401'() {
         this.sendData({num: 401, message: 'Unauthorized'});

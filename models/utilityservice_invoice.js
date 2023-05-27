@@ -18,8 +18,9 @@ class Utilityservice_invoice extends Model {
         if(!start_date){
             start_date = new Date();
         }
-        start_date = Helper.formatDate(start_date,'Y-M-01');
-        end_date = Helper.formatDate(new Date(start_date).addMonths(1),'Y-M-01');
+        let start_end_date = Helper.getPeriod( Helper.formatDate(start_date,'Y-M-01'),1);
+        start_date = start_end_date[0];
+        end_date = start_end_date[1];
 
         let res = await this.select(
             t_utilityservice_invoice.id,

@@ -1,0 +1,25 @@
+
+<div class="sidebar-card d-none d-lg-flex">
+<ul>
+   <li id=first></li>
+</ul>
+</div>
+
+<script>
+	$(document).ready(function () {
+		var allRules = [];
+        var sSheetList = document.styleSheets;
+        for (var sSheet = 0; sSheet < sSheetList.length; sSheet++)
+        {
+            var ruleList = document.styleSheets[sSheet].cssRules;
+            for (var rule = 0; rule < ruleList.length; rule ++){
+
+                if(ruleList[rule] && ruleList[rule].selectorText&&ruleList[rule].selectorText.startsWith('.fa-')){
+                    let clazz = ruleList[rule].selectorText.replaceAll('::before','').replaceAll('.','');
+                    allRules.push(clazz);
+                    $('#first').append('<li><i class="fas '+clazz+'"></i> --> '+clazz+'</li>')
+                }
+            }
+        }
+	});
+</script>

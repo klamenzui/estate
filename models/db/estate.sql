@@ -36,18 +36,31 @@ CREATE TABLE IF NOT EXISTS `address` (
 ) ENGINE = MyISAM AUTO_INCREMENT = 7 DEFAULT CHARSET = utf8;
 
 # ------------------------------------------------------------
+# SCHEMA DUMP FOR TABLE: alert
+# ------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `alert` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `type` enum('utilityservice_invoice', 'payment') NOT NULL,
+  `status` enum('pending', 'closed') NOT NULL,
+  `text` text NOT NULL,
+  `date_start` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `date_end` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE = InnoDB AUTO_INCREMENT = 2 DEFAULT CHARSET = utf8;
+
+# ------------------------------------------------------------
 # SCHEMA DUMP FOR TABLE: bank
 # ------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS `bank` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `estate_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
   `amount` float NOT NULL,
   `currency` enum('hryvnia', 'euro', 'dollar') NOT NULL DEFAULT 'hryvnia',
   `hrn_equivalent` float NOT NULL,
-  `direction` enum('incoming', 'outcoming') NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8;
+) ENGINE = InnoDB AUTO_INCREMENT = 4 DEFAULT CHARSET = utf8;
 
 # ------------------------------------------------------------
 # SCHEMA DUMP FOR TABLE: bot
@@ -61,6 +74,7 @@ CREATE TABLE IF NOT EXISTS `bot` (
   `options` text NOT NULL,
   `nlp` text NOT NULL,
   `useraccess` varchar(200) NOT NULL,
+  `status` enum('on', 'off') NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE = InnoDB AUTO_INCREMENT = 2 DEFAULT CHARSET = utf8;
 
@@ -167,6 +181,7 @@ CREATE TABLE IF NOT EXISTS `client` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `first_name` varchar(15) NOT NULL,
   `last_name` varchar(15) NOT NULL,
+  `description` varchar(200) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE = MyISAM AUTO_INCREMENT = 18 DEFAULT CHARSET = utf8;
 
@@ -201,7 +216,7 @@ CREATE TABLE IF NOT EXISTS `country` (
 # ------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS `estate` (
-  `comment` text NOT NULL,
+  `description` text NOT NULL,
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `address_id` int(11) NOT NULL,
   `house_number` varchar(10) NOT NULL,
@@ -230,12 +245,26 @@ CREATE TABLE IF NOT EXISTS `expense` (
 ) ENGINE = MyISAM AUTO_INCREMENT = 38 DEFAULT CHARSET = utf8;
 
 # ------------------------------------------------------------
+# SCHEMA DUMP FOR TABLE: message
+# ------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `message` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `from_user` int(11) NOT NULL,
+  `to_user` int(11) NOT NULL,
+  `text` text NOT NULL,
+  `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE = InnoDB AUTO_INCREMENT = 11 DEFAULT CHARSET = utf8;
+
+# ------------------------------------------------------------
 # SCHEMA DUMP FOR TABLE: payment
 # ------------------------------------------------------------
 
 CREATE TABLE IF NOT EXISTS `payment` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `contract_id` int(11) NOT NULL,
+  `estate_id` int(11) NOT NULL,
   `amount` float NOT NULL,
   `period` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `status` enum('pending', 'payed', 'withdrawn') NOT NULL DEFAULT 'pending',
@@ -267,6 +296,18 @@ CREATE TABLE IF NOT EXISTS `role` (
   `description` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE = MyISAM AUTO_INCREMENT = 3 DEFAULT CHARSET = utf8;
+
+# ------------------------------------------------------------
+# SCHEMA DUMP FOR TABLE: share
+# ------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `share` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `estate_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `percentage` double NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE = InnoDB AUTO_INCREMENT = 3 DEFAULT CHARSET = utf8;
 
 # ------------------------------------------------------------
 # SCHEMA DUMP FOR TABLE: state
@@ -303,6 +344,8 @@ CREATE TABLE IF NOT EXISTS `user` (
   `email` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
   `role_id` varchar(20) NOT NULL,
+  `img` varchar(200) NOT NULL,
+  `description` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `role_id` (`role_id`)
 ) ENGINE = MyISAM AUTO_INCREMENT = 3 DEFAULT CHARSET = utf8;
@@ -325,7 +368,7 @@ CREATE TABLE IF NOT EXISTS `utilitymeter` (
   `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY `id` (`id`),
   UNIQUE KEY `code` (`code`)
-) ENGINE = InnoDB AUTO_INCREMENT = 10 DEFAULT CHARSET = utf8;
+) ENGINE = InnoDB AUTO_INCREMENT = 5 DEFAULT CHARSET = utf8;
 
 # ------------------------------------------------------------
 # SCHEMA DUMP FOR TABLE: utilityservice
@@ -370,7 +413,7 @@ CREATE TABLE IF NOT EXISTS `utilityservice_formula` (
   ) NOT NULL,
   `formula` text NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE = InnoDB AUTO_INCREMENT = 4 DEFAULT CHARSET = utf8;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 DEFAULT CHARSET = utf8;
 
 # ------------------------------------------------------------
 # SCHEMA DUMP FOR TABLE: utilityservice_invoice
@@ -531,9 +574,62 @@ VALUES
   );
 
 # ------------------------------------------------------------
+# DATA DUMP FOR TABLE: alert
+# ------------------------------------------------------------
+
+INSERT INTO
+  `alert` (
+    `id`,
+    `type`,
+    `status`,
+    `text`,
+    `date_start`,
+    `date_end`
+  )
+VALUES
+  (
+    1,
+    'payment',
+    'pending',
+    'To pay 500$',
+    '2023-05-17 09:51:09',
+    '0000-00-00 00:00:00'
+  );
+
+# ------------------------------------------------------------
 # DATA DUMP FOR TABLE: bank
 # ------------------------------------------------------------
 
+INSERT INTO
+  `bank` (
+    `id`,
+    `user_id`,
+    `amount`,
+    `currency`,
+    `hrn_equivalent`
+  )
+VALUES
+  (1, 1, 1600, 'hryvnia', 0);
+INSERT INTO
+  `bank` (
+    `id`,
+    `user_id`,
+    `amount`,
+    `currency`,
+    `hrn_equivalent`
+  )
+VALUES
+  (2, 1, 0, 'euro', 0);
+INSERT INTO
+  `bank` (
+    `id`,
+    `user_id`,
+    `amount`,
+    `currency`,
+    `hrn_equivalent`
+  )
+VALUES
+  (3, 2, 400, 'hryvnia', 0);
 
 # ------------------------------------------------------------
 # DATA DUMP FOR TABLE: bot
@@ -547,7 +643,8 @@ INSERT INTO
     `pattern`,
     `options`,
     `nlp`,
-    `useraccess`
+    `useraccess`,
+    `status`
   )
 VALUES
   (
@@ -557,7 +654,8 @@ VALUES
     '(.+)',
     '{\"polling\":true}',
     '{  \"name\": \"Corpus\",\n  \"locale\": \"ru-Ru\"}',
-    'klamenzui'
+    'klamenzui',
+    'off'
   );
 
 # ------------------------------------------------------------
@@ -3376,61 +3474,66 @@ VALUES
 # ------------------------------------------------------------
 
 INSERT INTO
-  `client` (`id`, `first_name`, `last_name`)
+  `client` (`id`, `first_name`, `last_name`, `description`)
 VALUES
-  (1, 'Виктория', '-');
+  (1, 'Виктория', '-', 'Виктория');
 INSERT INTO
-  `client` (`id`, `first_name`, `last_name`)
+  `client` (`id`, `first_name`, `last_name`, `description`)
 VALUES
-  (2, 'Егор', '-');
+  (2, 'Егор', '-', 'Егор');
 INSERT INTO
-  `client` (`id`, `first_name`, `last_name`)
+  `client` (`id`, `first_name`, `last_name`, `description`)
 VALUES
-  (3, 'Виталий', 'Макеев');
+  (3, 'Виталий', 'Макеев', 'Виталий Макеев');
 INSERT INTO
-  `client` (`id`, `first_name`, `last_name`)
+  `client` (`id`, `first_name`, `last_name`, `description`)
 VALUES
-  (4, 'Лидия', '-');
+  (4, 'Лидия', '-', 'Лидия');
 INSERT INTO
-  `client` (`id`, `first_name`, `last_name`)
+  `client` (`id`, `first_name`, `last_name`, `description`)
 VALUES
-  (5, 'Оксана', '-');
+  (5, 'Оксана', '-', 'Оксана');
 INSERT INTO
-  `client` (`id`, `first_name`, `last_name`)
+  `client` (`id`, `first_name`, `last_name`, `description`)
 VALUES
-  (6, 'Инна', 'Деменко');
+  (6, 'Инна', 'Деменко', 'Инна Деменко');
 INSERT INTO
-  `client` (`id`, `first_name`, `last_name`)
+  `client` (`id`, `first_name`, `last_name`, `description`)
 VALUES
-  (7, 'Алексей', 'Еременко');
+  (7, 'Алексей', 'Еременко', 'Алексей Еременко');
 INSERT INTO
-  `client` (`id`, `first_name`, `last_name`)
+  `client` (`id`, `first_name`, `last_name`, `description`)
 VALUES
-  (8, 'Александр', 'Грушевский');
+  (
+    8,
+    'Александр',
+    'Грушевский',
+    'Александр Грушевский'
+  );
 INSERT INTO
-  `client` (`id`, `first_name`, `last_name`)
+  `client` (`id`, `first_name`, `last_name`, `description`)
 VALUES
-  (9, 'Виталий', 'Притуленко');
+  (9, 'Виталий', 'Притуленко', 'Виталий Притуленко');
 INSERT INTO
-  `client` (`id`, `first_name`, `last_name`)
+  `client` (`id`, `first_name`, `last_name`, `description`)
 VALUES
-  (10, 'Лариса', '');
+  (10, 'Лариса', '', 'Лариса');
 INSERT INTO
-  `client` (`id`, `first_name`, `last_name`)
+  `client` (`id`, `first_name`, `last_name`, `description`)
 VALUES
-  (11, 'Татьяна', 'Дименко');
+  (11, 'Татьяна', 'Дименко', 'Татьяна Дименко');
 INSERT INTO
-  `client` (`id`, `first_name`, `last_name`)
+  `client` (`id`, `first_name`, `last_name`, `description`)
 VALUES
-  (12, 'Michael', '');
+  (12, 'Michael', '', 'Michael');
 INSERT INTO
-  `client` (`id`, `first_name`, `last_name`)
+  `client` (`id`, `first_name`, `last_name`, `description`)
 VALUES
-  (13, 'Мартыненко', 'Оксана');
+  (13, 'Мартыненко', 'Оксана', 'Мартыненко Оксана');
 INSERT INTO
-  `client` (`id`, `first_name`, `last_name`)
+  `client` (`id`, `first_name`, `last_name`, `description`)
 VALUES
-  (14, 'Тертичный', 'Олег');
+  (14, 'Тертичный', 'Олег', 'Тертичный Олег');
 
 # ------------------------------------------------------------
 # DATA DUMP FOR TABLE: contract
@@ -3782,7 +3885,7 @@ VALUES
 
 INSERT INTO
   `estate` (
-    `comment`,
+    `description`,
     `id`,
     `address_id`,
     `house_number`,
@@ -3791,10 +3894,10 @@ INSERT INTO
     `photos`
   )
 VALUES
-  ('Пацаева', 1, 1, '10', 87, 24, '001');
+  ('Пацаева 10/87', 1, 1, '10', 87, 24, '001');
 INSERT INTO
   `estate` (
-    `comment`,
+    `description`,
     `id`,
     `address_id`,
     `house_number`,
@@ -3803,10 +3906,10 @@ INSERT INTO
     `photos`
   )
 VALUES
-  ('Жадова', 2, 2, '19', 3, 24, '002');
+  ('Жадова 19/3', 2, 2, '19', 3, 24, '002');
 INSERT INTO
   `estate` (
-    `comment`,
+    `description`,
     `id`,
     `address_id`,
     `house_number`,
@@ -3815,10 +3918,10 @@ INSERT INTO
     `photos`
   )
 VALUES
-  ('Попова', 3, 3, '20', 84, 60, '003');
+  ('Попова 20/84', 3, 3, '20', 84, 60, '003');
 INSERT INTO
   `estate` (
-    `comment`,
+    `description`,
     `id`,
     `address_id`,
     `house_number`,
@@ -3830,7 +3933,7 @@ VALUES
   ('Земля', 4, 4, '67', 0, 1200, '004');
 INSERT INTO
   `estate` (
-    `comment`,
+    `description`,
     `id`,
     `address_id`,
     `house_number`,
@@ -3842,7 +3945,7 @@ VALUES
   ('Дача', 5, 5, '', 0, 600, '005');
 INSERT INTO
   `estate` (
-    `comment`,
+    `description`,
     `id`,
     `address_id`,
     `house_number`,
@@ -3851,10 +3954,10 @@ INSERT INTO
     `photos`
   )
 VALUES
-  ('Vasylia Nikitina', 6, 6, '15', 28, 21, '006');
+  ('В.Никитина 15/28', 6, 6, '15', 28, 21, '006');
 INSERT INTO
   `estate` (
-    `comment`,
+    `description`,
     `id`,
     `address_id`,
     `house_number`,
@@ -3863,7 +3966,7 @@ INSERT INTO
     `photos`
   )
 VALUES
-  ('', 7, 6, '15', 91, 21, '007');
+  ('В.Никитина 15/91', 7, 6, '15', 91, 21, '007');
 
 # ------------------------------------------------------------
 # DATA DUMP FOR TABLE: expense
@@ -4587,6 +4690,51 @@ VALUES
   );
 
 # ------------------------------------------------------------
+# DATA DUMP FOR TABLE: message
+# ------------------------------------------------------------
+
+INSERT INTO
+  `message` (`id`, `from_user`, `to_user`, `text`, `date`)
+VALUES
+  (1, 1, 0, 'test msg', '2023-05-16 11:40:08');
+INSERT INTO
+  `message` (`id`, `from_user`, `to_user`, `text`, `date`)
+VALUES
+  (2, 1, 0, 'bjbjbj', '2023-05-16 02:00:00');
+INSERT INTO
+  `message` (`id`, `from_user`, `to_user`, `text`, `date`)
+VALUES
+  (3, 1, 0, 'fffff', '2023-05-16 02:00:00');
+INSERT INTO
+  `message` (`id`, `from_user`, `to_user`, `text`, `date`)
+VALUES
+  (4, 1, 0, 'aaaa', '2023-05-16 02:00:00');
+INSERT INTO
+  `message` (`id`, `from_user`, `to_user`, `text`, `date`)
+VALUES
+  (5, 1, 0, 'ojnini', '2023-05-16 02:00:00');
+INSERT INTO
+  `message` (`id`, `from_user`, `to_user`, `text`, `date`)
+VALUES
+  (6, 1, 0, 'gggg', '2023-05-16 02:00:00');
+INSERT INTO
+  `message` (`id`, `from_user`, `to_user`, `text`, `date`)
+VALUES
+  (7, 1, 0, 'ffff', '2023-05-16 02:00:00');
+INSERT INTO
+  `message` (`id`, `from_user`, `to_user`, `text`, `date`)
+VALUES
+  (8, 1, 0, 'hjvjvg', '2023-05-16 02:00:00');
+INSERT INTO
+  `message` (`id`, `from_user`, `to_user`, `text`, `date`)
+VALUES
+  (9, 1, 0, 'vfbgn', '2023-05-16 02:00:00');
+INSERT INTO
+  `message` (`id`, `from_user`, `to_user`, `text`, `date`)
+VALUES
+  (10, 1, 0, 'vtgnz', '2023-05-16 02:00:00');
+
+# ------------------------------------------------------------
 # DATA DUMP FOR TABLE: payment
 # ------------------------------------------------------------
 
@@ -4594,6 +4742,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -4604,6 +4753,7 @@ VALUES
   (
     1,
     1,
+    0,
     1800,
     '2018-06-01 00:00:00',
     'pending',
@@ -4614,6 +4764,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -4624,6 +4775,7 @@ VALUES
   (
     2,
     1,
+    0,
     1800,
     '2018-07-01 00:00:00',
     'pending',
@@ -4634,6 +4786,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -4644,6 +4797,7 @@ VALUES
   (
     3,
     1,
+    0,
     1800,
     '2018-08-01 00:00:00',
     'pending',
@@ -4654,6 +4808,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -4664,6 +4819,7 @@ VALUES
   (
     4,
     1,
+    0,
     1800,
     '2018-09-01 00:00:00',
     'pending',
@@ -4674,6 +4830,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -4685,6 +4842,7 @@ VALUES
     5,
     2,
     0,
+    0,
     '2018-09-20 00:00:00',
     'pending',
     '2018-10-01 00:00:00',
@@ -4694,6 +4852,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -4704,6 +4863,7 @@ VALUES
   (
     6,
     2,
+    0,
     2200,
     '2018-10-01 00:00:00',
     'pending',
@@ -4714,6 +4874,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -4724,6 +4885,7 @@ VALUES
   (
     7,
     2,
+    0,
     2200,
     '2018-11-01 00:00:00',
     'pending',
@@ -4734,6 +4896,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -4744,6 +4907,7 @@ VALUES
   (
     8,
     2,
+    0,
     2200,
     '2018-12-01 00:00:00',
     'pending',
@@ -4754,6 +4918,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -4764,6 +4929,7 @@ VALUES
   (
     9,
     2,
+    0,
     500,
     '2019-01-01 00:00:00',
     'pending',
@@ -4774,6 +4940,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -4784,6 +4951,7 @@ VALUES
   (
     10,
     3,
+    0,
     2500,
     '2019-02-01 00:00:00',
     'pending',
@@ -4794,6 +4962,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -4804,6 +4973,7 @@ VALUES
   (
     11,
     1,
+    0,
     1800,
     '2018-10-01 00:00:00',
     'pending',
@@ -4814,6 +4984,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -4824,6 +4995,7 @@ VALUES
   (
     12,
     1,
+    0,
     1800,
     '2018-11-01 00:00:00',
     'pending',
@@ -4834,6 +5006,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -4844,6 +5017,7 @@ VALUES
   (
     13,
     4,
+    0,
     2000,
     '2018-12-01 00:00:00',
     'pending',
@@ -4854,6 +5028,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -4864,6 +5039,7 @@ VALUES
   (
     14,
     3,
+    0,
     2500,
     '2019-03-01 00:00:00',
     'pending',
@@ -4874,6 +5050,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -4884,6 +5061,7 @@ VALUES
   (
     15,
     4,
+    0,
     2000,
     '2019-01-01 00:00:00',
     'pending',
@@ -4894,6 +5072,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -4904,6 +5083,7 @@ VALUES
   (
     16,
     4,
+    0,
     2000,
     '2019-02-01 00:00:00',
     'pending',
@@ -4914,6 +5094,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -4924,6 +5105,7 @@ VALUES
   (
     17,
     5,
+    0,
     3000,
     '2019-04-13 00:00:00',
     'pending',
@@ -4934,6 +5116,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -4944,6 +5127,7 @@ VALUES
   (
     18,
     5,
+    0,
     3000,
     '2019-05-01 00:00:00',
     'pending',
@@ -4954,6 +5138,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -4964,6 +5149,7 @@ VALUES
   (
     19,
     5,
+    0,
     3000,
     '2019-06-01 00:00:00',
     'pending',
@@ -4974,6 +5160,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -4984,6 +5171,7 @@ VALUES
   (
     20,
     4,
+    0,
     2000,
     '2019-03-01 00:00:00',
     'pending',
@@ -4994,6 +5182,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5004,6 +5193,7 @@ VALUES
   (
     21,
     4,
+    0,
     1500,
     '2019-04-01 00:00:00',
     'pending',
@@ -5014,6 +5204,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5024,6 +5215,7 @@ VALUES
   (
     22,
     4,
+    0,
     2000,
     '2019-05-01 00:00:00',
     'pending',
@@ -5034,6 +5226,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5044,6 +5237,7 @@ VALUES
   (
     23,
     4,
+    0,
     2000,
     '2019-06-01 00:00:00',
     'pending',
@@ -5054,6 +5248,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5064,6 +5259,7 @@ VALUES
   (
     24,
     6,
+    0,
     2800,
     '2019-07-01 00:00:00',
     'pending',
@@ -5074,6 +5270,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5084,6 +5281,7 @@ VALUES
   (
     27,
     4,
+    0,
     2000,
     '2019-07-01 00:00:00',
     'pending',
@@ -5094,6 +5292,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5104,6 +5303,7 @@ VALUES
   (
     33,
     6,
+    0,
     3000,
     '2019-09-15 00:00:00',
     'pending',
@@ -5114,6 +5314,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5124,6 +5325,7 @@ VALUES
   (
     34,
     6,
+    0,
     3000,
     '2019-10-23 00:00:00',
     'pending',
@@ -5134,6 +5336,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5144,6 +5347,7 @@ VALUES
   (
     35,
     6,
+    0,
     3000,
     '2019-11-18 00:00:00',
     'pending',
@@ -5154,6 +5358,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5164,6 +5369,7 @@ VALUES
   (
     36,
     6,
+    0,
     3000,
     '2019-08-19 00:00:00',
     'pending',
@@ -5174,6 +5380,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5184,9 +5391,10 @@ VALUES
   (
     38,
     7,
+    0,
     2000,
-    '2019-11-01 00:00:00',
-    'pending',
+    '0000-00-00 00:00:00',
+    'payed',
     '2019-12-06 20:51:21',
     ''
   );
@@ -5194,6 +5402,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5204,6 +5413,7 @@ VALUES
   (
     39,
     8,
+    0,
     3000,
     '2019-11-25 00:00:00',
     'pending',
@@ -5214,6 +5424,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5224,6 +5435,7 @@ VALUES
   (
     40,
     6,
+    0,
     3000,
     '2019-12-22 00:00:00',
     'pending',
@@ -5234,6 +5446,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5244,6 +5457,7 @@ VALUES
   (
     45,
     7,
+    0,
     2000,
     '2019-12-27 00:00:00',
     'pending',
@@ -5254,6 +5468,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5264,6 +5479,7 @@ VALUES
   (
     46,
     8,
+    0,
     3000,
     '2019-12-20 00:00:00',
     'pending',
@@ -5274,6 +5490,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5284,6 +5501,7 @@ VALUES
   (
     47,
     7,
+    0,
     2000,
     '2020-01-05 00:00:00',
     'pending',
@@ -5294,6 +5512,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5304,6 +5523,7 @@ VALUES
   (
     48,
     7,
+    0,
     2000,
     '2020-02-03 00:00:00',
     'pending',
@@ -5314,6 +5534,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5324,6 +5545,7 @@ VALUES
   (
     49,
     8,
+    0,
     3000,
     '2020-01-25 00:00:00',
     'pending',
@@ -5334,6 +5556,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5344,6 +5567,7 @@ VALUES
   (
     51,
     6,
+    0,
     3000,
     '2020-01-15 00:00:00',
     'pending',
@@ -5354,6 +5578,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5364,6 +5589,7 @@ VALUES
   (
     52,
     7,
+    0,
     2000,
     '2020-03-03 00:00:00',
     'pending',
@@ -5374,6 +5600,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5384,6 +5611,7 @@ VALUES
   (
     53,
     6,
+    0,
     3000,
     '2020-02-20 00:00:00',
     'pending',
@@ -5394,6 +5622,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5404,6 +5633,7 @@ VALUES
   (
     54,
     8,
+    0,
     3000,
     '2020-02-25 00:00:00',
     'pending',
@@ -5414,6 +5644,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5424,6 +5655,7 @@ VALUES
   (
     55,
     9,
+    0,
     3000,
     '2020-04-01 00:00:00',
     'pending',
@@ -5434,6 +5666,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5444,6 +5677,7 @@ VALUES
   (
     56,
     9,
+    0,
     3000,
     '2020-05-01 00:00:00',
     'pending',
@@ -5454,6 +5688,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5464,6 +5699,7 @@ VALUES
   (
     57,
     9,
+    0,
     3000,
     '2020-06-01 00:00:00',
     'pending',
@@ -5474,6 +5710,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5484,6 +5721,7 @@ VALUES
   (
     58,
     9,
+    0,
     3000,
     '2020-07-01 00:00:00',
     'pending',
@@ -5494,6 +5732,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5504,6 +5743,7 @@ VALUES
   (
     59,
     9,
+    0,
     3000,
     '2020-08-01 00:00:00',
     'pending',
@@ -5514,6 +5754,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5524,6 +5765,7 @@ VALUES
   (
     60,
     9,
+    0,
     3000,
     '2020-09-01 00:00:00',
     'pending',
@@ -5534,6 +5776,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5544,6 +5787,7 @@ VALUES
   (
     61,
     10,
+    0,
     2900,
     '2020-10-01 00:00:00',
     'pending',
@@ -5554,6 +5798,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5564,6 +5809,7 @@ VALUES
   (
     62,
     10,
+    0,
     2900,
     '2020-11-01 00:00:00',
     'pending',
@@ -5574,6 +5820,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5584,6 +5831,7 @@ VALUES
   (
     63,
     7,
+    0,
     2000,
     '2020-04-01 00:00:00',
     'pending',
@@ -5594,6 +5842,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5604,6 +5853,7 @@ VALUES
   (
     64,
     7,
+    0,
     2000,
     '2020-05-01 00:00:00',
     'pending',
@@ -5614,6 +5864,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5624,6 +5875,7 @@ VALUES
   (
     65,
     7,
+    0,
     2000,
     '2020-06-01 00:00:00',
     'pending',
@@ -5634,6 +5886,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5644,6 +5897,7 @@ VALUES
   (
     66,
     7,
+    0,
     2000,
     '2020-07-01 00:00:00',
     'pending',
@@ -5654,6 +5908,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5664,6 +5919,7 @@ VALUES
   (
     67,
     7,
+    0,
     2000,
     '2020-08-01 00:00:00',
     'pending',
@@ -5674,6 +5930,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5684,6 +5941,7 @@ VALUES
   (
     68,
     7,
+    0,
     2000,
     '2020-09-01 00:00:00',
     'pending',
@@ -5694,6 +5952,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5704,6 +5963,7 @@ VALUES
   (
     69,
     7,
+    0,
     2000,
     '2020-10-01 00:00:00',
     'pending',
@@ -5714,6 +5974,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5724,6 +5985,7 @@ VALUES
   (
     70,
     7,
+    0,
     2000,
     '2020-11-01 00:00:00',
     'pending',
@@ -5734,6 +5996,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5744,6 +6007,7 @@ VALUES
   (
     71,
     6,
+    0,
     3000,
     '2020-03-01 00:00:00',
     'pending',
@@ -5754,6 +6018,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5764,6 +6029,7 @@ VALUES
   (
     72,
     6,
+    0,
     3000,
     '2020-04-01 00:00:00',
     'pending',
@@ -5774,6 +6040,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5784,6 +6051,7 @@ VALUES
   (
     73,
     6,
+    0,
     3000,
     '2020-05-01 00:00:00',
     'pending',
@@ -5794,6 +6062,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5804,6 +6073,7 @@ VALUES
   (
     74,
     6,
+    0,
     3000,
     '2020-06-01 00:00:00',
     'pending',
@@ -5814,6 +6084,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5824,6 +6095,7 @@ VALUES
   (
     75,
     6,
+    0,
     3000,
     '2020-07-01 00:00:00',
     'pending',
@@ -5834,6 +6106,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5844,6 +6117,7 @@ VALUES
   (
     76,
     6,
+    0,
     3000,
     '2020-08-01 00:00:00',
     'pending',
@@ -5854,6 +6128,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5864,6 +6139,7 @@ VALUES
   (
     77,
     6,
+    0,
     3000,
     '2020-09-01 00:00:00',
     'pending',
@@ -5874,6 +6150,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5884,6 +6161,7 @@ VALUES
   (
     79,
     6,
+    0,
     3000,
     '2020-10-01 00:00:00',
     'pending',
@@ -5894,6 +6172,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5904,6 +6183,7 @@ VALUES
   (
     81,
     6,
+    0,
     3000,
     '2020-12-01 00:00:00',
     'pending',
@@ -5914,6 +6194,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5924,6 +6205,7 @@ VALUES
   (
     82,
     6,
+    0,
     3000,
     '2020-11-01 00:00:00',
     'pending',
@@ -5934,6 +6216,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5944,6 +6227,7 @@ VALUES
   (
     83,
     11,
+    0,
     2000,
     '2020-09-01 00:00:00',
     'pending',
@@ -5954,6 +6238,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5964,6 +6249,7 @@ VALUES
   (
     84,
     11,
+    0,
     2000,
     '2020-10-01 00:00:00',
     'pending',
@@ -5974,6 +6260,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -5984,6 +6271,7 @@ VALUES
   (
     85,
     11,
+    0,
     2000,
     '2020-11-01 00:00:00',
     'pending',
@@ -5994,6 +6282,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6004,6 +6293,7 @@ VALUES
   (
     87,
     11,
+    0,
     1000,
     '2020-12-01 00:00:00',
     'pending',
@@ -6014,6 +6304,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6024,6 +6315,7 @@ VALUES
   (
     88,
     10,
+    0,
     2900,
     '2020-12-01 00:00:00',
     'pending',
@@ -6034,6 +6326,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6044,6 +6337,7 @@ VALUES
   (
     89,
     10,
+    0,
     2900,
     '2021-01-01 00:00:00',
     'pending',
@@ -6054,6 +6348,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6064,6 +6359,7 @@ VALUES
   (
     90,
     10,
+    0,
     3000,
     '2021-02-01 00:00:00',
     'pending',
@@ -6074,6 +6370,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6084,6 +6381,7 @@ VALUES
   (
     91,
     10,
+    0,
     3000,
     '2021-03-01 00:00:00',
     'pending',
@@ -6094,6 +6392,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6104,6 +6403,7 @@ VALUES
   (
     92,
     6,
+    0,
     3000,
     '2021-01-01 00:00:00',
     'pending',
@@ -6114,6 +6414,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6124,6 +6425,7 @@ VALUES
   (
     93,
     6,
+    0,
     3000,
     '2021-02-01 00:00:00',
     'pending',
@@ -6134,6 +6436,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6144,6 +6447,7 @@ VALUES
   (
     94,
     6,
+    0,
     3000,
     '2021-03-01 00:00:00',
     'pending',
@@ -6154,6 +6458,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6164,6 +6469,7 @@ VALUES
   (
     95,
     7,
+    0,
     2000,
     '2020-12-01 00:00:00',
     'pending',
@@ -6174,6 +6480,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6184,6 +6491,7 @@ VALUES
   (
     96,
     7,
+    0,
     2000,
     '2021-01-01 00:00:00',
     'pending',
@@ -6194,6 +6502,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6204,6 +6513,7 @@ VALUES
   (
     97,
     7,
+    0,
     2000,
     '2021-02-01 00:00:00',
     'pending',
@@ -6214,6 +6524,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6224,6 +6535,7 @@ VALUES
   (
     98,
     7,
+    0,
     2000,
     '2021-03-01 00:00:00',
     'pending',
@@ -6234,6 +6546,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6244,6 +6557,7 @@ VALUES
   (
     99,
     12,
+    0,
     3000,
     '2021-04-12 00:00:00',
     'pending',
@@ -6254,6 +6568,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6264,6 +6579,7 @@ VALUES
   (
     100,
     13,
+    0,
     2800,
     '2021-03-25 00:00:00',
     'pending',
@@ -6274,6 +6590,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6284,6 +6601,7 @@ VALUES
   (
     101,
     14,
+    0,
     3000,
     '2021-04-19 00:00:00',
     'pending',
@@ -6294,6 +6612,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6304,6 +6623,7 @@ VALUES
   (
     102,
     12,
+    0,
     2600,
     '2021-05-03 00:00:00',
     'pending',
@@ -6314,6 +6634,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6324,6 +6645,7 @@ VALUES
   (
     104,
     12,
+    0,
     3000,
     '2021-06-01 00:00:00',
     'pending',
@@ -6334,6 +6656,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6344,6 +6667,7 @@ VALUES
   (
     106,
     7,
+    0,
     2100,
     '2021-06-01 00:00:00',
     'pending',
@@ -6354,6 +6678,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6364,6 +6689,7 @@ VALUES
   (
     107,
     7,
+    0,
     2000,
     '2021-05-01 00:00:00',
     'pending',
@@ -6374,6 +6700,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6384,6 +6711,7 @@ VALUES
   (
     108,
     7,
+    0,
     2000,
     '2021-04-01 00:00:00',
     'pending',
@@ -6394,6 +6722,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6404,6 +6733,7 @@ VALUES
   (
     109,
     7,
+    0,
     2500,
     '2021-07-01 00:00:00',
     'pending',
@@ -6414,6 +6744,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6424,6 +6755,7 @@ VALUES
   (
     110,
     6,
+    0,
     3000,
     '2021-04-01 00:00:00',
     'pending',
@@ -6434,6 +6766,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6444,6 +6777,7 @@ VALUES
   (
     111,
     6,
+    0,
     3000,
     '2021-05-01 00:00:00',
     'pending',
@@ -6454,6 +6788,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6464,6 +6799,7 @@ VALUES
   (
     112,
     6,
+    0,
     3000,
     '2021-06-01 00:00:00',
     'pending',
@@ -6474,6 +6810,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6484,6 +6821,7 @@ VALUES
   (
     115,
     6,
+    0,
     3000,
     '2021-07-01 00:00:00',
     'pending',
@@ -6494,6 +6832,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6504,6 +6843,7 @@ VALUES
   (
     116,
     6,
+    0,
     3000,
     '2021-08-01 00:00:00',
     'pending',
@@ -6514,6 +6854,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6524,6 +6865,7 @@ VALUES
   (
     117,
     6,
+    0,
     3000,
     '2021-09-01 00:00:00',
     'pending',
@@ -6534,6 +6876,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6544,6 +6887,7 @@ VALUES
   (
     121,
     7,
+    0,
     2000,
     '2021-08-01 00:00:00',
     'pending',
@@ -6554,6 +6898,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6564,6 +6909,7 @@ VALUES
   (
     122,
     7,
+    0,
     2000,
     '2021-09-01 00:00:00',
     'pending',
@@ -6574,6 +6920,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6584,6 +6931,7 @@ VALUES
   (
     123,
     7,
+    0,
     2000,
     '2021-10-01 00:00:00',
     'pending',
@@ -6594,6 +6942,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6604,6 +6953,7 @@ VALUES
   (
     124,
     7,
+    0,
     2000,
     '2021-11-01 00:00:00',
     'pending',
@@ -6614,6 +6964,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6624,6 +6975,7 @@ VALUES
   (
     125,
     7,
+    0,
     2000,
     '2021-12-01 00:00:00',
     'pending',
@@ -6634,6 +6986,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6644,6 +6997,7 @@ VALUES
   (
     126,
     12,
+    0,
     3000,
     '2021-07-01 00:00:00',
     'pending',
@@ -6654,6 +7008,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6664,6 +7019,7 @@ VALUES
   (
     127,
     12,
+    0,
     3000,
     '2021-08-01 00:00:00',
     'pending',
@@ -6674,6 +7030,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6684,6 +7041,7 @@ VALUES
   (
     128,
     12,
+    0,
     3000,
     '2021-09-01 00:00:00',
     'pending',
@@ -6694,6 +7052,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6704,6 +7063,7 @@ VALUES
   (
     129,
     12,
+    0,
     3000,
     '2021-10-01 00:00:00',
     'pending',
@@ -6714,6 +7074,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6724,6 +7085,7 @@ VALUES
   (
     130,
     12,
+    0,
     3000,
     '2021-11-01 00:00:00',
     'pending',
@@ -6734,6 +7096,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6744,6 +7107,7 @@ VALUES
   (
     131,
     6,
+    0,
     3000,
     '2021-10-01 00:00:00',
     'pending',
@@ -6754,6 +7118,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6764,6 +7129,7 @@ VALUES
   (
     132,
     6,
+    0,
     3000,
     '2021-11-01 00:00:00',
     'pending',
@@ -6774,6 +7140,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6784,6 +7151,7 @@ VALUES
   (
     133,
     6,
+    0,
     3000,
     '2021-12-01 00:00:00',
     'pending',
@@ -6794,6 +7162,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6804,6 +7173,7 @@ VALUES
   (
     134,
     6,
+    0,
     3000,
     '2022-01-01 00:00:00',
     'pending',
@@ -6814,6 +7184,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6824,6 +7195,7 @@ VALUES
   (
     135,
     6,
+    0,
     3000,
     '2022-02-01 00:00:00',
     'pending',
@@ -6834,6 +7206,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6844,6 +7217,7 @@ VALUES
   (
     136,
     6,
+    0,
     3000,
     '2022-03-01 00:00:00',
     'pending',
@@ -6854,6 +7228,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6864,6 +7239,7 @@ VALUES
   (
     137,
     6,
+    0,
     3000,
     '2022-04-01 00:00:00',
     'pending',
@@ -6874,6 +7250,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6884,6 +7261,7 @@ VALUES
   (
     138,
     6,
+    0,
     3000,
     '2022-05-01 00:00:00',
     'pending',
@@ -6894,6 +7272,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6904,6 +7283,7 @@ VALUES
   (
     139,
     6,
+    0,
     3000,
     '2022-06-01 00:00:00',
     'pending',
@@ -6914,6 +7294,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6924,6 +7305,7 @@ VALUES
   (
     140,
     6,
+    0,
     3000,
     '2022-07-01 00:00:00',
     'pending',
@@ -6934,6 +7316,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6944,6 +7327,7 @@ VALUES
   (
     141,
     6,
+    0,
     3000,
     '2022-08-01 00:00:00',
     'pending',
@@ -6954,6 +7338,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6964,6 +7349,7 @@ VALUES
   (
     142,
     12,
+    0,
     3000,
     '2021-12-01 00:00:00',
     'pending',
@@ -6974,6 +7360,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -6984,6 +7371,7 @@ VALUES
   (
     143,
     12,
+    0,
     3000,
     '2022-01-01 00:00:00',
     'pending',
@@ -6994,6 +7382,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7004,6 +7393,7 @@ VALUES
   (
     144,
     12,
+    0,
     3000,
     '2022-02-01 00:00:00',
     'pending',
@@ -7014,6 +7404,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7024,6 +7415,7 @@ VALUES
   (
     145,
     12,
+    0,
     3000,
     '2022-03-01 00:00:00',
     'pending',
@@ -7034,6 +7426,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7044,6 +7437,7 @@ VALUES
   (
     146,
     12,
+    0,
     4000,
     '2022-04-01 00:00:00',
     'pending',
@@ -7054,6 +7448,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7064,6 +7459,7 @@ VALUES
   (
     147,
     12,
+    0,
     4000,
     '2022-05-01 00:00:00',
     'pending',
@@ -7074,6 +7470,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7084,6 +7481,7 @@ VALUES
   (
     148,
     12,
+    0,
     4000,
     '2022-06-01 00:00:00',
     'pending',
@@ -7094,6 +7492,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7104,6 +7503,7 @@ VALUES
   (
     149,
     12,
+    0,
     4000,
     '2022-07-01 00:00:00',
     'pending',
@@ -7114,6 +7514,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7124,6 +7525,7 @@ VALUES
   (
     150,
     12,
+    0,
     4000,
     '2022-08-01 00:00:00',
     'pending',
@@ -7134,6 +7536,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7144,6 +7547,7 @@ VALUES
   (
     151,
     7,
+    0,
     2000,
     '2022-01-01 00:00:00',
     'pending',
@@ -7154,6 +7558,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7164,6 +7569,7 @@ VALUES
   (
     152,
     7,
+    0,
     2000,
     '2022-02-01 00:00:00',
     'pending',
@@ -7174,6 +7580,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7184,6 +7591,7 @@ VALUES
   (
     153,
     7,
+    0,
     2000,
     '2022-04-01 00:00:00',
     'pending',
@@ -7194,6 +7602,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7204,6 +7613,7 @@ VALUES
   (
     154,
     7,
+    0,
     2500,
     '2022-05-01 00:00:00',
     'pending',
@@ -7214,6 +7624,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7224,6 +7635,7 @@ VALUES
   (
     155,
     7,
+    0,
     2500,
     '2022-06-01 00:00:00',
     'pending',
@@ -7234,6 +7646,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7244,6 +7657,7 @@ VALUES
   (
     156,
     7,
+    0,
     2500,
     '2022-07-01 00:00:00',
     'pending',
@@ -7254,6 +7668,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7264,6 +7679,7 @@ VALUES
   (
     157,
     7,
+    0,
     2500,
     '2022-08-01 00:00:00',
     'pending',
@@ -7274,6 +7690,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7284,6 +7701,7 @@ VALUES
   (
     158,
     7,
+    0,
     2500,
     '2022-09-01 00:00:00',
     'pending',
@@ -7294,6 +7712,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7304,6 +7723,7 @@ VALUES
   (
     159,
     7,
+    0,
     2500,
     '2022-10-01 00:00:00',
     'pending',
@@ -7314,6 +7734,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7324,6 +7745,7 @@ VALUES
   (
     160,
     7,
+    0,
     3500,
     '2022-11-01 00:00:00',
     'pending',
@@ -7334,6 +7756,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7344,6 +7767,7 @@ VALUES
   (
     161,
     12,
+    0,
     4000,
     '2022-09-01 00:00:00',
     'pending',
@@ -7354,6 +7778,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7364,6 +7789,7 @@ VALUES
   (
     162,
     12,
+    0,
     4500,
     '2022-10-01 00:00:00',
     'pending',
@@ -7374,6 +7800,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7384,6 +7811,7 @@ VALUES
   (
     163,
     15,
+    0,
     1000,
     '2022-10-01 00:00:00',
     'pending',
@@ -7394,6 +7822,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7404,6 +7833,7 @@ VALUES
   (
     167,
     15,
+    0,
     1000,
     '2022-10-01 00:00:00',
     'pending',
@@ -7414,6 +7844,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7424,6 +7855,7 @@ VALUES
   (
     165,
     15,
+    0,
     500,
     '2022-10-01 00:00:00',
     'pending',
@@ -7434,6 +7866,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7444,6 +7877,7 @@ VALUES
   (
     166,
     15,
+    0,
     1000,
     '2022-10-01 00:00:00',
     'pending',
@@ -7454,6 +7888,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7464,6 +7899,7 @@ VALUES
   (
     168,
     15,
+    0,
     1000,
     '2022-12-01 00:00:00',
     'pending',
@@ -7474,6 +7910,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7484,6 +7921,7 @@ VALUES
   (
     169,
     15,
+    0,
     1000,
     '2022-12-01 00:00:00',
     'pending',
@@ -7494,6 +7932,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7504,6 +7943,7 @@ VALUES
   (
     170,
     15,
+    0,
     1000,
     '2022-12-01 00:00:00',
     'pending',
@@ -7514,6 +7954,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7524,6 +7965,7 @@ VALUES
   (
     171,
     19,
+    0,
     5,
     '2023-01-02 00:00:00',
     'pending',
@@ -7534,6 +7976,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7545,6 +7988,7 @@ VALUES
     172,
     19,
     0,
+    0,
     '0000-00-00 00:00:00',
     'pending',
     '0000-00-00 00:00:00',
@@ -7554,6 +7998,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7564,6 +8009,7 @@ VALUES
   (
     173,
     19,
+    0,
     6000,
     '0000-00-00 00:00:00',
     'pending',
@@ -7574,6 +8020,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7585,6 +8032,7 @@ VALUES
     174,
     0,
     0,
+    0,
     '2023-03-31 17:22:51',
     'pending',
     '2023-03-31 17:22:51',
@@ -7594,6 +8042,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7605,6 +8054,7 @@ VALUES
     175,
     0,
     0,
+    0,
     '2023-04-01 13:57:50',
     'pending',
     '2023-04-01 13:57:50',
@@ -7614,6 +8064,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7625,6 +8076,7 @@ VALUES
     176,
     0,
     0,
+    0,
     '2023-04-01 13:58:25',
     'pending',
     '2023-04-01 13:58:25',
@@ -7634,6 +8086,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7645,6 +8098,7 @@ VALUES
     177,
     0,
     0,
+    0,
     '2023-04-01 14:05:24',
     'pending',
     '2023-04-01 14:05:24',
@@ -7654,6 +8108,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7665,6 +8120,7 @@ VALUES
     178,
     0,
     0,
+    0,
     '2023-04-01 14:06:29',
     'pending',
     '2023-04-01 14:06:29',
@@ -7674,6 +8130,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7685,6 +8142,7 @@ VALUES
     179,
     0,
     0,
+    0,
     '2023-04-01 14:45:16',
     'pending',
     '2023-04-01 14:45:16',
@@ -7694,6 +8152,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7705,6 +8164,7 @@ VALUES
     180,
     0,
     0,
+    0,
     '2023-04-01 14:48:42',
     'pending',
     '2023-04-01 14:48:42',
@@ -7714,6 +8174,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7725,6 +8186,7 @@ VALUES
     181,
     0,
     0,
+    0,
     '2023-04-01 14:53:07',
     'pending',
     '2023-04-01 14:53:07',
@@ -7734,6 +8196,7 @@ INSERT INTO
   `payment` (
     `id`,
     `contract_id`,
+    `estate_id`,
     `amount`,
     `period`,
     `status`,
@@ -7743,6 +8206,7 @@ INSERT INTO
 VALUES
   (
     182,
+    0,
     0,
     0,
     '2023-04-01 14:56:07',
@@ -7800,6 +8264,19 @@ INSERT INTO
   `role` (`id`, `name`, `description`)
 VALUES
   (2, 'Сlient', 'Сlient');
+
+# ------------------------------------------------------------
+# DATA DUMP FOR TABLE: share
+# ------------------------------------------------------------
+
+INSERT INTO
+  `share` (`id`, `estate_id`, `user_id`, `percentage`)
+VALUES
+  (1, 1, 1, 80);
+INSERT INTO
+  `share` (`id`, `estate_id`, `user_id`, `percentage`)
+VALUES
+  (2, 1, 2, 20);
 
 # ------------------------------------------------------------
 # DATA DUMP FOR TABLE: state
@@ -7860,24 +8337,44 @@ VALUES
 # ------------------------------------------------------------
 
 INSERT INTO
-  `user` (`id`, `username`, `email`, `password`, `role_id`)
+  `user` (
+    `id`,
+    `username`,
+    `email`,
+    `password`,
+    `role_id`,
+    `img`,
+    `description`
+  )
 VALUES
   (
     1,
     'admin',
     '',
     '$2a$10$OWisVlgw8VCvovKiKAyD8.xJg0H3d6B6amKHOII5t6AQxVa7FzlnW',
-    '0'
+    '0',
+    'user/undraw_profile.svg',
+    'Admin'
   );
 INSERT INTO
-  `user` (`id`, `username`, `email`, `password`, `role_id`)
+  `user` (
+    `id`,
+    `username`,
+    `email`,
+    `password`,
+    `role_id`,
+    `img`,
+    `description`
+  )
 VALUES
   (
     2,
     'temp',
     '',
     '$2a$10$OWisVlgw8VCvovKiKAyD8.xJg0H3d6B6amKHOII5t6AQxVa7FzlnW',
-    '1'
+    '1',
+    'user/undraw_profile_1.svg',
+    'Temp'
   );
 
 # ------------------------------------------------------------
@@ -8046,7 +8543,7 @@ VALUES
     0,
     0,
     'm^3',
-    'газ',
+    'газ постачання',
     '2023-04-06 13:19:26',
     'https://gas.ua/uk/home/tariffs',
     ''
@@ -8072,7 +8569,7 @@ VALUES
     0,
     0,
     'm^3',
-    'газ',
+    'газ розподіл',
     '2023-04-06 13:19:26',
     '',
     ''

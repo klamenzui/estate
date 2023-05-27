@@ -1,7 +1,6 @@
-const Model = require('../../models/payment');
+const Model = require('../../models/message');
 const Page = require('../page');
-
-class Payment extends Page {
+class Message extends Page {
     constructor(controller) {
         super(controller);
     }
@@ -9,6 +8,7 @@ class Payment extends Page {
     get() {
         let req = this.controller.req;
         console.log(req.body);
+        console.log('user data: ',req.user);
         new Model().setAsTable(true).get(req.body).then((results) => {
             this.sendData(results);
         }).catch((e) => {
@@ -17,10 +17,14 @@ class Payment extends Page {
     }
 
     set() {
-        let req = this.controller.req;
+        let me = this;
+        let req = me.controller.req;
         console.log(req.body);
+        req.body['user'] = req.user;
         new Model().set(req.body).then((results) => {
             this.sendData(results);
+            app.locals.wsSend({clazz:me.clazz ,method: me.method});
+
         }).catch((e) => {
             this.sendData(e);
         });
@@ -30,26 +34,7 @@ class Payment extends Page {
         let req = this.controller.req;
         console.log(req.body);
         new Model().del(req.body).then((results) => {
-            this.sendData(results);
-        }).catch((e) => {
-            this.sendData(e);
-        });
-    }
-
-    sumPeriod() {
-        let req = this.controller.req;
-        console.log(req.body);
-        new Model().sumPeriod(req.body).then((results) => {
-            this.sendData(results);
-        }).catch((e) => {
-            this.sendData(e);
-        });
-    }
-
-    withdraw() {
-        let req = this.controller.req;
-        console.log(req.body);
-        new Model().withdraw(req.body).then((results) => {
+            app.locals.wsSend(results);
             this.sendData(results);
         }).catch((e) => {
             this.sendData(e);
@@ -57,4 +42,4 @@ class Payment extends Page {
     }
 }
 
-module.exports = Payment
+module.exports = Message

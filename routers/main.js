@@ -1,10 +1,60 @@
 // app/routes.js
 //const fs = require('fs');
 //const {estates,payment,expense,estateMenu} = require('../models/estate');
-var passport = app.locals.passport;
+const passport = app.locals.passport;
 const Controller = require('../controllers/controller.js');
-console.log(Controller)
+const expressWs = require('express-ws')(app);
+
+console.log(Controller);
+app.ws('/', function(ws, req) {
+    app.locals.ws = ws;
+    ws.on('message', function(msg) {
+        if(req.cookies && req.cookies.ajs_user_id){
+            try {
+                //set auth for req.isAuthenticated()
+                req['user'] = true;
+                //console.log(req.headers.cookie);
+                console.log(req.cookies);
+                console.log(msg, req.body);
+                msg = JSON.parse(msg);
+                let url = msg.url.split('/');
+                if(url.length === 4) {
+                    let params = {
+                        folder: url[1],
+                        clazz: url[2],
+                        method: url[3],
+                    }
+                    req.params = params;
+                    req.body = msg.data;
+                    req.originalUrl = '/'+ params.folder + '/'+ params.clazz + '/' + params.method;
+                    //req.body =
+                    let res = {
+                        json:function(data){
+                            console.log(data);
+                            ws.send(JSON.stringify(data))
+                        }
+                    };
+                    /*msg.req['originalUrl'] = 'ws';
+                    msg.req['app'] = app;
+                    msg.req['isAuthenticated'] = req.isAuthenticated;*/
+                    (new Controller()).request(req, res);
+                }
+            } catch (e) {
+                console.log(e);
+            }
+        }
+    });
+    console.log('socket', req.testing);
+});
+
+app.use(function (req, res, next) {
+    console.log('middleware');
+    req.testing = 'testing';
+    return next();
+});
+
 app.get('/:clazz/:method', function (req, res) {
+    console.log(req.cookies);
     (new Controller()).request(req, res);
 });
 app.get('/login', (req, res) => {
@@ -93,7 +143,7 @@ function error(err, req, res, next) {
     // log it
     console.error(err.stack);
     if (req.isAuthenticated()) console.error(err.stack);
-    if (err.status == 404) {
+    if (err.status === 404) {
         res.status(404).send(
             "<h1>Page not found on the server</h1>");
         res.format({

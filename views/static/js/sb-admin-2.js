@@ -1,3 +1,66 @@
+$app = {
+    ws:{},
+    wsSend: async function (url, data) {
+        $app.ws.send(JSON.stringify({
+            url:url,
+            data: data
+        }));
+    },
+    ajax: function(_config){
+        let config = {
+            type: "POST",
+            crossDomain: true,
+            cache: false
+        }
+        if(_config['url']){
+            for(let i in _config){
+                config[i] = _config[i];
+            }
+            $.ajax(config).always(function (xhr, status) {
+                console.log(xhr, status);
+                if(config.container) {
+                    $(config.container).html(xhr);
+                }
+                if(typeof config.callback == 'function'){
+                    config.callback(xhr, status);
+                }
+            });
+        }
+    },
+    getMessage: function (type) {
+        let url;
+        let container;
+        switch (type) {
+            case "message":
+            case "alert":
+                url = "/parts/" + type + "/preview";
+                container = '#'+type+'-center'
+                break;
+        }
+        $('#'+type+'-dropdown span').html('');
+        $(container).html('');
+        let callback = function () {
+            console.log(container,type)
+            let count = $(container + ' a').length;
+            $('#'+type+'-dropdown span').html(count);
+        }
+        $app.ajax({url:url,callback:callback,container:container});
+    },
+    getAddress:function () {
+        $app.ajax({
+            url:'/api/estate/getAddress',
+            callback:function (xhr,status) {
+                let rows = xhr.response.rows;
+                let menuItems = [];
+                for (let i in rows) {
+                    let r = rows[i];
+                    menuItems.push(`<a class="collapse-item" href="/estate/get?id=${r['estate_id']}">#${r['estate_id']}. ${r['street']} ${r['house_number']}</a>`);
+                }
+                $('#estate > div').html(menuItems.join('\n'));
+            }
+        });
+    },
+}
 var autocomplete = function (me) {
     me = $(me.target);
     var elements = $('input.tabledit-input[name="' + me.attr('name') + '"]:hidden');
@@ -13,6 +76,7 @@ var autocomplete = function (me) {
         source: Object.keys(list)
     });
 }
+///parts/window
 
 var processModal = function () {
     let body = $('#modal_window .modal-body');
@@ -88,26 +152,9 @@ $(document).ready(function () {
 
     });
 
-    $.ajax({
-        type: "POST",
-        url: "/api/estate/getAddress",
-        //data: '{"userId":"'+userId+'"}',
-        //dataType: "jsonp",
-        crossDomain: true,
-        cache: false
-    }).always(function (xhr, status) {
-        console.log(xhr.response, status);
-        let rows = xhr.response.rows;
-        let menuItems = [];
-        for (let i in rows) {
-            let r = rows[i];
-            menuItems.push(`<a class="collapse-item" href="/estate/get?id=${r['estate_id']}">#${r['estate_id']}. ${r['street']} ${r['house_number']}</a>`);
-        }
-        //$('#apartments_list').html(tpl);
-        $('#accPages > div').html(menuItems.join('\n'));
-
-        //$( '.lightboxed' ).lightboxed();
-    });
+    $app.getMessage('message');
+    $app.getMessage('alert');
+    $app.getAddress();
 
 
     // Toggle the side navigation
@@ -163,5 +210,40 @@ $(document).ready(function () {
         }, 1000, 'easeInOutExpo');
         e.preventDefault();
     });
+
+    //------------------------- webSocket ---------------------
+    if ("WebSocket" in window) {
+        // Let us open a web socket
+        $app.ws = new WebSocket("ws://"+location.host);
+
+        $app.ws.onopen = function() {
+            // Web Socket is connected, send data using send()
+            $app.wsSend('/api/task/get').then(function () {
+                console.log("Connected server");
+            })
+
+        };
+
+        $app.ws.onmessage = function (evt) {
+            let res = JSON.parse(evt.data);
+            //{"clazz":"message","method":"set"}
+            console.log("Message is received: ", res);
+            switch (res.clazz) {
+                case "message":
+                case "alert":
+                    $app.getMessage(res.clazz);
+                    break;
+            }
+        };
+
+        $app.ws.onclose = function() {
+            // websocket is closed.
+            console.log("Connection is closed.");
+        };
+    } else {
+
+        // The browser doesn't support WebSocket
+        alert("WebSocket NOT supported by your Browser!");
+    }
 
 }); // End of use strict

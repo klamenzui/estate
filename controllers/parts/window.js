@@ -1,6 +1,7 @@
 const Helper = require('../../utils/helper');
 const Page = require('../page');
 const moment = require('moment');
+const Loader = require('../../models/loader');
 
 class Window extends Page {
     res;
@@ -47,38 +48,13 @@ class Window extends Page {
                 ]
             }
         }
-    }
-
-    payment() {
-        this._sendData('payment');
-    }
-
-    expense() {
-        this._sendData('expense');
-    }
-
-    contract() {
-        this._sendData('contract');
-    }
-
-    client() {
-        this._sendData('client');
-    }
-
-    task() {
-        this._sendData('task');
-    }
-
-    utilityservice() {
-        this._sendData('utilityservice');
-    }
-
-    utilityservice_formula() {
-        this._sendData('utilityservice_formula');
-    }
-
-    utilitymeter() {
-        this._sendData('utilitymeter');
+        let method = this.controller.method;
+        let isAllow = (app.locals.config.gui.router['api'] && app.locals.config.gui.router['api'].indexOf(method) > -1);
+        if(isAllow){
+            this[method] = function(){
+                this._sendData(method);
+            }
+        }
     }
 
     utilitymeter_current() {
@@ -117,10 +93,9 @@ class Window extends Page {
     async _sendData(clazz) {
         let req = this.controller.req;
         const entity = this._initData(clazz);
-        const Model = require('../../models/' + clazz);
         this.res.body.fields = entity._fields;
         if (req.query && !Helper.isEmpty(req.body.data[entity._primary_key])) {
-            let results = await new Model().get(req.body.data[entity._primary_key]);
+            let results = await Loader.model(clazz).get(req.body.data[entity._primary_key]);
             if (!Helper.isEmpty(results.rows)) {
                 this.res.body.data = results.rows[0];
             }
@@ -187,8 +162,7 @@ class Window extends Page {
                             let table_id = field.name.split('_');
                             const entity = require('../../models/db/tables/' + table_id[0]);
                             if (entity.description) {
-                                const Model = require('../../models/db/model');
-                                let dep = await new Model(table_id[0]).select(entity.id, entity.description).exec();
+                                let dep = await Loader.model(table_id[0]).select(entity.id, entity.description).exec();
                                 if(dep.rows){
                                     combo_data = dep.rows;
                                     type = 'object';
@@ -232,7 +206,7 @@ class Window extends Page {
                                 }else{
                                     key = text = combo_data[o];
                                 }
-                                if (key === data || key === field.default) {
+                                if (key == data || key == field.default) {
                                     selected = ' selected="selected"';
                                 }
                                 options.push(`<option${selected} ${val}>${text}</option>`);

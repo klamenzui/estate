@@ -1,0 +1,15 @@
+<% for(let i in response){
+%>
+    <a class="dropdown-item d-flex align-items-center" href="#">
+        <div class="dropdown-list-image mr-3">
+            <img class="rounded-circle" src="<%=includes.imgpath;%><%=response[i].header.img;%>" alt="..."><div class="status-indicator bg-warning"></div>
+        </div>
+        <div>
+            <div class="text-truncate"><%- response[i].body -%></div>
+            <div class="small text-gray-500"><%- response[i].footer -%></div>
+        </div>
+    </a>
+<%
+}
+%>
+

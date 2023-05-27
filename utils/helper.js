@@ -30,7 +30,21 @@ const Helper = {
         mname = mname.toLowerCase();
         //let maxDeep = 3;
         do {
-            let ownPropertyNames = Object.getOwnPropertyNames(Object.getPrototypeOf(currentObj));
+            let ownPropertyNames = {};
+            if(currentObj){
+                ownPropertyNames = Object.getOwnPropertyNames(currentObj);
+                let pType = Object.getPrototypeOf(currentObj);
+                if(pType){
+                    let superPropertyNames = Object.getOwnPropertyNames(pType);
+                    if(superPropertyNames){
+                        for (let k in superPropertyNames) {
+                            if(ownPropertyNames.indexOf(superPropertyNames[k]) === -1) {
+                                ownPropertyNames.push(superPropertyNames[k])
+                            }
+                        }
+                    }
+                }
+            }
             //const functionNames = Object.getOwnPropertyNames(Object.getPrototypeOf(myDog))
               //  .filter(name => typeof myDog[name] === 'function');
             for (let k in ownPropertyNames) {
@@ -193,6 +207,19 @@ const Helper = {
             .replace('h', ("0" + now.getHours()).slice(-2))
             .replace('m', ("0" + now.getMinutes()).slice(-2))
             .replace('s', ("0" + now.getSeconds()).slice(-2));
+    },
+    getPeriod: (start_date, months) => {//months count
+        let end_date = '';
+        if(!start_date){
+            start_date = new Date();
+        }
+        if(!months){
+            months = 1;
+        }
+        let format = 'Y-M-D';
+        start_date = Helper.formatDate(start_date,format);
+        end_date = Helper.formatDate(new Date(start_date).addMonths(months),format);
+        return [start_date,end_date];
     }
 }
 module.exports = Helper

@@ -67,7 +67,7 @@ class Utilitymeter extends Model {
                     return el[t_utilityservice.group.name] === service[t_utilityservice_formula.group.name];
                 });
                 console.log(service[t_utilityservice_formula.group.name], data);
-                if (formula) {
+                if (formula && data && data.length > 0) {
                     console.log(formula);
                     let context = {
                         'data': data,

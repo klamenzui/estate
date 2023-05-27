@@ -59,7 +59,7 @@ class Page {
     }
 
     isAuthenticated() {
-        return true;//this.access;
+        return /*true;*/this.access;
     }
 
     isApi() {
@@ -117,6 +117,8 @@ class Page {
             this.data['tplPath'] = this.tplPath;
             this.data['page'] = this.clazz + '.' + this.method;
             this.data['includes'] = this.includes;
+            this.data['sidebar'] = app.locals.config.gui.sidebar;
+            this.data['table'] = this.table ? this.table: this.clazz;
             if (!isTplExists) {
                 this.data = new Response(404, {message: 'Not Found'});
                 this.data['page'] = 'error';

@@ -1,0 +1,17 @@
+
+<% for(let i in response){
+%>
+    <a class="dropdown-item d-flex align-items-center" href="#">
+        <div class="mr-3">
+            <div class="icon-circle bg-<%- response[i].header.bg -%>">
+                <i class="fas fa-<%- response[i].header.icon -%> text-white"></i>
+            </div>
+        </div>
+        <div>
+            <%- response[i].body -%>
+            <div class="small text-gray-500"><%- response[i].footer -%></div>
+        </div>
+    </a>
+<%
+}
+%>

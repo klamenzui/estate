@@ -124,7 +124,7 @@ class BotManager {
         //	bot.sendMessage(chatId, 'access denay');
         //}
     }
-    init = async (name, callback) => {
+    initNpl = async () => {
         const dirActions = app.locals.base + 'bot/actions/';
         const dirData = app.locals.base + 'bot/data/';
         let files = fs.readdirSync(dirActions);
@@ -174,6 +174,9 @@ class BotManager {
             //this.manager.save();
             this.manager.save(dirData + "data.json");
         }
+
+    }
+    init = async (name, callback) => {
         /*
         this.select(t_estate,t_address)
             .andWhere(t_estate.id, '=', 1)
@@ -185,22 +188,25 @@ class BotManager {
             try {
                 let row = results.rows[0];
                 console.log('bot', row);
-                this.bot = new TelegramBotAPI(row.token, JSON.parse(row.options));
-                this.users = row.useraccess;
-                this.bot.onText(new RegExp(row.pattern), this.onText);
-                console.log(app.locals.config.ip);
+                if(row.status === 'on'){
+                    this.initNpl();
+                    this.bot = new TelegramBotAPI(row.token, JSON.parse(row.options));
+                    this.users = row.useraccess;
+                    this.bot.onText(new RegExp(row.pattern), this.onText);
+                    console.log(app.locals.config.ip);
 
-                this.bot_chat = new ChatModel();
-                this.bot_chat.table = `${t_bot_chat}`;
-                this.bot_chat.get().then(results => {
-                    if (results && results.rows) {
-                        for (let i in results.rows) {
-                            if (typeof this._chats[results.rows[i]] == 'undefined') {
-                                this._chats[results.rows[i][t_bot_chat.code.name]] = results.rows[i];
+                    this.bot_chat = new ChatModel();
+                    this.bot_chat.table = `${t_bot_chat}`;
+                    this.bot_chat.get().then(results => {
+                        if (results && results.rows) {
+                            for (let i in results.rows) {
+                                if (typeof this._chats[results.rows[i]] == 'undefined') {
+                                    this._chats[results.rows[i][t_bot_chat.code.name]] = results.rows[i];
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                }
             } catch (e) {
                 console.log(e);
             }

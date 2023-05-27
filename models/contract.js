@@ -85,7 +85,7 @@ WHERE contract_id = 6
             this.setFilter(filter);
         }
         // id 	client_id 	estate_id 	status 	period_type 	price 	date_start 	date_end
-        return this.query(`SELECT ${(t_contract.id)},${(t_contract.estate_id)},${(t_client.first_name)}, ${(t_client.last_name)},
+        return this.query(`SELECT ${(t_contract.id)},${(t_contract.estate_id)},${(t_contract.client_id)},${(t_client.first_name)}, ${(t_client.last_name)},
             ${(t_contract.status)}, ${(t_contract.period_type)}, ${(t_contract.price)}, 
             ${(t_contract.date_end.format("%Y-%m-%d"))},
             ${(t_contract.date_start.format("%Y-%m-%d"))}

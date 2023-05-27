@@ -15,6 +15,17 @@ class Client extends Model {
         ${(this.where())} ORDER BY ${(t_client.id)} DESC`);
     }
 
+    set = async (obj) => {
+        let isNew = Helper.isEmpty(obj[this.primary_key]);
+        if(obj[t_client.first_name.name] && obj[t_client.last_name.name])
+            obj[t_client.description.name] = obj[t_client.first_name.name] + ' ' + obj[t_client.last_name.name]
+        if (isNew) {
+            return this.add(obj);//.catch(callback);
+        } else {
+            return this.update(obj);
+        }
+    }
+
 
 }
 

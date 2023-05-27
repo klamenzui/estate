@@ -13,6 +13,7 @@
     "ejs": "^2.3.2",
     "express": "^4.13.0",
     "express-session": "^1.11.3",
+    "express-ws": "^5.0.2",
     "knex": "^2.3.0",
     "moment": "^2.29.4",
     "morgan": "^1.6.0",
@@ -21,7 +22,8 @@
     "node-telegram-bot-api": "^0.61.0",
     "passport": "^0.6.0",
     "passport-local": "^1.0.0",
-    "sugar": "^2.0.6"
+    "sugar": "^2.0.6",
+    "ws": "^8.13.0"
   },
   "devDependencies": {
     "aiml": "0.0.2",

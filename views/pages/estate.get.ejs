@@ -28,12 +28,10 @@
 							<%}%>
 							<div class="col d-flex flex-column position-static">
 								<strong class="d-inline-block mb-2 text-primary"><%= '#'+rows[i].apartment_number+'. '+rows[i].street+' '+rows[i].house_number; %></strong>
-
-								<button id="expense" type="button" class="btn btn-outline-primary" api="expense" data-estate_id="<%= rows[i].estate_id; %>" onclick="$table.new(this.id)">Расход</button>
-								<button id="payment" type="button" class="btn btn-outline-primary" api="payment" data-contract_id="<%= rows[i].contract_id; %>" onclick="$table.new(this.id)">Доход</button>
-								<button id="contract" type="button" class="btn btn-outline-primary" api="contract" data-estate_id="<%= rows[i].estate_id; %>" onclick="$table.new(this.id)">Контракт</button>
-								<!--<button id="client" type="button" class="btn btn-outline-primary" api="client" onclick="loadTable(this.id)">Клиент</button>-->
-								<button id="utilitymeter" type="button" class="btn btn-outline-primary" api="utilitymeter" data-estate_id="<%= rows[i].estate_id; %>" onclick="$table.new(this.id)">Utility meter</button>
+								<button type="button" class="btn btn-outline-primary" api="utilitymeter" data-estate_id="<%= rows[i].estate_id; %>" onclick="$table.new(this)" table_id="dataTable">Utility meter</button>
+								<button type="button" class="btn btn-outline-primary" api="expense" data-estate_id="<%= rows[i].estate_id; %>" onclick="$table.new(this)" table_id="dataTable">Расход</button>
+								<button type="button" class="btn btn-outline-primary" api="payment" data-contract_id="<%= rows[i].contract_id; %>" onclick="$table.new(this)" table_id="dataTable">Доход</button>
+								<button type="button" class="btn btn-outline-primary" api="payment" data-contract_id="<%= rows[i].contract_id; %>" data-status="payed" onclick="withdrawInit(this)" table_id="dataTable">Перечислить Доход</button>
 
 								<ul class="list-group list-group-flush">
 									<li class="list-group-item">
@@ -67,10 +65,11 @@
 				<% } %>
 			</div>
 		</div>
-		<div class="col-lg-10">
+		<div id="card-container" class="col-lg-10">
 			<div class="card shadow mb-4">
 				<div class="card-header py-3">
-					<h6 class="m-0 font-weight-bold text-primary"><%=title;%></h6>
+					<div class="float-left search btn-group"><h6 class="m-0 font-weight-bold text-primary"><%=title;%></h6></div>
+					<div name="toolbar" class="float-right search btn-group"></div>
 				</div>
 				<div class="card-body">
 					<div class="table-responsive">
@@ -83,23 +82,20 @@
 		</div>
 	</div>
 
-
-	<!--<div class="row">
-
-		<div class="col-sm-6">
-		<div class="well">
-				<h3><span class="fa fa-user"></span> Local</h3>
-
-					<p>
-						<strong>id</strong>: <%= page %><br>
-						<strong>username</strong>: <%= page %><br>
-						<strong>password</strong>: <%= page %>
-					</p>
-
-			</div>
-			<div class="lightboxed"></div>
-
-		</div>
-
-	</div>-->
-
+<script>
+withdrawInit = function (table_id) {
+    $table.new(table_id);
+    $('#card-container [name="toolbar"]').html('<button type="button" class="btn btn-outline-primary" onclick="withdraw()">Перечислить</button>');
+}
+withdraw = function () {
+    if(confirm('Перечислить все выплаты?') == true){
+        $app.ajax({
+            url:'/api/payment/withdraw',
+            data: $table.current.ajax.data,
+            callback:function (xhr,status) {
+                console.log(xhr.response);
+            }
+        });
+    }
+}
+</script>

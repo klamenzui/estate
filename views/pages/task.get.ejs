@@ -59,16 +59,10 @@
 					<h6 class="m-0 font-weight-bold text-primary"><%=title;%></h6>
 				</div>
 				<div class="card-body table-responsive">
-						<table id="dataTable" api="task" class="table table-striped table-bordered"></table>
+						<table id="dataTable" auto-render="true" api="task" class="table table-striped table-bordered"></table>
 						<div id="dataTablePagger"></div>
 				</div>
 			</div>
 		</div>
 	</div>
-
-<script>
-	$(document).ready(function () {
-		$table.new('dataTable');
-	});
-</script>
 

@@ -1,11 +1,9 @@
-const Model = require('../../models/payment');
+const Model = require('../../models/alert');
 const Page = require('../page');
-
-class Payment extends Page {
+class Alert extends Page {
     constructor(controller) {
         super(controller);
     }
-
     get() {
         let req = this.controller.req;
         console.log(req.body);
@@ -15,7 +13,6 @@ class Payment extends Page {
             this.sendData(e);
         });
     }
-
     set() {
         let req = this.controller.req;
         console.log(req.body);
@@ -25,7 +22,6 @@ class Payment extends Page {
             this.sendData(e);
         });
     }
-
     del() {
         let req = this.controller.req;
         console.log(req.body);
@@ -35,26 +31,6 @@ class Payment extends Page {
             this.sendData(e);
         });
     }
-
-    sumPeriod() {
-        let req = this.controller.req;
-        console.log(req.body);
-        new Model().sumPeriod(req.body).then((results) => {
-            this.sendData(results);
-        }).catch((e) => {
-            this.sendData(e);
-        });
-    }
-
-    withdraw() {
-        let req = this.controller.req;
-        console.log(req.body);
-        new Model().withdraw(req.body).then((results) => {
-            this.sendData(results);
-        }).catch((e) => {
-            this.sendData(e);
-        });
-    }
 }
 
-module.exports = Payment
+module.exports = Alert

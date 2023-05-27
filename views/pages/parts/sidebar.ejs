@@ -14,48 +14,33 @@
       <i class="fas fa-fw fa-tachometer-alt"></i>
       <span>Dashboard</span></a>
    </li>
-   <li class="nav-item active">
-      <a class="nav-link" href="/task/get">
-      <i class="fas fa-fw fa-clipboard-list"></i>
-      <span>Tasks</span></a>
-   </li>
+<% for(let k in sidebar){
+    if(sidebar[k].items){%>
+    <li class="nav-item">
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#<%- k %>"
+             aria-expanded="true" aria-controls="<%- k %>">
+          <i class="fas fa-fw <%- sidebar[k].icon %>"></i>
+          <span><%-sidebar[k].title %></span>
+          </a>
+          <div id="<%- k %>" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                 <div class="bg-white py-2 collapse-inner rounded">
+                    <h6 class="collapse-header"><%-sidebar[k].description || '' %></h6>
+                    <% for(let i in sidebar[k].items){ %>
+                            <a class="collapse-item" href="<%-sidebar[k].items[i].url %>"><%-sidebar[k].items[i].title %></a>
+                    <% }%>
+                 </div>
+          </div>
+       </li>
+    <% } else { %>
+        <li class="nav-item">
+          <a class="nav-link" href="<%- sidebar[k].url %>">
+          <i class="fas fa-fw <%- sidebar[k].icon %>"></i>
+          <span><%-sidebar[k].title %></span></a>
+       </li>
+    <%
+    }
 
-   <li class="nav-item">
-      <a class="nav-link" href="/utilityservice/get">
-         <i class="fas fa-fw fa-clipboard-list"></i>
-         <span>Utility services</span></a>
-   </li>
-
-   <li class="nav-item">
-      <a class="nav-link" href="/utilityservice_formula/get">
-         <i class="fas fa-fw fa-clipboard-list"></i>
-         <span>Utility service formula</span></a>
-   </li>
-
-  <li class="nav-item">
-     <a class="nav-link" href="/utilitymeter/get">
-        <i class="fas fa-fw fa-clipboard-list"></i>
-        <span>Utility meter</span></a>
-  </li>
-
-   <li class="nav-item">
-      <a class="nav-link" href="/client/get">
-         <i class="fas fa-fw fa-clipboard-list"></i>
-         <span>Clients</span></a>
-   </li>
-
-   <li class="nav-item">
-      <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#accPages"
-         aria-expanded="true" aria-controls="collapsePages">
-         <i class="fas fa-fw fa-folder"></i>
-         <span>Estates</span>
-      </a>
-      <div id="accPages" class="collapse" aria-labelledby="headingAcc" data-parent="#accordionSidebar">
-         <div class="bg-white py-2 collapse-inner rounded">
-
-         </div>
-      </div>
-   </li>
+} %>
    <!-- Divider -->
    <hr class="sidebar-divider">
    <!-- Heading -->

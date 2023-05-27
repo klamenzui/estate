@@ -63,7 +63,90 @@ let init = {
         //paginate_page_size: 10
     },
     ip: (typeof netData["WLAN"] == 'undefined'? netData["eno1"][0]: netData["WLAN"][0]),
-    certificate: fileCrt
+    certificate: fileCrt,
+    gui:{
+        sidebar:{
+            'task':{
+                title:'Tasks',
+                icon:'fa-clipboard-list',
+                url:'/task/get',
+            },
+            'utility': {
+                title: 'Utility services',
+                description:'Tables of utility services',
+                icon: 'fa-faucet',
+                items:[
+                    {
+                        title: 'Utility services',
+                        url: '/utilityservice/get',
+                    }, {
+                        title: 'Utility service formula',
+                        url: '/utilityservice_formula/get',
+                    },{
+                        title: 'Utility meter',
+                        url: '/utilitymeter/get',
+                    },{
+                        title: 'Utility invoices',
+                        url: '/utilityservice_invoice/get',
+                    }
+                ]
+            },
+            'estate':{
+                title: 'Estates',
+                //description:'Tables of utility services',
+                icon: 'fa-building',
+                items:[]
+            },
+            'user':{
+                title:'Users',
+                icon:'fa-users',
+                url:'/user/get',
+            },
+            'client':{
+                title:'Clients',
+                icon:'fa-house-user',
+                url:'/client/get',
+            },
+            'contract':{
+                title:'Contracts',
+                icon:'fa-file-contract',
+                url:'/contract/get',
+            },
+            'share':{
+                title:'Share of estate',
+                icon:'fa-percent',
+                url:'/share/get',
+            },
+            'bank':{
+                title:'Bank',
+                icon:'fa-piggy-bank',
+                url:'/bank/get',
+            },
+        },
+        router:{
+            'api':['alert','client','contract','estate','expense','message','payment','task','user',
+                'utilitymeter','utilityservice','utilityservice_formula','utilityservice_invoice','bank','share'],
+            'pages':['alert','animations','auth','blank','borders','buttons','cards','charts','client','colors',
+                'error','estate','home','icons','message','other','tables','task','user','utilitymeter'
+                ,'utilityservice','utilityservice_formula','utilityservice_invoice','contract','bank','share'],
+        }
+    }
+};
+
+app.locals.wsSend = function(data){
+    if(app.locals.ws){
+        try{
+            if(typeof data != 'string'){
+                data = JSON.stringify(data);
+            }
+            //console.log(app.locals.ws);
+            (async function (_data) {
+                app.locals.ws.send(_data);
+            })(data);
+        }catch (e) {
+            console.log('wsSend',e)
+        }
+    }
 };
 
 app.locals.knex = require('knex')({

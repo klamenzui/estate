@@ -3,6 +3,7 @@
  */
 const Error = require('./error')
 const fs = require('fs');
+const path = require('path');
 
 //new Controller('Estate.js','test').navigate();
 class Controller {
@@ -16,6 +17,7 @@ class Controller {
         me.res = res;
         me.path = req.originalUrl.toLowerCase().substring(1);//req.params.page.toLowerCase();
         let tmp = me.path.split('/');
+        //let isConstructor = false;
         if (tmp.length === 3) {
             //:folder/:clazz/:method
             me.folder = req.params.folder;
@@ -28,15 +30,19 @@ class Controller {
             me.clazz = req.params.clazz;
             me.method = (typeof req.params.method == 'undefined' ? 'index' : req.params.method);
         }
+        //isConstructor = me.clazz === 'constructor';
         //me.page = "home";
         console.log(me.path, me.folder, me.clazz, me.method);
         me.all = {};
-        const normalizedPath = require('path').join(__dirname, me.folder);
-
+        /*if(isConstructor){
+            me.all['constructor'] = require('./constructor');
+        }else{*/
+        const normalizedPath = path.join(__dirname, me.folder);
         let files = fs.readdirSync(normalizedPath);
         for (let i in files) {
-            me.all[files[i].toLowerCase().substring(0, files[i].indexOf('.'))] = require("./" + me.folder + "/" + files[i]);
+            me.all[files[i].toLowerCase().substring(0, files[i].indexOf('.'))] = require('./' + (me.folder? me.folder + '/':'') + files[i]);
         }
+         //}
         console.log(me.all);
         return me;
     }
@@ -50,16 +56,27 @@ class Controller {
                     me.clazz = "home";
                     break;
             }
+            let clazz = '' + me.clazz;
             console.log(me.clazz, me.method);
-            if (typeof me.all[me.clazz] === 'undefined') {
+            let tplIndex = (app.locals.config.gui.router[me.folder] ? app.locals.config.gui.router[me.folder].indexOf(me.clazz): -1);
+            let isDef = typeof me.all[clazz] !== 'undefined';
+            if ( !isDef && tplIndex === -1) {
                 //me.clazz = "Error";
                 //me.method = "404";
                 new Error(me)['404']();
             } else {
-                let pageInst = new (me.all[me.clazz])(me);
+                let pageInst = null;
+                if(isDef){
+                    pageInst = new (me.all[clazz])(me);
+                } else {
+                    let tpl = app.locals.config.gui.router[me.folder][tplIndex];
+                    pageInst =  require('./tpl/' + me.folder).init(me);
+                    pageInst.title = clazz;
+                }
                 pageInst.execMethod();
             }
         } catch (err) {
+            console.log(err);
             new Error(me).sendData(err);
         }
     }
