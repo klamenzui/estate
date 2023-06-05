@@ -7,6 +7,7 @@ module.exports.init = function (_controller) {
             this.model = Loader.model(_controller.clazz);
         }
         get() {
+            this.setAccess("<2");
             let req = this.controller.req;
             console.log(req.body);
             this.model.setAsTable(true).get(req.body).then((results) => {
@@ -16,6 +17,7 @@ module.exports.init = function (_controller) {
             });
         }
         set() {
+            this.setAccess("<1");
             let req = this.controller.req;
             console.log(req.body);
             this.model.set(req.body).then((results) => {
@@ -25,6 +27,7 @@ module.exports.init = function (_controller) {
             });
         }
         del() {
+            this.setAccess("<1");
             let req = this.controller.req;
             console.log(req.body);
             this.model.del(req.body).then((results) => {

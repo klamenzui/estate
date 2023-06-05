@@ -17,6 +17,7 @@ class Payment extends Page {
     }
 
     set() {
+        this.setAccess("<2");
         let req = this.controller.req;
         console.log(req.body);
         new Model().set(req.body).then((results) => {
@@ -27,6 +28,7 @@ class Payment extends Page {
     }
 
     del() {
+        this.setAccess("<2");
         let req = this.controller.req;
         console.log(req.body);
         new Model().del(req.body).then((results) => {
@@ -37,6 +39,7 @@ class Payment extends Page {
     }
 
     sumPeriod() {
+        this.setAccess("<2");
         let req = this.controller.req;
         console.log(req.body);
         new Model().sumPeriod(req.body).then((results) => {
@@ -47,6 +50,7 @@ class Payment extends Page {
     }
 
     withdraw() {
+        this.setAccess("<1");
         let req = this.controller.req;
         console.log(req.body);
         new Model().withdraw(req.body).then((results) => {

@@ -5,16 +5,26 @@ class Auth extends Page{
         this.tpl = 'base.ejs';
         this.access = true;
         this.title = this.constructor.name;
+        this.roleAccess = {
+            login:">-1",
+            register:">-1",
+            logout:">-1",
+            'forgot-password':">-1",
+        };
     }
     'login'() {
+        let msg = this.controller.req.flash('loginMessage');
         this.sendData({
-            message: this.controller.req.flash('loginMessage')
+            stack: 'login',
+            message: typeof msg === 'string'? msg: msg[0]
         });
     }
 
     register(){
+        let msg = this.controller.req.flash('signupMessage');
         this.sendData( {
-            message: this.controller.req.flash('signupMessage')
+            stack: 'register',
+            message: typeof msg === 'string'? msg: msg[0]
         });
     }
 
@@ -26,8 +36,10 @@ class Auth extends Page{
     }
 
     'forgot-password'(){
+        let msg = this.controller.req.flash('loginMessage');
         this.sendData( {
-            message: this.controller.req.flash('signupMessage')
+            stack: 'forgot-password',
+            message: typeof msg === 'string'? msg: msg[0]
         });
     }
 

@@ -1,27 +1,47 @@
-const Page = require('./page');
-class Error extends Page{
-    constructor(controller) {
-        super(controller);
-        if(!this.isAuthenticated()){
-            this.tpl = 'base.ejs';
+class Error {
+    page;
+    constructor(page) {
+        this.init(page);
+    }
+    init(page){
+        if(page){
+            this.page = page;
+            if(!this.page.isAuthenticated()){
+                this.page.tpl = 'base.ejs';
+            }
+            this.page.page = 'error';
+            this.page.access = true;
+            this.page.title = 'Error';
+            this.page.sidebar = this.page.sidebar || {};
+            this.page.includes = this.page.includes || {base: '/static/', imgpath: '/static/img/', bottom: {js: {}, css: {}}, top: {js: {}, css: {}}};
+            if(!this.page.initTpl()){
+                this.page.tplPath = 'error.ejs';
+            }
         }
-        this.page = 'error';
-        this.access = true;
-        this.title = 'Error';
-        this.includes = {};
+        return this;
     }
-    '401'() {
-        this.sendData({num: 401, message: 'Unauthorized'});
+    '401'(msg) {
+        this.render({num: 401, message: msg||'Unauthorized'});
     }
 
-    '404'() {
-        this.sendData({num: 404, message: 'Not found'});
+    '404'(msg) {
+        this.render({num: 404, message: msg||'Not found'});
     }
 
-    '500'() {
-        this.sendData({num: 500, message: 'Server error'});
+    '500'(msg) {
+        this.render({num: 500, message: msg||'Server error'});
     }
-
+    render(data){
+        if(this.page){
+            if(this.page.isApi()){
+                this.page.controller.res.json(data);
+            }else{
+                this.page['num'] = data.num;
+                this.page['message'] = data.message;
+                this.page.controller.res.render(this.page.tpl, this.page);
+            }
+        }
+    }
 }
 
 module.exports = Error

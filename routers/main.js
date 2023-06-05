@@ -78,6 +78,31 @@ app.get('/home', function (req, res) {
 app.get('/', function (req, res) {
     res.redirect('/home/index');
 });
+// process the signup form
+app.post('/register', passport.authenticate('local-register', {
+    successRedirect: 'home', // redirect to the secure profile section
+    failureRedirect: 'register', // redirect back to the signup page if there is an error
+    failureFlash: true // allow flash messages
+}));
+
+// process the reset password
+app.post('/reset', passport.authenticate('local-reset', {
+        successRedirect: 'login', // redirect to the secure profile section
+        failureRedirect: 'reset', // redirect back to the signup page if there is an error
+        failureFlash: true // allow flash messages
+    }),
+    function (req, res) {
+        console.log("reset");
+
+        //if (req.body.email == 'some email') {
+        // send email
+        //res.redirect('/login');
+        //} else {
+        // flash error message
+        //}
+    }
+);
+
 app.post('/:folder/:clazz/:method', function (req, res) {
     (new Controller()).request(req, res);
 });
@@ -111,31 +136,6 @@ app.post('/login', passport.authenticate('local-login', {
         }
         res.redirect('/');
     });
-
-// process the signup form
-app.post('/register', passport.authenticate('local-register', {
-    successRedirect: 'home', // redirect to the secure profile section
-    failureRedirect: 'register', // redirect back to the signup page if there is an error
-    failureFlash: true // allow flash messages
-}));
-
-// process the reset password
-app.post('/reset', passport.authenticate('local-reset', {
-        successRedirect: 'login', // redirect to the secure profile section
-        failureRedirect: 'reset', // redirect back to the signup page if there is an error
-        failureFlash: true // allow flash messages
-    }),
-    function (req, res) {
-        console.log("reset");
-
-        //if (req.body.email == 'some email') {
-        // send email
-        //res.redirect('/login');
-        //} else {
-        // flash error message
-        //}
-    }
-);
 
 app.use(error);
 

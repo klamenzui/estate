@@ -58,11 +58,13 @@ class Window extends Page {
     }
 
     utilitymeter_current() {
+        this.setAccess("<1");
         let req = this.controller.req;
         this._sendDataFrom('utilitymeter', req.body.data);
     }
 
     async logout() {
+        this.setAccess(">-1");
         this.res.header.title = 'Ready to Leave?';
         this.res.body = 'Select "Logout" below if you are ready to end your current session.';
         this.res.footer.html[1].text = 'Logout';

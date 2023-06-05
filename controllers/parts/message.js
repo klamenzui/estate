@@ -16,6 +16,7 @@ class Message extends Page {
 
 
     async preview() {
+        this.setAccess("<2");
         const MessageModel = require('../../models/message');
         const t_message = require('../../models/db/tables/message');
         let message = await new MessageModel().get();

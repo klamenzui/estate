@@ -117,18 +117,18 @@ let init = {
                 icon:'fa-percent',
                 url:'/share/get',
             },
-            'bank':{
-                title:'Bank',
+            'card':{
+                title:'Cards',
                 icon:'fa-piggy-bank',
-                url:'/bank/get',
+                url:'/card/get',
             },
         },
         router:{
             'api':['alert','client','contract','estate','expense','message','payment','task','user',
-                'utilitymeter','utilityservice','utilityservice_formula','utilityservice_invoice','bank','share'],
+                'utilitymeter','utilityservice','utilityservice_formula','utilityservice_invoice','card','share'],
             'pages':['alert','animations','auth','blank','borders','buttons','cards','charts','client','colors',
                 'error','estate','home','icons','message','other','tables','task','user','utilitymeter'
-                ,'utilityservice','utilityservice_formula','utilityservice_invoice','contract','bank','share'],
+                ,'utilityservice','utilityservice_formula','utilityservice_invoice','contract','card','share'],
         }
     }
 };

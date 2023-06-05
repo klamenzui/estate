@@ -5,6 +5,7 @@ class Task extends Page {
         super(controller);
     }
     get() {
+        this.setAccess("<1");
         let req = this.controller.req;
         console.log(req.body);
         new Model().setAsTable(true).get(req.body).then((res)=>{
@@ -14,6 +15,7 @@ class Task extends Page {
         });
     }
     set() {
+        this.setAccess("<1");
         let req = this.controller.req;
         console.log(req.body);
         new Model().set(req.body).then((res)=>{
@@ -23,6 +25,7 @@ class Task extends Page {
         });
     }
     del() {
+        this.setAccess("<1");
         let req = this.controller.req;
         console.log(req.body);
         new Model().del(req.body).then((res)=>{

@@ -1,14 +1,14 @@
 // config/passport.js
 
 // load all the things we need
-var LocalStrategy = require('passport-local').Strategy;
+const LocalStrategy = require('passport-local').Strategy;
 
 // load up the user model
-var bcrypt = require('bcrypt-nodejs');
-var connection = app.locals.knex;
+const UserModel = require('./user');
+const bcrypt = require('bcrypt-nodejs');
 //connection.end();
 // expose this function to our app using module.exports
-var passport = app.locals.passport;
+const passport = app.locals.passport;
 
 // =========================================================================
 // passport session setup ==================================================
@@ -24,8 +24,11 @@ passport.serializeUser(function (user, done) {
 // used to deserialize the user
 passport.deserializeUser(function (id, done) {
     //connection.connect();
-    connection.raw("SELECT * FROM user WHERE id = ? ", [id]).then( function (rows) {
-        done(false, rows[0][0]);
+    new UserModel().get({
+        id: id
+    }).then( function (data) {
+        let rows = data.rows;
+        done(false, rows[0]);
     }).catch(err => {
         //if(error instanceof DatabaseError) { // ...
         done(err);
@@ -52,25 +55,22 @@ passport.use(
             // we are checking to see if the user trying to login already exists
             //connection.connect();
             try {
-
-                connection.raw("SELECT * FROM user WHERE username = ?", [username]).then(function (rows) {
-                    rows = rows[0];
+                let obj = {};
+                obj['username'] = username;
+                new UserModel().get(obj).then(function (data) {
+                    let rows = data.rows;
                     if (rows.length) {
                         return done(null, false, req.flash('signupMessage', 'That username is already taken.'));
                     } else {
                         // if there is no user with that username
                         // create the user
-                        var newUserMysql = {
-                            username: username,
-                            password: bcrypt.hashSync(password, null, null)  // use the generateHash function in our user model
-                        };
+                        // use the generateHash function in our user model
+                        obj['role_id'] = 2;
+                        obj['password'] = bcrypt.hashSync(password, null, null);
+                        new UserModel().set(obj).then(function (data) {
+                            obj.id = data[0];
 
-                        var insertQuery = "INSERT INTO user ( username, password ) values (?,?)";
-                        //connection.connect();
-                        connection.raw(insertQuery, [newUserMysql.username, newUserMysql.password], function (rows) {
-                            newUserMysql.id = rows.insertId;
-
-                            return done(null, newUserMysql);
+                            return done(null, obj);
                         });
                         //connection.end();
                     }
@@ -101,8 +101,10 @@ passport.use(
         },
         function (req, username, password, done) { // callback with email and password from our form
             //connection.connect();
-            connection.raw("SELECT * FROM user WHERE username = ?", [username]).then(function (rows) {
-                rows = rows[0];
+            let obj = {};
+            obj['username'] = username;
+            new UserModel().get(obj).then(function (data) {
+                let rows = data.rows;
                 if (!rows.length) {
                     return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
                 }
@@ -112,7 +114,7 @@ passport.use(
                     return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
 
                 // if the user have no access (not admin)
-                if (rows[0].role_id > 0)
+                if (rows[0].role_id > 1)
                     return done(null, false, req.flash('loginMessage', 'Oops! You have no access.')); // create the loginMessage and save it to session as flashdata
 
                 // all is well, return successful user
@@ -134,19 +136,20 @@ passport.use(
         },
         function (req, email, done) { // callback with email and password from our form
             //connection.connect();
-            connection.raw("SELECT * FROM user WHERE email = ?", [email]).then(function (rows) {
-                rows = rows[0];
-                if (!rows.length) {
+            let obj = {};
+            obj['email'] = email;
+            new UserModel().get(obj).then(function (data) {
+                if (!data.rows.length) {
                     return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
                 }
-
+                let obj = data.rows[0];
                 // if the user have no access (not admin)
-                if (rows[0].role > 0)
+                if (obj.role_id > 0)
                     return done(null, false, req.flash('loginMessage', 'Oops! You have no access.')); // create the loginMessage and save it to session as flashdata
 
-                let password = "newpass";
-                connection.raw("UPDATE user SET password = ? WHERE id = ?", [bcrypt.hashSync(password, null, null), rows[0].id]).then(function (err, rows) {
-                    return done(null, rows[0]);
+                obj['password'] = bcrypt.hashSync('1234', null, null);
+                new UserModel().set(obj).then(function (data) {
+                    return done(null, data.rows[0]);
                 }).catch(err => {
                     //if(error instanceof DatabaseError) { // ...
                     done(err);

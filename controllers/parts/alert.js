@@ -14,6 +14,7 @@ class Alert extends Page {
     }
 
     async preview() {
+        this.setAccess("<2");
         const Model = require('../../models/alert');
         const t_table = require('../../models/db/tables/alert');
         let alert = await new Model().get();

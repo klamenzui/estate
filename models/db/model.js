@@ -1,4 +1,5 @@
 const Helper = require('../../utils/helper')
+const Loader = require('./../loader')
 
 /**
  * @description base model for all model
@@ -172,6 +173,25 @@ class Model {
     }
 
     _addSelect(field) {
+        if(field.name.endsWith('_id')){
+            let table = field.name.substring(0,field.name.length-3);
+            if(Loader.modelExists('db/tables/'+table)){
+                let table_scheme = Loader.model('db/tables/'+table, false);
+                let view_field;
+                if(table_scheme._fields["description"]) {
+                    view_field = table_scheme["description"];
+                } else if (table_scheme._fields["name"]) {
+                    view_field = table_scheme["name"];
+                }
+                if(view_field && (!this._select[view_field.name] || !this._select[view_field.as()])){
+                    this._tables[table] = table_scheme;
+                    this._addSelect(view_field);
+                    if(this.isAsTable())
+                        return;
+                    //delete this._select[field.name];
+                }
+            }
+        }
         if(field.table !== this.table){
             if(typeof this._join[field.table] == 'undefined'){
                 let f_table_field = '';
@@ -196,12 +216,14 @@ class Model {
         } else {
             this._select[field.as()] = field.as();
         }
+
     }
 
     _addTable(table) {
         if(typeof this._tables[table] == 'undefined'){
             this._tables[table] = require('./tables/' + table);
         }
+        return this._tables[table];
     }
 
     order(field, direction){
@@ -243,7 +265,7 @@ class Model {
                 fields = [field];
                 this._addTable(field.table);
             } else {
-                this._addTable(field.toString());
+                field = this._addTable(field.toString());
                 for(let j in field._fields){
                     fields.push(field[j]);
                 }
@@ -327,7 +349,8 @@ class Model {
         if(typeof filter !== 'undefined'){
             this.setFilter(filter);
         }
-        return this.query(`SELECT * FROM ${(this.table)} ${(this.getWhere())}`);
+        //return this.query(`SELECT * FROM ${(this.table)} ${(this.getWhere())}`);
+        return this.select(this.table).exec();
     }
     //get a data
     /*getOne = async (field, value, callback) => {

@@ -14,11 +14,18 @@ class Page {
     clazz;
     method;
     tplPath;
+    roleAccess = {
+        index:"<2",
+        get:"<2",
+        set:"<1",
+        del:"<1",
+    };
 
     constructor(controller) {
         this.controller = controller;
         this.access = controller.req.isAuthenticated();
         this.title = this.clazz = this.controller.clazz;
+        this.method = this.controller.method;
         this.includeCss('fonts', 'top');
         //this.includeCss('bootstrap.min', 'top');
         this.includeCss('sb-admin-2', 'top');
@@ -33,7 +40,6 @@ class Page {
         //this.includeJs('jquery.tabledit', 'bottom');
         this.includeJs('lightboxed', 'bottom');
         this.includeJs('table', 'bottom');
-
     }
 
     index() {
@@ -60,6 +66,29 @@ class Page {
 
     isAuthenticated() {
         return /*true;*/this.access;
+    }
+
+    setAccess(rule) {
+        this.roleAccess[this.method] = rule;
+        if(!this.hasAccess()) {
+            //new Error().init(this)['401']();
+            throw "No access";
+        }
+    }
+
+    hasAccess() {
+        let req = this.controller.req;
+        if(!req.user && !this.access){
+            return false;
+        }
+        let role_id = parseInt(req.user && req.user.role_id?req.user.role_id:'99');//max role_id if not def
+        let access;
+        if (this.roleAccess[this.method]){
+            access = eval(role_id + this.roleAccess[this.method]);
+        } else {
+            access = false;
+        }
+        return access;
     }
 
     isApi() {
@@ -129,23 +158,28 @@ class Page {
     }
 
     execMethod() {
-        if (this.isAuthenticated()) {
-            let method = Helper.getMethod(this, this.controller.method);
+        let me = this;
+        if (me.isAuthenticated()) {
+            let method = Helper.getMethod(me, me.controller.method);
             let isExists = !Helper.isEmpty(method);
             if (!isExists) {
                 //this.controller.clazz = this.page = 'error';
                 //method = '404';
-                new Error(this.controller)['404']();
+                new Error(me)['404']();
             } else {
-                this.method = method;
-                this[method]();
+                try {
+                    me.method = method;
+                    me[method]();
+                }catch(e){
+                    new Error(me)['500'](e);
+                }
             }
         } else {
-            if (this.isApi()) {
+            if (me.isApi()) {
                 //this['401']();
-                new Error(this.controller)['401']();
+                new Error(me)['401']();
             } else {
-                this.controller.res.redirect('/auth/login');
+                me.controller.res.redirect('/auth/login');
             }
         }
     }
