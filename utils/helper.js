@@ -1,3 +1,4 @@
+const moment = require('moment');
 const Helper = {
     /*
     //@get a date after 1 day @return miliseconds
@@ -25,6 +26,41 @@ const Helper = {
         }
     },
     */
+    getDateList:(startDate, endDate, format = 'YYYY-MM-DD')=> {
+        if(typeof startDate == "string"){
+            startDate = new Date(startDate);
+        }
+        if(typeof endDate == "string"){
+            endDate = new Date(endDate);
+        }
+        const start = moment(startDate, format);
+        const end = moment(endDate, format);
+        const dates = [];
+
+        // Start from the first day of the next month
+        let current = start.clone().startOf('month').add(1, 'month');
+
+        while (current.isBefore(end)) {
+            dates.push(current.format(format));
+            current.add(1, 'month');
+        }
+
+        return dates;
+    },
+    getMonthDifference: (startDate, endDate) => {
+        if(typeof startDate == "string"){
+            startDate = new Date(startDate);
+        }
+        if(typeof endDate == "string"){
+            endDate = new Date(endDate);
+        }
+        //console.log(getMonthDifference(new Date('2022-01-15'), new Date('2022-03-16')));
+        return (
+            endDate.getMonth() -
+            startDate.getMonth() +
+            12 * (endDate.getFullYear() - startDate.getFullYear())
+        );
+    },
     getMethod: (obj, mname) => {
         let currentObj = obj;
         mname = mname.toLowerCase();
@@ -74,15 +110,6 @@ const Helper = {
         return e && e.stack && e.message && typeof e.stack === 'string'
             && typeof e.message === 'string';
     },
-    getMonthDifference: (startDate, endDate) => {
-        //console.log(getMonthDifference(new Date('2022-01-15'), new Date('2022-03-16')));
-        return (
-            endDate.getMonth() -
-            startDate.getMonth() +
-            12 * (endDate.getFullYear() - startDate.getFullYear())
-        );
-    },
-
     getTag: (obj) => {
         let tag_start = '';
         let tag_end = '';
@@ -220,6 +247,9 @@ const Helper = {
         start_date = Helper.formatDate(start_date,format);
         end_date = Helper.formatDate(new Date(start_date).addMonths(months),format);
         return [start_date,end_date];
+    },
+    getRandomNumber: (min, max) => {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 }
 module.exports = Helper

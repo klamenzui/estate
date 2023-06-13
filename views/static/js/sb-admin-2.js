@@ -54,7 +54,7 @@ $app = {
                 let menuItems = [];
                 for (let i in rows) {
                     let r = rows[i];
-                    menuItems.push(`<a class="collapse-item" href="/estate/get?id=${r['estate_id']}">#${r['estate_id']}. ${r['street']} ${r['house_number']}</a>`);
+                    menuItems.push(`<a class="collapse-item" href="/estate/get?id=${r['estate_id']}">#${r['estate_id']}. ${r['street']} ${r['house_number']}, ${r['apartment_number']}</a>`);
                 }
                 $('#estate > div').html(menuItems.join('\n'));
             }

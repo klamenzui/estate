@@ -36,6 +36,7 @@ WHERE contract_id = 6
             let payed = await new ModelPayment().setFilter({[t_payment.contract_id.name]: contract[`${(t_contract.id.name)}`]})
                 .addFilter({[t_payment.period.name]:Helper.formatDate(date_start, 'Y-M-D')}, '>', 'AND')
                 .addFilter({[t_payment.period.name]:Helper.formatDate(new Date(), 'Y-M-01')}, '<', 'AND')
+                .addFilter({[t_payment.status.name]:'pending'},'=', 'AND')
                 .sumBy();
             payed = payed.rows[0];
             payed['total'] = payed.total?payed.total:0;

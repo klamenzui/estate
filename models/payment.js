@@ -1,3 +1,4 @@
+const Alert = require('./alert');
 const ShareModel = require('./share');
 const TransferModel = require('./transfer');
 const Model = require('./db/model');
@@ -12,6 +13,41 @@ const Helper = require('../utils/helper.js');
 class Payment extends Model {
     constructor() {
         super();
+    }
+
+    getLast = async (filter) => {
+        let last = await ( await this.get(filter, true)).limit(1).exec();
+        console.log(last);
+        return last.rows[0];
+    }
+
+    create = async (obj) => {
+        if(!obj[t_contract.price.name]){
+            obj = this.getLast(obj);
+            obj[t_payment.period.name] = Helper.getDate();
+        }
+        obj[t_payment.amount.name] = obj[t_contract.price.name];
+        obj[t_payment.status.name] = 'pending';
+        obj[t_payment.comment.name] = 'auto-generated';
+        obj[t_payment.date.name] = Helper.getDate();
+        await new Alert().create(this,obj);
+        return await this.set(obj);
+    }
+
+    createUntilNow = async (filter) => {
+        /*
+        const Payment = require('./payment');
+        let o = new Payment().create({
+            'contract_id': 12
+        });
+        */
+       //this.setFilter(filter);
+        let row = await this.getLast(filter);
+        let dates = Helper.getDateList(row[t_payment.period.name], new Date());
+        for(let i in dates){
+            row[t_payment.period.name] = dates[i];
+            await this.create(row);
+        }
     }
 
     sumBy = async (filter) => {
@@ -54,23 +90,19 @@ class Payment extends Model {
         GROUP BY ${group_by} YEAR(${(t_payment.period)}), MONTH(${(t_payment.period)})`);
     }
 
-    get = async (filter) => {
-        this.setFilter(filter);
-        return this.query(`SELECT 
-            ${(t_payment.id)},
-            ${(t_payment.amount)},
-            ${(t_payment.status)},
-            ${(t_payment.period.format("%Y-%m-%d"))},
-            ${(t_payment.date.format("%Y-%m-%d"))},
-            ${(t_client.first_name)},
-            ${(t_contract.id.as())},
-            ${(t_contract.estate_id)},
-            ${(t_contract.period_type)},
-            ${(t_contract.price)}
-        FROM ${(t_contract)}
-            LEFT JOIN ${(t_payment)} on (${(t_payment.contract_id)} = ${(t_contract.id)})
-            LEFT JOIN ${(t_client)} on ( ${(t_client.id)} = ${(t_contract.client_id)} )
-        ${(this.where())} ORDER BY ${(t_payment.period)} DESC`);
+    get = async (filter, asQuery = false) => {
+        let query = this.select(
+            t_payment.id,
+            t_payment.contract_id,
+            t_payment.amount,
+            t_payment.status,
+            t_payment.period,
+            t_payment.date,
+            t_contract.estate_id,
+            t_contract.period_type,
+            t_contract.price,
+            t_client.first_name,).setFilter(filter).orderDESC(t_payment.period);
+        return asQuery? query: query.exec();
     }
 
     withdraw = async (filter) => {

@@ -25,6 +25,7 @@ class Model {
     _where = [];
     _params = [];
     _order = [];
+    _limit = [];
     _select = {};
     _join = {};
     _tables = {};
@@ -167,8 +168,7 @@ class Model {
 
     async exec() {
         let sql = 'SELECT ' + Object.values(this._select).join(', ') +
-            ` FROM ${this.table} \n` + Object.values(this._join).join('') + ` ${this.getWhere()}`;
-        console.log(sql);
+            ` FROM ${this.table} \n` + Object.values(this._join).join('') + ` ${this.getWhere()} ${this.order()} ${this.limit()}`;
         return this.query(sql);
     }
 
@@ -227,17 +227,33 @@ class Model {
     }
 
     order(field, direction){
+        /*if(this._order.length === 0){
+            direction = '';
+        }*/
         if(typeof field == "undefined"){
             return (this._order.length === 0)? '': 'ORDER BY ' + this._order.join(',');
         }
-        direction = direction? direction: 'ASC';
-        if(this._order.length === 0){
-            direction = '';
-        }
+        direction = direction || 'ASC';
         if(this._select[field.name] !== field.full_name) {
             this._order.push(field.as() + ' ' + direction);
         } else {
             this._order.push(field.full_name + ' ' + direction);
+        }
+        return this;
+    }
+
+    limit(start, end){
+        if(typeof start == "undefined"){
+            return (this._limit.length === 0)? '': 'LIMIT ' + this._limit.join(',');
+        }
+        if(start && end){
+            this._limit.push('?');
+            this._limit.push('?');
+            this._params.push(start);
+            this._params.push(end);
+        } else if(start){
+            this._limit.push('?');
+            this._params.push(start);
         }
         return this;
     }
@@ -257,6 +273,7 @@ class Model {
         this._order = [];
         this._params = [];
         this._where = [];
+        this._limit = [];
         let from;
         for (let i = 0; i < arguments.length; i++){
             let field = arguments[i];
@@ -331,6 +348,7 @@ class Model {
             return res;
         }
         return this.db.raw(sql, this.params).then((res)=>{
+            //console.log(this.db);
             return fun(res);
         });
     }
@@ -346,11 +364,8 @@ class Model {
     }
 
     get = async (filter) => {
-        if(typeof filter !== 'undefined'){
-            this.setFilter(filter);
-        }
         //return this.query(`SELECT * FROM ${(this.table)} ${(this.getWhere())}`);
-        return this.select(this.table).exec();
+        return this.select(this.table).setFilter(filter).exec();
     }
     //get a data
     /*getOne = async (field, value, callback) => {

@@ -74,6 +74,13 @@ class Table {
         let me = this;
         let opt = {};
         console.log('me:', me);
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        const params = Object.fromEntries(urlSearchParams.entries());
+        for (let i in params) {
+            if(i !== 'id'){
+                me.ajax.data[i] = params[i];
+            }
+        }
         console.log('filter:', me.ajax.data);
         for (let key in me.ajax) {
             opt[key] = me.ajax[key];
@@ -85,12 +92,12 @@ class Table {
             //$('#accPages a['+estate_id+']').toggleClass( 'alert-secondary', true);
             console.log(xhr.response, status);
             if (typeof xhr.response.rows != 'undefined') {
-                var rows = xhr.response.rows;
-                var columns = xhr.response.columns;//Object.keys(xhr.response.rows[0]);
-                var thead = '<thead><tr>';
-                var tfoot = '<tfoot><tr>';
-                var tbody = '';
-                var data_filter = [];
+                let rows = xhr.response.rows;
+                let columns = xhr.response.columns;//Object.keys(xhr.response.rows[0]);
+                let thead_arr = [];
+                let tfoot_arr = [];
+                let tbody = '';
+                let data_filter = [];
                 console.log('rows',columns);
                 for (var i in columns.all) {
                     /*if(columns[i] != 'id')
@@ -100,9 +107,9 @@ class Table {
                     }
                     editable.push([i, columns[i]]);*/
                     let field = columns.all[i];
-                    thead += `<th><input name="${field}" type="text" value="${me.ajax.data[field] ? me.ajax.data[field] : ''}"/>
-                    <div><span class="fa fa-toggle-off" role="button"></span><span class="m-3">${field}</span></div></th>`;
-                    tfoot += '<th>' + field + '</th>';
+                    thead_arr.push(`<th><input name="${field}" type="text" value="${me.ajax.data[field] ? me.ajax.data[field] : ''}"/>
+                    <div><span class="fa fa-toggle-off" role="button"></span><span class="m-3">${field}</span></div></th>`);
+                    tfoot_arr.push('<th>' + field + '</th>');
                     if (typeof me.ajax.data[field] !== 'undefined') {
                         data_filter.push(`data-${field}="${me.ajax.data[field]}"`);
                     }
@@ -111,21 +118,20 @@ class Table {
                 let primary_key = columns.primary_key;
                 // let filter_str = JSON.stringify(table_data.data);
                 let modal = `type="button" callback="$table.load()" data-toggle="modal" data-target="#modal_window" url="/parts/window/${me.api}"`;
-                let addBtn = `<span action="set" ${data_filter + modal} class="fa fa-plus btn-sm btn-success"> </span><span class="fa fa-toggle-on" role="button"></span></th></tr>`;
-                thead += `<th>${addBtn}</thead>`;
-                tfoot += `<th>${addBtn}</th></tr></tfoot>`;
+                let addBtn = `<span action="set" ${data_filter + modal} class="fa fa-plus btn-sm btn-success"> </span><span class="fa fa-toggle-on" role="button"></span>`;
+                let thead = `<thead><tr><th>${addBtn}</th>${thead_arr.join('')}</tr></thead>`;
+                let tfoot = `<tfoot><tr><th>${addBtn}</th>${tfoot_arr.join('')}</tr></tfoot>`;
                 console.log('rows',rows);
                 for (var i in rows) {
-                    tbody += '<tr></td>';
+                    let attr = `${data_filter + modal} data-${primary_key}="${rows[i][primary_key]}"`;
+                    tbody += `<tr><td>
+                            <span action="set" ${attr} class="fa fa-pencil-alt btn-sm btn-primary"> </span>
+                            <span action="del" readonly="true" ${attr} class="fa fa-trash btn-sm btn-danger"> </span>
+                        </td>`;
                     for (var j in columns.all) {
                         let t_field = columns.all[j];
                         tbody += `<td name="${t_field}">` + (typeof rows[i][t_field] !== 'undefined' ? rows[i][t_field] : '') + '</td>';
                     }
-                    let attr = `${data_filter + modal} data-${primary_key}="${rows[i][primary_key]}"`;
-                    tbody += `<td>
-            <span action="set" ${attr} class="fa fa-pencil-alt btn-sm btn-primary"> </span>
-            <span action="del" readonly="true" ${attr} class="fa fa-trash btn-sm btn-danger"> </span>
-        </td>`;
                     tbody += '</tr><br/>';
                 }
                 $('#dataTable').html(thead + tbody + ((rows.length) ? tfoot : '')).attr('url', '/api/' + me.api + '/set');

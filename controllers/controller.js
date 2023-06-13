@@ -4,6 +4,7 @@
 const Error = require('./error')
 const fs = require('fs');
 const path = require('path');
+const Page = require('./page');
 
 //new Controller('Estate.js','test').navigate();
 class Controller {
@@ -63,7 +64,7 @@ class Controller {
             if ( !isDef && tplIndex === -1) {
                 //me.clazz = "Error";
                 //me.method = "404";
-                new Error(me)['404']();
+                new Error(new Page(me))['404']();
             } else {
                 let pageInst = null;
                 if(isDef){

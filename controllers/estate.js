@@ -9,17 +9,21 @@ class Estate extends Page {
      * @param { data: String } = req.body
      * @response {error(boolean), message(String), response(object:any)}
      */
-    add() {
+    set() {
         let req = this.controller.req;
-        const {data} = req.body
-        if (!data) {
+        const {data} = req.body;
+        this.controller.method = 'estate';
+        this.controller.req.body.data = data || {};
+        const Window = require('./parts/window');
+        new Window(this.controller).estate();
+        /*if (!data.id) {
             throw new Error("Enter Data")
         }
         new EstateModel().add({data}).then((results) => {
             this.sendData(results);
         }).catch((e) => {
             this.sendData(e);
-        });
+        });*/
     }
 
     /**

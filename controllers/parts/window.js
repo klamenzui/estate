@@ -58,9 +58,13 @@ class Window extends Page {
     }
 
     utilitymeter_current() {
-        this.setAccess("<1");
-        let req = this.controller.req;
-        this._sendDataFrom('utilitymeter', req.body.data);
+        try {
+            this.setAccess("<1");
+            let req = this.controller.req;
+            this._sendDataFrom('utilitymeter', req.body.data);
+        }catch (e) {
+            console.log(e);
+        }
     }
 
     async logout() {

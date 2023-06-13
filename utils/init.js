@@ -128,7 +128,7 @@ let init = {
                 'utilitymeter','utilityservice','utilityservice_formula','utilityservice_invoice','card','share'],
             'pages':['alert','animations','auth','blank','borders','buttons','cards','charts','client','colors',
                 'error','estate','home','icons','message','other','tables','task','user','utilitymeter'
-                ,'utilityservice','utilityservice_formula','utilityservice_invoice','contract','card','share'],
+                ,'utilityservice','utilityservice_formula','utilityservice_invoice','contract','card','share','payment'],
         }
     }
 };
@@ -155,9 +155,9 @@ app.locals.knex = require('knex')({
 });
 
 app.locals.knex.on('query', data => {
-    //console.log('----------[query]-------------');
-    //console.log(data);
-    //console.log('-----------------------');
+    console.log('----------[query]-------------');
+    console.log(data);
+    console.log('-----------------------');
 });
 
 app.locals.knex.on('query-response', (data, obj, builder) => {

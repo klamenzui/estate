@@ -6,6 +6,7 @@ const LocalStrategy = require('passport-local').Strategy;
 // load up the user model
 const UserModel = require('./user');
 const bcrypt = require('bcrypt-nodejs');
+const Helper = require('../utils/helper');
 //connection.end();
 // expose this function to our app using module.exports
 const passport = app.locals.passport;
@@ -65,6 +66,8 @@ passport.use(
                         // if there is no user with that username
                         // create the user
                         // use the generateHash function in our user model
+                        obj['gender'] = obj['gender'] || 'male';
+                        obj['img'] = 'user/' + obj['gender'] + '-' + Helper.getRandomNumber(1, 4) + '.svg';
                         obj['role_id'] = 2;
                         obj['password'] = bcrypt.hashSync(password, null, null);
                         new UserModel().set(obj).then(function (data) {

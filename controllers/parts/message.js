@@ -16,25 +16,30 @@ class Message extends Page {
 
 
     async preview() {
-        this.setAccess("<2");
-        const MessageModel = require('../../models/message');
-        const t_message = require('../../models/db/tables/message');
-        let message = await new MessageModel().get();
-        this.res = [];
-        if(message && message.rows){
-            console.log(message.rows);
-            for(let i in message.rows){
-                this.res.push({
-                    header: {
-                        img: (message.rows[i].from_img?message.rows[i].from_img:'')
-                    },
-                    body: message.rows[i].text,
-                    footer: (message.rows[i].from_user?message.rows[i].from_user+ ' ':'') + Helper.formatDate(message.rows[i].date,'h:m:s D.M.Y')
-                });
+        try {
+            this.setAccess("<2");
+            const MessageModel = require('../../models/message');
+            const t_message = require('../../models/db/tables/message');
+            let message = await new MessageModel().get();
+            this.res = [];
+            if(message && message.rows){
+                console.log(message.rows);
+                for(let i in message.rows){
+                    this.res.push({
+                        header: {
+                            img: (message.rows[i].from_img?message.rows[i].from_img:'')
+                        },
+                        body: message.rows[i].text,
+                        footer: (message.rows[i].from_user?message.rows[i].from_user+ ' ':'') + Helper.formatDate(message.rows[i].date,'h:m:s D.M.Y')
+                    });
+                }
             }
-        }
 
-        this.sendData(this.res);
+            this.sendData(this.res);
+
+        }catch (e) {
+            console.log(e);
+        }
     }
 
 }

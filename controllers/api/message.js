@@ -9,11 +9,16 @@ class Message extends Page {
         let req = this.controller.req;
         console.log(req.body);
         console.log('user data: ',req.user);
-        new Model().setAsTable(true).get(req.body).then((results) => {
-            this.sendData(results);
-        }).catch((e) => {
-            this.sendData(e);
-        });
+        try {
+            new Model().setAsTable(true).get(req.body).then((results) => {
+                this.sendData(results);
+            }).catch((e) => {
+                this.sendData(e);
+            });
+
+        }catch (e) {
+            console.log(e);
+        }
     }
 
     set() {
