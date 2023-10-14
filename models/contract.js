@@ -5,6 +5,7 @@ const t_contract = require('./db/tables/contract');
 const t_client = require('./db/tables/client');
 const t_estate = require('./db/tables/estate');
 const ModelPayment = require('./payment');
+const logger = require('../utils/logger')
 
 class Contract extends Model {
     constructor() {
@@ -29,10 +30,10 @@ WHERE contract_id = 6
         }
         try {
             let date_start = new Date(Helper.getDate(contract[`${t_contract.date_start.name}`]));
-            console.log(date_start);
+            logger.info(date_start);
             let monthDiff = Helper.getMonthDifference(date_start, new Date());
             let sum2pay = monthDiff * contract[`${t_contract.price.name}`];
-            console.log('sum2pay:',sum2pay);
+            logger.info('sum2pay:',sum2pay);
             let payed = await new ModelPayment().setFilter({[t_payment.contract_id.name]: contract[`${(t_contract.id.name)}`]})
                 .addFilter({[t_payment.period.name]:Helper.formatDate(date_start, 'Y-M-D')}, '>', 'AND')
                 .addFilter({[t_payment.period.name]:Helper.formatDate(new Date(), 'Y-M-01')}, '<', 'AND')
@@ -41,10 +42,10 @@ WHERE contract_id = 6
             payed = payed.rows[0];
             payed['total'] = payed.total?payed.total:0;
             let toPay = sum2pay - payed.total;
-            console.log('toPay:', toPay);
+            logger.info('toPay:', toPay);
             return toPay;
         } catch (e) {
-            console.log(e);
+            logger.error(e);
         }
 
     }
@@ -66,19 +67,20 @@ WHERE contract_id = 6
         //6 	7 	2 	active 	monthly 	3000 	2019-07-15 21:48:44 	0000-00-00 00:00:00
     }
 
-    close = async (obj) => {
-        if (typeof (obj)!= 'object' ||
-            (typeof obj[`${(t_contract.estate_id.name)}`] == "undefined" &&
-            typeof obj[`${(t_contract._primary_key)}`] == "undefined")
-        ) {
-            console.log(`${(t_contract.estate_id.name)} and ${(t_contract._primary_key.name)} are not set`);
-            return false;
+    async close(obj) {
+        if (typeof obj !== 'object' || (!obj[t_contract.estate_id.name] && !obj[t_contract._primary_key.name])) {
+            logger.info(`${t_contract.estate_id.name} and ${t_contract._primary_key.name} are not set`);
+            return;
         }
-        obj = await this.getCurrent(obj);
-        obj = obj[0];
-        obj[`${(t_contract.status.name)}`] = 'closed';
-        obj[`${(t_contract.date_end.name)}`] = Helper.formatDate(new Date(), 'Y-M-D');
-        return this.update(obj);
+
+        const currentObj = await this.getCurrent(obj);
+        if (!currentObj || !currentObj.length) return;
+
+        const updatedObj = currentObj[0];
+        updatedObj[t_contract.status.name] = 'closed';
+        updatedObj[t_contract.date_end.name] = Helper.formatDate(new Date(), 'Y-M-D');
+
+        return this.update(updatedObj);
     }
 
     get = async (filter) => {
@@ -86,7 +88,12 @@ WHERE contract_id = 6
             this.setFilter(filter);
         }
         // id 	client_id 	estate_id 	status 	period_type 	price 	date_start 	date_end
-        return this.query(`SELECT ${(t_contract.id)},${(t_contract.estate_id)},${(t_contract.client_id)},${(t_client.first_name)}, ${(t_client.last_name)},
+        return this.query(`SELECT ${t_contract.id},
+            ${t_contract.estate_id},
+            ${t_estate.description.as()},
+            ${t_contract.client_id}, 
+            ${t_client.description.as()}, 
+            ${(t_client.last_name)},
             ${(t_contract.status)}, ${(t_contract.period_type)}, ${(t_contract.price)}, 
             ${(t_contract.date_end.format("%Y-%m-%d"))},
             ${(t_contract.date_start.format("%Y-%m-%d"))}
@@ -94,17 +101,32 @@ WHERE contract_id = 6
             LEFT JOIN ${(t_estate)} on (${(t_estate.id)} = ${(t_contract.estate_id)})
             LEFT JOIN ${(t_client)} on (${(t_client.id)} = ${(t_contract.client_id)})
         ${(this.where())} ORDER BY ${(t_contract.date_start)} DESC`).catch((e) => {
-            console.log(e);
+            logger.error(e);
         });
     }
 
     set = async (obj) => {
+        /*
+        UPDATE payment
+        INNER JOIN contract
+        ON contract.id = payment.contract_id
+        SET payment.estate_id = contract.estate_id
+        WHERE payment.estate_id = 0;
+
+        SELECT * FROM `payment` WHERE estate_id = 6
+
+        UPDATE payment SET payment.status = 'transferred' WHERE payment.estate_id = 6 AND period <'2023-02-20';
+        SELECT * FROM `payment` WHERE estate_id =6 and period <='2022-09-16' and period>='2022-04-10'
+
+        INSERT INTO `estate`.`payment` (`id`, `contract_id`, `estate_id`, `amount`, `period`, `status`, `date`, `comment`) VALUES (NULL, '22', '6', '4000', '2022-08-01 00:00:00', 'transferred', '2022-08-01 00:00:00', 'test')
+         */
+
         let isNew = Helper.isEmpty(obj[this.primary_key]);
         if (isNew) {
             await this.close(obj);
-            return this.add(obj);//.catch(callback);
+            return await this.add(obj);//.catch(callback);
         } else {
-            return this.update(obj);
+            return await this.update(obj);
         }
     }
 

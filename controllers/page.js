@@ -2,6 +2,7 @@ const Response = require('../models/response');
 const Helper = require('../utils/helper');
 const Error = require('./error');
 const fs = require('fs');
+const logger = require('../utils/logger');
 
 class Page {
     tpl = 'index.ejs';
@@ -114,7 +115,8 @@ class Page {
     }
 
     sendData(results) {
-        /*if (err) {
+        try {
+            /*if (err) {
                     new Response(true, err.message, err));
                 } else {
                     //get token and set into cookie
@@ -125,62 +127,69 @@ class Page {
                     res.status(200).json(new Response(false, "data created successfully", obj))
                 }
                 */
-        if (results && Helper.isError(results)) {
-            let num = 500;
-            if (typeof results.num == 'number') {
-                num = results.num;
+            if (results && Helper.isError(results)) {
+                let num = 500;
+                if (typeof results.num == 'number') {
+                    num = results.num;
+                }
+                this.data = new Response(num, results.message, results);
+            } else {
+                //TODO: remove typeof results[0][0] == 'undefined'
+                results = (results && results[0] && results[0][0] ? results[0] : results);
+                this.data = new Response(false, "", results);
+                //res.status(200).json(new Response(false, "data created successfully", obj))
             }
-            this.data = new Response(num, results.message, results);
-        } else {
-            //TODO: remove typeof results[0][0] == 'undefined'
-            results = (results && results[0] && results[0][0] ? results[0] : results);
-            this.data = new Response(false, "", results);
-            //res.status(200).json(new Response(false, "data created successfully", obj))
-        }
-        if (this.isApi()) {
-            //this.controller.res.send(new Response(401, 'Unauthorized', {}));
-            this.controller.res.json(this.data);
-        } else {
-            let isTplExists = this.initTpl();
-            this.data['title'] = this.getTitle();
-            this.data['tplPath'] = this.tplPath;
-            this.data['page'] = this.clazz + '.' + this.method;
-            this.data['includes'] = this.includes;
-            this.data['sidebar'] = app.locals.config.gui.sidebar;
-            this.data['table'] = this.table ? this.table: this.clazz;
-            if (!isTplExists) {
-                this.data = new Response(404, {message: 'Not Found'});
-                this.data['page'] = 'error';
+            if (this.isApi()) {
+                //this.controller.res.send(new Response(401, 'Unauthorized', {}));
+                this.controller.res.json(this.data);
+            } else {
+                let isTplExists = this.initTpl();
+                this.data['title'] = this.getTitle();
+                this.data['tplPath'] = this.tplPath;
+                this.data['page'] = this.clazz + '.' + this.method;
+                this.data['includes'] = this.includes;
+                this.data['sidebar'] = app.locals.config.gui.sidebar;
+                this.data['table'] = this.table ? this.table: this.clazz;
+                if (!isTplExists) {
+                    this.data = new Response(404, {message: 'Not Found'});
+                    this.data['page'] = 'error';
+                }
+                this.controller.res.render(this.tpl, this.data);
             }
-            this.controller.res.render(this.tpl, this.data);
+        } catch (e) {
+            logger.error(e);
         }
-        return this;
-    }
+            return this;
+        }
 
     execMethod() {
-        let me = this;
-        if (me.isAuthenticated()) {
-            let method = Helper.getMethod(me, me.controller.method);
-            let isExists = !Helper.isEmpty(method);
-            if (!isExists) {
-                //this.controller.clazz = this.page = 'error';
-                //method = '404';
-                new Error(me)['404']();
+        try {
+            let me = this;
+            if (me.isAuthenticated()) {
+                let method = Helper.getMethod(me, me.controller.method);
+                let isExists = !Helper.isEmpty(method);
+                if (!isExists) {
+                    //this.controller.clazz = this.page = 'error';
+                    //method = '404';
+                    new Error(me)['404']();
+                } else {
+                    try {
+                        me.method = method;
+                        me[method]();
+                    }catch(e){
+                        new Error(me)['500'](e);
+                    }
+                }
             } else {
-                try {
-                    me.method = method;
-                    me[method]();
-                }catch(e){
-                    new Error(me)['500'](e);
+                if (me.isApi()) {
+                    //this['401']();
+                    new Error(me)['401']();
+                } else {
+                    me.controller.res.redirect('/auth/login');
                 }
             }
-        } else {
-            if (me.isApi()) {
-                //this['401']();
-                new Error(me)['401']();
-            } else {
-                me.controller.res.redirect('/auth/login');
-            }
+        } catch (e) {
+            logger.error(e);
         }
     }
 }

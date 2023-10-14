@@ -198,7 +198,7 @@ class Window extends Page {
                         case "object":
                             input.tag = 'select';
                             input.html = '';
-                            let options = [];
+                            let options = [`<option>not selected</option>`];
                             // enum or dependency table
                             for (let o in combo_data) {
                                 let selected = '';

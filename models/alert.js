@@ -12,7 +12,7 @@ class Alert extends Model {
         obj[t_alert.type.name] = ''+parent.constructor.name.toLowerCase();
         switch (obj[t_alert.type.name]) {
             case 'payment':
-                obj[t_alert.text.name] = 'Pending payment ('+row[t_payment.contract_id.name]+'):' + row[t_payment.amount.name]
+                obj[t_alert.text.name] = "Pending payment (${row[t_payment.contract_id.name]}):${row[t_payment.amount.name]}"
                 break;
         }
         return await this.set(obj);

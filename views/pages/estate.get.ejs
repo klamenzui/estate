@@ -32,6 +32,8 @@
 								<button type="button" class="btn btn-outline-primary" api="expense" data-estate_id="<%= rows[i].estate_id; %>" onclick="$table.new(this)" table_id="dataTable">Расход</button>
 								<button type="button" class="btn btn-outline-primary" api="payment" data-contract_id="<%= rows[i].contract_id; %>" onclick="$table.new(this)" table_id="dataTable">Доход</button>
 								<button type="button" class="btn btn-outline-primary" api="payment" data-contract_id="<%= rows[i].contract_id; %>" data-status="payed" onclick="withdrawInit(this)" table_id="dataTable">Перечислить Доход</button>
+                                <button type="button" class="btn btn-outline-primary" action="set" data-toggle="modal" data-target="#modal_window" data-id="<%= rows[i].contract_id; %>" url="/parts/window/contract">Текущий контракт</button>
+                                <button type="button" class="btn btn-outline-primary" action="set" data-toggle="modal" data-target="#modal_window" url="/parts/window/contract"> Новый контракт</button>
 
 								<ul class="list-group list-group-flush">
 									<li class="list-group-item">
@@ -72,7 +74,7 @@
 					<div name="toolbar" class="float-right search btn-group"></div>
 				</div>
 				<div class="card-body">
-					<div class="table-responsive">
+					<div class="table-responsive" style="height: 75vh;">
 						<table id="dataTable" class="table table-striped table-bordered"></table>
 						<div id="dataTablePagger"></div>
 

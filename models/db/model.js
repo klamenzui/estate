@@ -186,8 +186,9 @@ class Model {
                 if(view_field && (!this._select[view_field.name] || !this._select[view_field.as()])){
                     this._tables[table] = table_scheme;
                     this._addSelect(view_field);
-                    if(this.isAsTable())
+                    if(this.isAsTable()) {
                         return;
+                    }
                     //delete this._select[field.name];
                 }
             }

@@ -25,11 +25,12 @@ class Utilitymeter extends Model {
             t_utilityservice.group,
             t_utilityservice.name,
             t_utilityservice.unit,
+            t_utilitymeter.index
             //t_utilityservice.tariff_url,
             //t_utilityservice.tariff_selector,
         )
             .setFilter(filter)
-            .orderASC(t_utilitymeter.index.name).exec();
+            .orderASC(t_utilitymeter.index).exec();
     }
     updateCurrent = async (data) => {
         let filter = {};

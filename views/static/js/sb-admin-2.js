@@ -51,7 +51,8 @@ $app = {
             url:'/api/estate/getAddress',
             callback:function (xhr,status) {
                 let rows = xhr.response.rows;
-                let menuItems = [];
+                let modal = `type="button" callback="app.getAddress()" data-toggle="modal" data-target="#modal_window" url="/parts/window/estate"`;
+                let menuItems = [`<span action="set" ${modal} class="collapse-item fa fa-plus btn-sm btn-success"> Добавить</span>`];
                 for (let i in rows) {
                     let r = rows[i];
                     menuItems.push(`<a class="collapse-item" href="/estate/get?id=${r['estate_id']}">#${r['estate_id']}. ${r['street']} ${r['house_number']}, ${r['apartment_number']}</a>`);

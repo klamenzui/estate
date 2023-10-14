@@ -1,5 +1,5 @@
 //const mysql = require('mysql');
-//const util = require('util');
+const logger = require('./logger');
 fs = require('fs');
 const fsSyn = require('fs/promises');
 const path = require('path');
@@ -144,7 +144,7 @@ app.locals.wsSend = function(data){
                 app.locals.ws.send(_data);
             })(data);
         }catch (e) {
-            console.log('wsSend',e)
+            logger.error('wsSend',e)
         }
     }
 };
@@ -155,9 +155,9 @@ app.locals.knex = require('knex')({
 });
 
 app.locals.knex.on('query', data => {
-    console.log('----------[query]-------------');
-    console.log(data);
-    console.log('-----------------------');
+    logger.info('----------[query]-------------');
+    logger.info(data);
+    logger.info('-----------------------');
 });
 
 app.locals.knex.on('query-response', (data, obj, builder) => {
@@ -167,9 +167,9 @@ app.locals.knex.on('query-response', (data, obj, builder) => {
 });
 
 app.locals.knex.on('query-error', function (err, obj) {
-    console.log('----------[query-error]-------------');
-    console.log(err, obj);
-    console.log('-----------------------');
+    logger.info('----------[query-error]-------------');
+    logger.info(err, obj);
+    logger.info('-----------------------');
 });
 
 //config.db['connection'] = mysql.createConnection(config.db);
@@ -199,15 +199,15 @@ init['loadScheme'] = async () => {
         const directory = app.locals.base + 'models/db/tables/';
         // remove all files in folder tables
         for (const file of await fsSyn.readdir(directory)) {
-            console.log(path.join(directory, file));
+            logger.info(path.join(directory, file));
             await fsSyn.unlink(path.join(directory, file));
         }
 
         init['table_scheme'] = {};
         var tables = await app.locals.knex.raw(`SHOW TABLES`);
-        console.log(tables);
+        logger.info(tables);
         tables = tables[0];
-        console.log(tables);
+        logger.info(tables);
         for (let k in tables) {
             let table = tables[k]['Tables_in_' + init.db.database];
             try {
@@ -262,9 +262,9 @@ class ${className} extends Entity {
 }
 module.exports = new ${className}();`;
                 await fsSyn.writeFile(directory + className + '.js', src_code);
-                console.log('table_scheme saved');
+                logger.info('table_scheme saved');
             } catch (e) {
-                console.log(e);
+                logger.error(e);
             }
         }
     }
@@ -280,7 +280,7 @@ module.exports = new ${className}();`;
 //const user = 'root';//(`${process.env.NODE_ENV}` === "dev") ? `${process.env.USER2}` : `${process.env.USER}`;//private field
 //const pass = 'usbw';//(`${process.env.NODE_ENV}` === "dev") ? `${process.env.PASS2}` : `${process.env.PASS}`;//private field
 //const database = 'mvc';//(`${process.env.NODE_ENV}` === "dev") ? `${process.env.DB2}` : `${process.env.DB}`;//private field
-console.log(init);
+logger.info(init);
 
 /*
 //database: database connection via pool

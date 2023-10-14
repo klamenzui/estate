@@ -1,3 +1,4 @@
+const logger = require('../utils/logger');
 const Helper = require('../utils/helper');
 const BotModel = require('../models/bot');
 const ChatModel = require('../models/bot_chat');
@@ -23,6 +24,7 @@ class BotManager {
     memory;
     lastReq;
     actions = {};
+    history = {};
     static manager;
 
     constructor(name, callback) {
@@ -49,34 +51,42 @@ class BotManager {
         if (typeof this._chats[chat.id] == "undefined") {
             chat[t_bot_chat.code.name] = chat.id;
             this.bot_chat.add(chat).then(res => {
-                console.log(res);
+                logger.info(res);
                 this._chats[chat.id] = chat;
             });
         }
         return this;
     }
 
+    isMessageInHistory = (chat, msg) => {
+        let chatId = typeof chat == 'object' ? chat[t_bot_chat.code.name] : chat;
+        return this.history[chatId] && this.history[chatId].indexOf(msg) > -1;
+    }
+
     sendMessage = async (chat, res, opt) => {
         let chatId = typeof chat == 'object' ? chat[t_bot_chat.code.name] : chat;
-        console.log(res);
+        if(!this.history[chatId])
+            this.history[chatId] = [];
+        this.history[chatId].push(res);
+        logger.info(res);
         if (this.isChatOn(chatId)) {
             try{
                 await this.bot.sendMessage(chatId, res, opt);
             }catch(e){
-                console.log(chatId, res, opt,e);
+                logger.error(chatId, res, opt,e);
             }
         }
     }
     onText = async (msg, match) => {
-        console.log(msg);
-        console.log('msg', msg);
-        console.log('match', match);
+        logger.info(msg);
+        logger.info('msg', msg);
+        logger.info('match', match);
         const chatId = msg.chat.id;
         this.setChat(msg.chat);
         const messageId = msg.message_id;
         //if(msg.from.username.toLowerCase() == settings.chat_access_username.toLowerCase()){
         let access = this.isUserAllow(msg.from.username ? msg.from.username : msg.from.first_name + msg.from.last_name);
-        console.log('access', access);
+        logger.info('access', access);
         if (this.isChatOn(chatId) && access && match && match[1]) {
             /*await this.cmdExec(msg, match[1], res => {
                 if(res){
@@ -87,13 +97,13 @@ class BotManager {
             if (estate_id.length > 1) {
                 try {
                     estate_id = estate_id[1];
-                    console.log('cmdExec: estate_id = ', estate_id);
-                    console.log('cmdExec: ', msg.text);
+                    logger.info('cmdExec: estate_id = ', estate_id);
+                    logger.info('cmdExec: ', msg.text);
                     let response = await this.manager.process('ru', msg.text);
                     response.entities.push({entity:'estate_id',option:estate_id});
-                    console.log(response);
+                    logger.info(response);
                     response = await this.onIntent(response);
-                    console.log(response.answer);
+                    logger.info(response.answer);
                     if (response.answer) {
                         //await msg.reply.text(response.answer);
                         await this.sendMessage(chatId, response.answer);
@@ -105,7 +115,7 @@ class BotManager {
                     }
 
                 } catch (e){
-                    console.log(e);
+                    logger.error(e);
                 }
             }
         }
@@ -130,10 +140,10 @@ class BotManager {
         let files = fs.readdirSync(dirActions);
         for (let i in files) {
             let file = files[i].toLowerCase().split('.').slice(0, -1).join('.');
-            console.log(dirActions + file);
+            logger.info(dirActions + file);
             this.actions[file] = require(dirActions + file);
         }
-        console.log(this.actions);
+        logger.info(this.actions);
         //https://github.com/axa-group/nlp.js/blob/master/examples/14-ner-corpus/corpus.json
         this.manager = new NlpManager({
             "autoLoad": true,
@@ -187,13 +197,13 @@ class BotManager {
         model.get({name: name}).then((results) => {
             try {
                 let row = results.rows[0];
-                console.log('bot', row);
+                logger.info('bot', row);
                 if(row.status === 'on'){
                     this.initNpl();
                     this.bot = new TelegramBotAPI(row.token, JSON.parse(row.options));
                     this.users = row.useraccess;
                     this.bot.onText(new RegExp(row.pattern), this.onText);
-                    console.log(app.locals.config.ip);
+                    logger.info(app.locals.config.ip);
 
                     this.bot_chat = new ChatModel();
                     this.bot_chat.table = `${t_bot_chat}`;
@@ -208,7 +218,7 @@ class BotManager {
                     });
                 }
             } catch (e) {
-                console.log(e);
+                logger.error(e);
             }
             callback(this);
         });
@@ -223,13 +233,13 @@ class BotManager {
         // If it is, change the classified intent to the predefined one.
         //console.log('output:', JSON.stringify(this.req));
         if (!this.nextIntent && this.correction_step === 1) {
-            console.log('----[addDoc]-----');
-            console.log('last:', this.lastReq);
+            logger.info('----[addDoc]-----');
+            logger.info('last:', this.lastReq);
             if (this.lastReq && (this.lastReq.optionalUtterance || this.lastReq.utterance)) {
                 this.addData(this.lastReq.optionalUtterance || this.lastReq.utterance, this.req.intent);
                 this.req.answer = "Спасибо, исправился :)";
             } else {
-                console.log('nothing to add');
+                logger.error('nothing to add');
             }
             this.correction_step = 0;
         } else {
@@ -245,7 +255,7 @@ class BotManager {
                 try {
                     this.req.answer = await this.exec(new this.actions[action[0]](), action[1]);
                 } catch (e) {
-                    console.log(e);
+                    logger.error(e);
                 }
             } else if (this.req.intent === "None") {
                 this.req.answer = "Прости, Я не понял. Можешь перефразировать?";
@@ -339,7 +349,7 @@ class BotManager {
         this.nextIntent = obj.nextIntent;
         this.lastReq = obj.lastReq;
         this.memory = obj.memory;
-        console.log('exec:', obj, func);
+        logger.info('exec:', obj, func);
         return res;
     }
 

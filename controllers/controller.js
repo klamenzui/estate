@@ -5,6 +5,7 @@ const Error = require('./error')
 const fs = require('fs');
 const path = require('path');
 const Page = require('./page');
+const logger = require('../utils/logger');
 
 //new Controller('Estate.js','test').navigate();
 class Controller {
@@ -33,7 +34,7 @@ class Controller {
         }
         //isConstructor = me.clazz === 'constructor';
         //me.page = "home";
-        console.log(me.path, me.folder, me.clazz, me.method);
+        logger.info(me.path, me.folder, me.clazz, me.method);
         me.all = {};
         /*if(isConstructor){
             me.all['constructor'] = require('./constructor');
@@ -44,7 +45,7 @@ class Controller {
             me.all[files[i].toLowerCase().substring(0, files[i].indexOf('.'))] = require('./' + (me.folder? me.folder + '/':'') + files[i]);
         }
          //}
-        console.log(me.all);
+        logger.info(me.all);
         return me;
     }
 
@@ -58,7 +59,7 @@ class Controller {
                     break;
             }
             let clazz = '' + me.clazz;
-            console.log(me.clazz, me.method);
+            logger.info(me.clazz, me.method);
             let tplIndex = (app.locals.config.gui.router[me.folder] ? app.locals.config.gui.router[me.folder].indexOf(me.clazz): -1);
             let isDef = typeof me.all[clazz] !== 'undefined';
             if ( !isDef && tplIndex === -1) {
@@ -77,7 +78,7 @@ class Controller {
                 pageInst.execMethod();
             }
         } catch (err) {
-            console.log(err);
+            logger.error(err);
             new Error(me).sendData(err);
         }
     }

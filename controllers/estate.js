@@ -12,6 +12,7 @@ class Estate extends Page {
     set() {
         let req = this.controller.req;
         const {data} = req.body;
+        this.controller.tplPath = 'estate.set';
         this.controller.method = 'estate';
         this.controller.req.body.data = data || {};
         const Window = require('./parts/window');

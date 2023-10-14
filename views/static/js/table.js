@@ -107,11 +107,13 @@ class Table {
                     }
                     editable.push([i, columns[i]]);*/
                     let field = columns.all[i];
-                    thead_arr.push(`<th><input name="${field}" type="text" value="${me.ajax.data[field] ? me.ajax.data[field] : ''}"/>
+                    if(!field.endsWith('_id')){
+                        thead_arr.push(`<th><input name="${field}" type="text" value="${me.ajax.data[field] ? me.ajax.data[field] : ''}"/>
                     <div><span class="fa fa-toggle-off" role="button"></span><span class="m-3">${field}</span></div></th>`);
-                    tfoot_arr.push('<th>' + field + '</th>');
-                    if (typeof me.ajax.data[field] !== 'undefined') {
-                        data_filter.push(`data-${field}="${me.ajax.data[field]}"`);
+                        tfoot_arr.push('<th>' + field + '</th>');
+                        if (typeof me.ajax.data[field] !== 'undefined') {
+                            data_filter.push(`data-${field}="${me.ajax.data[field]}"`);
+                        }
                     }
                 }
                 data_filter = data_filter.join(' ');
@@ -130,7 +132,9 @@ class Table {
                         </td>`;
                     for (var j in columns.all) {
                         let t_field = columns.all[j];
-                        tbody += `<td name="${t_field}">` + (typeof rows[i][t_field] !== 'undefined' ? rows[i][t_field] : '') + '</td>';
+                        if(!t_field.endsWith('_id')) {
+                            tbody += `<td name="${t_field}">` + (typeof rows[i][t_field] !== 'undefined' ? rows[i][t_field] : '') + '</td>';
+                        }
                     }
                     tbody += '</tr><br/>';
                 }
